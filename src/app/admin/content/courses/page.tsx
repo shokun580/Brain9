@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { CourseList, CreateCourseForm } from "@/modules/content/ui";
-import { Card } from "@/shared/ui";
 
 export const metadata = { title: "จัดการคอร์ส" };
 
@@ -13,24 +12,24 @@ export const metadata = { title: "จัดการคอร์ส" };
 export default function AdminCoursesPage() {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-extrabold">จัดการคอร์ส</h1>
+      <h1 className="text-title font-bold">จัดการคอร์ส</h1>
 
       <section aria-labelledby="course-list-heading" className="flex flex-col gap-3">
-        <h2 id="course-list-heading" className="text-xl font-bold">
+        <h2 id="course-list-heading" className="text-heading font-bold">
           คอร์สทั้งหมด
         </h2>
-        <Suspense fallback={<p className="text-text-2">กำลังโหลดรายการคอร์ส…</p>}>
+        <Suspense fallback={<p className="text-body text-fg-2">กำลังโหลดรายการคอร์ส…</p>}>
           <CourseList />
         </Suspense>
       </section>
 
       <section aria-labelledby="course-create-heading">
-        <Card className="flex flex-col gap-4">
-          <h2 id="course-create-heading" className="text-xl font-bold">
+        <div className="flex flex-col gap-4 rounded-panel border border-line bg-surface p-5">
+          <h2 id="course-create-heading" className="text-heading font-bold">
             สร้างคอร์สใหม่
           </h2>
           <CreateCourseForm />
-        </Card>
+        </div>
       </section>
     </div>
   );

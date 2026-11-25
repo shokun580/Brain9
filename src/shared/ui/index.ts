@@ -1,6 +1,5 @@
 // Shared UI kit. OWNER: infra (team lead). Propose additions through a cross-module request.
 export { Button, type ButtonProps } from "./Button";
-export { Card } from "./Card";
 export { Checkbox, type CheckboxProps } from "./Checkbox";
 export { ComingSoon } from "./ComingSoon";
 export { ConfirmDialog, type ConfirmDialogProps } from "./ConfirmDialog";
