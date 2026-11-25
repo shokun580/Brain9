@@ -1,0 +1,18 @@
+import { describe, expect, it } from "vitest";
+import { html } from "../../../test/render";
+import { Select } from "./Select";
+
+const options = [{ value: "1", label: "ระดับ 1" }];
+
+describe("Select", () => {
+  it("renders native options", () => {
+    const out = html(<Select label="ระดับ" name="lv" options={options} />);
+    expect(out).toContain('<option value="1">ระดับ 1</option>');
+    expect(out).toContain('for="field-lv"');
+  });
+  it("shows errors", () => {
+    const out = html(<Select label="ระดับ" name="lv" options={options} errors={["เลือก"]} />);
+    expect(out).toContain('aria-invalid="true"');
+    expect(out).toContain("✕ เลือก");
+  });
+});

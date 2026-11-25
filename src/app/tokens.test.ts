@@ -99,6 +99,15 @@ describe("design tokens", () => {
     expect(high).toContain("--b9-on-primary: #000000;");
   });
 
+  it("removes shadows in high contrast and keeps them elsewhere", () => {
+    const high = block('html[data-contrast="high"] [data-ui="elder"]');
+    for (const name of ["cell", "cell-lit", "overlay"]) {
+      expect(high).toContain(`--b9-shadow-${name}: none;`);
+      expect(root).toMatch(new RegExp(`--b9-shadow-${name}: [^n;][^;]*;`));
+      expect(block("@theme inline")).toContain(`--shadow-${name}: var(--b9-shadow-${name});`);
+    }
+  });
+
   it("references only var(--b9-*) inside @theme inline colours", () => {
     const theme = block("@theme inline");
     expect(theme).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
