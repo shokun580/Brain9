@@ -35,12 +35,18 @@ export function Meter({ label, value, max, valueText, segments }: MeterProps) {
           {Array.from({ length: blocks }, (_, i) => (
             <span
               key={i}
-              className={cn("h-3 flex-1 rounded-full", i < lit ? "bg-primary" : "bg-surface-muted")}
+              className={cn(
+                "h-3 flex-1 rounded-full border",
+                i < lit ? "border-primary bg-primary" : "border-edge bg-surface-muted",
+              )}
             />
           ))}
         </div>
       ) : (
-        <div aria-hidden="true" className="mt-2 h-3 overflow-hidden rounded-full bg-surface-muted">
+        <div
+          aria-hidden="true"
+          className="mt-2 h-3 overflow-hidden rounded-full border border-edge bg-surface-muted"
+        >
           <div className="h-full rounded-full bg-primary" style={{ width: `${percent}%` }} />
         </div>
       )}

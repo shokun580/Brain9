@@ -24,8 +24,8 @@ export function StepProgress({ current, total }: StepProgressProps) {
             key={i}
             className={
               i < step
-                ? "h-2 flex-1 rounded-full bg-primary"
-                : "h-2 flex-1 rounded-full bg-surface-muted"
+                ? "h-2 flex-1 rounded-full border border-primary bg-primary"
+                : "h-2 flex-1 rounded-full border border-edge bg-surface-muted"
             }
           />
         ))}

@@ -17,8 +17,8 @@ export function Section({ eyebrow, title, action, first, children }: SectionProp
       className={cn(first ? "mt-5" : "mt-6 border-t-[length:var(--b9-border)] border-line pt-6")}
     >
       {eyebrow || title || action ? (
-        <div className="mb-3 flex items-start justify-between gap-3">
-          <div>
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+          <div className="min-w-0 flex-1 basis-40">
             {eyebrow ? <p className="text-small font-bold text-primary-press">{eyebrow}</p> : null}
             {title ? <h2 className="text-title font-bold text-fg">{title}</h2> : null}
           </div>

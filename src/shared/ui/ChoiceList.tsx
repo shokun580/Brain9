@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import type { ReactNode } from "react";
+import { FieldMessages, fieldWiring } from "./Field";
 
 export type ChoiceListProps = {
   name: string;
@@ -12,6 +13,11 @@ export type ChoiceListProps = {
     badge?: ReactNode;
     disabled?: boolean;
   }[];
+  /** Short help text; hidden while an error is shown. */
+  hint?: string;
+  /** Validation messages for this field (from ActionResult.fieldErrors). */
+  errors?: string[];
+  required?: boolean;
   /** Called with the option's value when the user picks it. */
   onValueChange?: (value: string) => void;
 };
@@ -25,10 +31,18 @@ export function ChoiceList({
   legend,
   defaultValue,
   options,
+  hint,
+  errors,
+  required,
   onValueChange,
 }: ChoiceListProps) {
+  const wiring = fieldWiring(name, undefined, hint, errors);
   return (
-    <fieldset className="m-0 min-w-0 border-0 p-0">
+    <fieldset
+      aria-describedby={wiring.describedBy}
+      aria-invalid={wiring.hasError ? true : undefined}
+      className="m-0 min-w-0 border-0 p-0"
+    >
       <legend className="mb-3 p-0 text-lead font-bold text-fg">{legend}</legend>
       <div className="flex flex-col gap-3">
         {options.map((option) => (
@@ -42,6 +56,7 @@ export function ChoiceList({
               value={option.value}
               defaultChecked={option.value === defaultValue}
               disabled={option.disabled}
+              required={required}
               onChange={onValueChange ? () => onValueChange(option.value) : undefined}
               className="sr-only"
             />
@@ -63,6 +78,9 @@ export function ChoiceList({
             </span>
           </label>
         ))}
+      </div>
+      <div className="mt-2 flex flex-col gap-2">
+        <FieldMessages hint={hint} errors={errors} wiring={wiring} />
       </div>
     </fieldset>
   );

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { html } from "../../../test/render";
-import { Button } from "./Button";
+import { Button, inertLinkProps } from "./Button";
 
 describe("Button", () => {
   it("defaults to type=button", () => {
@@ -115,5 +115,21 @@ describe("Button props that style it never reach the DOM", () => {
     expect(
       html(<Button {...own} href="/home" aria-disabled="true" aria-label="เมนู" />),
     ).not.toMatch(leaks);
+  });
+});
+
+describe("inertLinkProps", () => {
+  it("drops every on* handler and keeps aria, id, data and title", () => {
+    const props = inertLinkProps({
+      onClick: () => {},
+      onKeyDown: () => {},
+      onPointerDown: () => {},
+      "aria-label": "ไป",
+      id: "go",
+      title: "t",
+      "data-x": "1",
+      target: "_blank",
+    });
+    expect(Object.keys(props).sort()).toEqual(["aria-label", "data-x", "id", "title"]);
   });
 });

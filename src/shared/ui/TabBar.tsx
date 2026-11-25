@@ -28,7 +28,8 @@ export function TabBar({ items, hideOn = [] }: TabBarProps) {
   return (
     <nav
       aria-label="เมนูหลัก"
-      className="sticky bottom-0 z-10 grid grid-cols-4 border-t-[length:var(--b9-border)] border-line bg-surface px-1.5 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
+      className="sticky bottom-0 z-10 grid border-t-[length:var(--b9-border)] border-line bg-surface px-1.5 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
     >
       {items.map((item) => {
         const active = pathname !== null && isActivePath(pathname, item.href);

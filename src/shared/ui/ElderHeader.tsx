@@ -14,7 +14,7 @@ export type ElderHeaderProps = {
 
 /** Top bar of an elderly screen; its title is the page's h1. */
 export function ElderHeader({ title, greeting, name, backHref, action }: ElderHeaderProps) {
-  const heading = title ?? name;
+  const heading = title ?? name ?? greeting;
   return (
     <header className="flex min-h-control flex-wrap items-center justify-between gap-x-3 gap-y-2">
       {/* The text keeps a readable minimum width: when the action does not fit beside it, the
@@ -29,7 +29,9 @@ export function ElderHeader({ title, greeting, name, backHref, action }: ElderHe
             ย้อนกลับ
           </Link>
         ) : null}
-        {greeting ? <p className="text-small text-fg-muted">{greeting}</p> : null}
+        {greeting && heading !== greeting ? (
+          <p className="text-small text-fg-muted">{greeting}</p>
+        ) : null}
         {heading ? <h1 className="text-heading font-bold text-fg">{heading}</h1> : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}

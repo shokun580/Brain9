@@ -141,3 +141,109 @@ describe("ChoiceList onValueChange", () => {
     expect(withProp).toBe(without);
   });
 });
+
+describe("Meter and StepProgress stay visible in high contrast", () => {
+  it("gives the continuous track an edge", () => {
+    const m = html(<Meter label="x" value={2} max={5} valueText="t" />);
+    expect(m).toMatch(/class="[^"]*\bborder-edge\b[^"]*\bbg-surface-muted/);
+  });
+  it("gives every unlit block an edge and lit blocks the same border width", () => {
+    const m = html(<Meter label="x" value={2} max={5} valueText="t" segments />);
+    const blocks = m.match(/<span class="[^"]*"><\/span>/g) ?? [];
+    expect(blocks.length).toBe(5);
+    for (const block of blocks) expect(block).toMatch(/\bborder\b/);
+    expect(
+      blocks.filter((b) => b.includes("bg-surface-muted") && b.includes("border-edge")).length,
+    ).toBe(3);
+  });
+  it("gives unfilled step bars an edge", () => {
+    const s = html(<StepProgress current={1} total={3} />);
+    const bars = s.match(/<span class="[^"]*"><\/span>/g) ?? [];
+    expect(bars.length).toBe(3);
+    for (const bar of bars) expect(bar).toMatch(/\bborder\b/);
+    expect(
+      bars.filter((b) => b.includes("bg-surface-muted") && b.includes("border-edge")).length,
+    ).toBe(2);
+  });
+});
+
+describe("ChoiceList hint, errors and required", () => {
+  const options = [
+    { value: "a", title: "ก" },
+    { value: "b", title: "ข" },
+  ];
+  const base = html(<ChoiceList name="mode" legend="เลือก" options={options} />);
+  it("shows errors as an alert with a cross and wires the fieldset", () => {
+    const c = html(
+      <ChoiceList name="mode" legend="เลือก" options={options} errors={["กรุณาเลือก"]} />,
+    );
+    expect(c).toMatch(/<p[^>]*role="alert"[^>]*>✕ (<!-- -->)?กรุณาเลือก/);
+    const fieldset = c.match(/<fieldset[^>]*>/)?.[0] ?? "";
+    expect(fieldset).toContain('aria-invalid="true"');
+    expect(fieldset).toContain('aria-describedby="field-mode-error"');
+    expect(c).toContain('id="field-mode-error"');
+  });
+  it("shows the hint without errors and hides it with them", () => {
+    const withHint = html(
+      <ChoiceList name="mode" legend="เลือก" options={options} hint="เลือกได้หนึ่งข้อ" />,
+    );
+    expect(withHint).toContain("เลือกได้หนึ่งข้อ");
+    expect(withHint).toMatch(/<fieldset[^>]*aria-describedby="field-mode-hint"/);
+    expect(withHint).not.toContain("aria-invalid");
+    const both = html(
+      <ChoiceList name="mode" legend="เลือก" options={options} hint="เลือกได้หนึ่งข้อ" errors={["ผิด"]} />,
+    );
+    expect(both).not.toContain("เลือกได้หนึ่งข้อ");
+    expect(both).not.toContain("field-mode-hint");
+  });
+  it("passes required to every radio", () => {
+    const c = html(<ChoiceList name="mode" legend="เลือก" options={options} required />);
+    expect(inputOf(c, "a")).toContain("required");
+    expect(inputOf(c, "b")).toContain("required");
+    expect(inputOf(base, "a")).not.toContain("required");
+  });
+  it("leaves the markup unchanged without the new props", () => {
+    expect(base).not.toContain("aria-describedby");
+    expect(base).not.toContain("aria-invalid");
+    expect(base).not.toContain('role="alert"');
+    expect(html(<ChoiceList name="mode" legend="เลือก" options={options} errors={[]} />)).toBe(base);
+  });
+});
+
+describe("PinPad keys and announcements", () => {
+  const pad = (props: { disabled?: boolean } = {}) =>
+    html(<PinPad length={4} filled={2} onDigit={() => {}} onDelete={() => {}} {...props} />);
+  const buttonOf = (markup: string, text: string) =>
+    (markup.match(/<button[^>]*>[\s\S]*?<\/button>/g) ?? []).find(
+      (b) => b.includes(`>${text}<`) || b.endsWith(`${text}</button>`),
+    ) ?? "";
+  it("sets the font size per key", () => {
+    const p = pad();
+    const del = buttonOf(p, "ลบ");
+    expect(del).toContain("text-body");
+    expect(del).not.toContain("text-title");
+    expect(buttonOf(p, "5")).toContain("text-title");
+  });
+  it("announces progress politely and never the digits", () => {
+    const live = pad().match(/<[^>]*aria-live="polite"[^>]*>[^<]*<\/[a-z]+>/)?.[0] ?? "";
+    expect(live).toContain("sr-only");
+    expect(live).toContain("ใส่แล้ว 2 จาก 4 หลัก");
+  });
+  it("disables every key and mutes the pad", () => {
+    const p = pad({ disabled: true });
+    const buttons = p.match(/<button[^>]*>/g) ?? [];
+    expect(buttons.length).toBe(11);
+    for (const b of buttons) expect(b).toMatch(/ disabled=""/);
+    expect(p).toContain("disabled:opacity-60");
+    expect((pad().match(/<button[^>]* disabled=""/g) ?? []).length).toBe(0);
+  });
+});
+
+describe("ResultBanner heading", () => {
+  it("is a paragraph by default and a heading on request", () => {
+    expect(html(<ResultBanner tone="success" title="เก่งมาก" />)).not.toMatch(/<h[1-3]/);
+    expect(html(<ResultBanner tone="success" title="เก่งมาก" headingLevel={1} />)).toMatch(
+      /<h1[^>]*>เก่งมาก<\/h1>/,
+    );
+  });
+});

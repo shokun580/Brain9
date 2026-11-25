@@ -32,6 +32,15 @@ function withoutLinkAttributes<T extends object>(
   return copy as Omit<T, (typeof linkOnlyAttributes)[number]>;
 }
 
+/** Props for the span that stands in for a disabled link: no link attributes, no event handlers. */
+export function inertLinkProps<T extends object>(props: T): Partial<T> {
+  const copy: Record<string, unknown> = { ...withoutLinkAttributes(props) };
+  for (const key of Object.keys(copy)) {
+    if (/^on[A-Z]/.test(key)) delete copy[key];
+  }
+  return copy as Partial<T>;
+}
+
 type Own = {
   variant?: Variant;
   size?: "default" | "sm";
@@ -75,7 +84,7 @@ export function Button({
       disabled?: boolean;
     };
     const { disabled, ...anchorProps } = anchor;
-    const spanProps = withoutLinkAttributes(anchorProps);
+    const spanProps = inertLinkProps(anchorProps);
     // A disabled link must not navigate: drop the href and the link behaviour, keep the look.
     if (disabled || anchor["aria-disabled"] === true || anchor["aria-disabled"] === "true") {
       return <span {...spanProps} role="link" aria-disabled="true" className={classes} />;

@@ -27,6 +27,12 @@ describe("ElderHeader", () => {
     expect(out).toMatch(/<div class="[^"]*\bflex-1\b[^"]*\bbasis-40\b/);
     expect(out).toMatch(/<div class="shrink-0"><i><\/i><\/div>/);
   });
+  it("uses a lone greeting as the only h1", () => {
+    const out = html(<ElderHeader greeting="สวัสดีตอนเช้า" />);
+    expect((out.match(/<h1/g) ?? []).length).toBe(1);
+    expect(out).toMatch(/<h1[^>]*>สวัสดีตอนเช้า<\/h1>/);
+    expect(out).not.toContain("<p");
+  });
   it("renders the action slot and no back link by default", () => {
     const out = html(<ElderHeader title="t" action={<button>ก</button>} />);
     expect(out).toContain("<button>ก</button>");
@@ -61,6 +67,19 @@ describe("Section", () => {
     expect(out).toMatch(/<h2[^>]*>หัวข้อ<\/h2>/);
     expect(out).toContain("ดูทั้งหมด");
     expect(out).toContain("เนื้อหา");
+  });
+});
+
+describe("Section header with an action", () => {
+  it("wraps instead of squeezing the title", () => {
+    const out = html(
+      <Section title="หัวข้อ" action={<i />}>
+        x
+      </Section>,
+    );
+    expect(out).toMatch(/<div class="[^"]*\bflex-wrap\b/);
+    expect(out).toMatch(/<div class="[^"]*\bmin-w-0\b[^"]*\bflex-1\b/);
+    expect(out).toMatch(/<div class="shrink-0"><i><\/i><\/div>/);
   });
 });
 
