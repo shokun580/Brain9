@@ -4,6 +4,10 @@
 #
 #   ./scripts/setup-github.sh
 #
+# Sets up: merge settings, the staging branch, labels, and the staging / production
+# environments. It does NOT protect branches - that is the ruleset described in
+# docs/deployment.md.
+#
 # It is safe to run again: every step creates-or-updates.
 # Requires: gh (authenticated as a repository admin).
 set -euo pipefail
@@ -54,30 +58,18 @@ gh api -X PUT "repos/$REPO/environments/production" --input - >/dev/null <<JSON
 JSON
 echo "✓ environments (production requires approval from $(gh api user --jq .login))"
 
-# ---------------------------------------------------------------- branch protection
-protect() {
-  gh api -X PUT "repos/$REPO/branches/$1/protection" --input - >/dev/null <<JSON
-{
-  "required_status_checks": {
-    "strict": true,
-    "contexts": ["target-guard", "check", "migrations"]
-  },
-  "enforce_admins": false,
-  "required_pull_request_reviews": {
-    "required_approving_review_count": 1,
-    "require_code_owner_reviews": true,
-    "dismiss_stale_reviews": true
-  },
-  "restrictions": null,
-  "allow_force_pushes": false,
-  "allow_deletions": false,
-  "required_conversation_resolution": true
-}
-JSON
-  echo "✓ branch protection: $1"
-}
-protect main
-protect staging
+# ---------------------------------------------------------------- branch rules
+# main and staging are protected by a repository RULESET created in the GitHub UI
+# (Settings -> Rules -> Rulesets), not by this script. The exact values are listed in
+# docs/deployment.md. Creating classic branch protection here as well would stack a
+# second, conflicting set of rules on the same branches.
+active_rulesets="$(gh api "repos/$REPO/rulesets" --jq '[.[] | select(.target == "branch" and .enforcement == "active")] | length' 2>/dev/null || echo 0)"
+if [ "$active_rulesets" -gt 0 ]; then
+  echo "✓ branch ruleset: $active_rulesets active"
+else
+  echo "! no active branch ruleset found - main and staging are NOT protected yet"
+  echo "  create it now: https://github.com/$REPO/settings/rules (values in docs/deployment.md)"
+fi
 
 cat <<'NEXT'
 

@@ -79,24 +79,58 @@ gh variable set DEPLOY_ENABLED --body true      # do this last: it switches the 
 Until `DEPLOY_ENABLED` is `true` the deploy jobs are skipped, so merging before the setup
 is finished does not produce failed runs.
 
-### 4. Branches, protection, labels, environments
+### 4. Branch ruleset
+
+`main` and `staging` are protected by one repository ruleset, created by hand at
+**Settings → Rules → Rulesets → New branch ruleset**:
+
+| Field              | Value                                                         |
+| ------------------ | ------------------------------------------------------------- |
+| Ruleset name       | `protect-main-and-staging`                                    |
+| Enforcement status | **Active**                                                    |
+| Bypass list        | **Repository admin**, allowed for pull requests only          |
+| Target branches    | _Include default branch_, plus _Include by pattern_ `staging` |
+
+Rules to enable:
+
+- **Restrict deletions**
+- **Block force pushes**
+- **Require a pull request before merging** — required approvals `1`, dismiss stale
+  approvals, require review from Code Owners, require conversation resolution; allowed
+  merge methods: merge and squash
+- **Require status checks to pass** — require branches to be up to date; checks
+  `target-guard`, `check`, `migrations`
+
+Leave everything else off. In particular **Restrict updates** would block every merge,
+**Restrict creations** would stop the `staging` branch from being created, and **Require
+linear history** would reject the release pull request, which uses a merge commit.
+
+The admin bypass exists because the lead cannot approve their own pull requests; use it
+only for that.
+
+### 5. Staging branch, labels, environments
+
+Merge the infrastructure pull request into `main` **first** — the `target-guard` check
+starts rejecting pull requests into `main` from other branches as soon as `staging`
+exists. Then:
 
 ```bash
 ./scripts/setup-github.sh
 ```
 
-The script (read it first) creates the `staging` branch, the labels, the `staging` and
-`production` environments (production requires your approval), and branch protection for
-`main` and `staging`.
+The script (read it first) sets the merge options, creates the `staging` branch from
+`main`, the labels, and the `staging` and `production` environments (production requires
+your approval). It does not touch branch rules; it only reports whether an active ruleset
+exists.
 
-### 5. Project board
+### 6. Project board
 
 Create a GitHub Project (board layout) named "Brain9", add the columns from
 `docs/workflow.md`, and link the repository.
 
-### 6. First deploy
+### 7. First deploy
 
-1. Merge the infrastructure PR into `main`, then run the script from step 4.
+1. Finish steps 1–5 above.
 2. Push any commit to `staging` (or re-run the _Deploy staging_ workflow).
 3. Open `https://<staging domain>/api/health` → `{"status":"ok","env":"staging",…}`.
 4. Seed staging once from your machine with the staging **direct** URL, without saving it
