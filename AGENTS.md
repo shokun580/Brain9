@@ -147,9 +147,23 @@ without a database.
   That one-line edit is allowed, but the other owner must approve the PR.
 - CHECK constraints and partial unique indexes are hand-written SQL appended to the
   migration (Prisma cannot express them). Keep them when you touch those columns.
-- Append-only tables — `user_consents`, `audit_logs`, completed `item_results` /
-  `item_attempts` — are never updated or deleted by application code.
-- Content is soft-deleted (`deleted_at`); users are anonymized, not deleted.
+- **Soft delete only.** No row is ever physically deleted. Every table has `deleted_at`;
+  removing something sets it (`data: softDelete()` from `@/shared/lib/soft-delete`).
+  `db.<model>.delete()` / `.deleteMany()` are an ESLint error, raw SQL `DELETE` / `TRUNCATE`
+  is forbidden the same way, and no relation uses `onDelete: Cascade`.
+- **Read live rows by default.** Every query filters `deleted_at IS NULL`
+  (`where: notDeleted`), including nested relations and counts. Include deleted rows only
+  for a stated reason, and say why in a comment.
+- **Ledgers are the exception.** `user_consents`, `audit_logs`, `item_results` and
+  `item_attempts` are append-only: no `deleted_at`, never deleted, and never updated once
+  written (results: once the item is completed).
+- A value that must be reusable after a soft delete (a phone number, a center code) is
+  unique through a hand-written partial index `WHERE "deleted_at" IS NULL`, so there is no
+  `@unique` in the schema: look it up with `findFirst` + `notDeleted`, not `findUnique` /
+  `upsert`. A new model needs `deletedAt` and this decision for each of its unique rules.
+- **PDPA erasure overwrites, it does not delete.** The personal fields of the person's
+  rows are overwritten (anonymised) and every row is kept — see
+  [`src/modules/identity/AGENTS.md`](src/modules/identity/AGENTS.md) for the columns.
 - Table catalogue and ERD: [`docs/database.md`](docs/database.md).
 
 ## 6. Hot files — lead approval required

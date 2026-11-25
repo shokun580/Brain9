@@ -33,8 +33,11 @@ To add: sign-up, login, logout, consent, device registration (as Server Actions 
 
 **Login**
 
-- Identifier is the phone number (digits only, unique). Elderly users use a 4–6 digit PIN;
-  admins use a long password. Both are stored as bcrypt hashes in `credential_hash`.
+- Identifier is the phone number (digits only, unique among accounts that are not
+  soft-deleted — a partial unique index, so find a user with
+  `findFirst({ where: { phone, ...notDeleted } })`; there is no `findUnique` on `phone`).
+  Elderly users use a 4–6 digit PIN; admins use a long password. Both are stored as bcrypt
+  hashes in `credential_hash`.
 - Count failures in `failed_login_count`; lock with `locked_until`. Messages must not
   reveal whether a phone number exists.
 - Session = random token in an HttpOnly, Secure, SameSite=Lax cookie (`brain9_session`);
@@ -56,8 +59,32 @@ home center. Nothing else without the lead's approval (PDPA data minimisation).
   easy as granting it. Withdrawing `COGNITIVE_DATA` stops analytics for that user;
   withdrawing `PERSONAL_DATA` or `TERMS_OF_USE` ends the sessions and starts an erasure request.
 - Users can view their stored data, correct it, and request erasure
-  (`data_subject_requests`, due within 30 days). Erasure = anonymize the `users` row
-  (`status = ANONYMIZED`, `phone = NULL`, names replaced) and delete emergency contacts.
+  (`data_subject_requests`, due within 30 days).
+- **Erasure** = anonymise the `users` row and overwrite the personal fields of its
+  `emergency_contacts`; no row is deleted (root `AGENTS.md` §5, decided 2026-11-26). In one
+  transaction, after ending the person's open `auth_sessions`, overwrite exactly:
+
+  | Table                | Column                                   | Becomes                                                |
+  | -------------------- | ---------------------------------------- | ------------------------------------------------------ |
+  | `users`              | `phone`                                  | `NULL`                                                 |
+  | `users`              | `first_name`, `last_name`                | one fixed placeholder, never derived from the old name |
+  | `users`              | `birth_date`, `gender`, `home_center_id` | `NULL`                                                 |
+  | `users`              | `credential_hash`, `locked_until`        | `NULL`                                                 |
+  | `users`              | `failed_login_count`                     | `0`                                                    |
+  | `users`              | `status`                                 | `ANONYMIZED`                                           |
+  | `users`              | `anonymized_at`                          | now                                                    |
+  | `emergency_contacts` | `name`                                   | the same fixed placeholder                             |
+  | `emergency_contacts` | `relationship`                           | `NULL`                                                 |
+  | `emergency_contacts` | `phone`                                  | `''` (the column is NOT NULL)                          |
+
+  Overwrite every `emergency_contacts` row of the user, including soft-deleted ones. Leave
+  `deleted_at` alone on both tables: erasure is not a soft delete, and the anonymised user
+  must stay visible to aggregate statistics. Never touch `user_consents` or `audit_logs`
+  (append-only); record the erasure with `recordAudit()` without copying the old values.
+  The action itself is on this lane's backlog (step 5 below).
+
+- Nothing in this lane is hard-deleted: removing an emergency contact, a center, a device
+  or an account sets `deleted_at`; signing out sets `auth_sessions.ended_at`.
 - Any ADMIN read or change of someone else's data calls `recordAudit()`.
 
 **Center devices (kiosk mode)**

@@ -3,6 +3,31 @@
 Short records of decisions that shape the code. Add a new entry at the top; do not rewrite
 old ones — supersede them.
 
+## 2026-11-26 — Soft delete everywhere; erasure anonymises in place (team lead)
+
+**Every table is soft-delete only.** Application code never physically deletes a row; it
+sets `deleted_at`, and queries read `deleted_at IS NULL` by default. Why: results,
+bookings, consents and audit entries all point at users, centers and content, so a hard
+delete either fails or silently takes history with it (five relations used
+`ON DELETE CASCADE`); a mistake by an admin must be recoverable; and four people with four
+AI assistants need one rule that needs no judgement per table. Enforced by an ESLint rule
+(`.delete()` / `.deleteMany()` on the Prisma client), by `ON DELETE RESTRICT` on the former
+cascades, and by review. Unique rules whose value must be reusable (phone, center code,
+device label, schedule template, time slot, level criterion) became partial unique indexes
+over live rows. Table-by-table list: [`database.md`](database.md#soft-delete).
+
+**Append-only ledgers are exempt.** `user_consents`, `audit_logs`, `item_results` and
+`item_attempts` are evidence: inserted once, never updated (results: once completed) and
+never removed, so they have no `deleted_at`.
+
+**PDPA erasure overwrites personal fields and keeps the rows.** When a person asks for
+erasure, the `users` row is anonymised and the personal fields of its `emergency_contacts`
+are overwritten; no row is deleted. Why: it removes what identifies the person while every
+foreign key and every aggregate statistic stays valid, and it keeps one rule ("nothing is
+deleted") instead of an exception for emergency contacts. This supersedes "emergency
+contacts are deleted on erasure" in the 2026-11-25 notes. Erasure is not a soft delete: an
+anonymised user keeps `deleted_at = NULL`.
+
 ## 2026-11-25 — Foundation decisions (team lead)
 
 **Stack.** One Next.js full-stack app (App Router, TypeScript), Prisma ORM, Neon
@@ -67,3 +92,5 @@ Prisma stays on 7.x while 8 is a release candidate.
 | 6   | Is "one booking per day" per center or across all centers (currently: all) | booking                       |
 | 7   | Meaning of difficulty levels 1–5 in terms of sequence length and timing    | content                       |
 | 8   | Data retention period for results of inactive accounts                     | lead                          |
+| 9   | On erasure, also clear IP / user agent on the person's `auth_sessions`?    | lead + identity               |
+| 10  | On erasure, keep a coarse birth year / gender for statistics? (now: no)    | lead + analytics              |
