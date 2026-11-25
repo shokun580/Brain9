@@ -13,9 +13,10 @@ export function Select({
   options,
   className,
   id,
+  "aria-describedby": describedBy,
   ...props
 }: SelectProps) {
-  const wiring = fieldWiring(name, id, hint, errors);
+  const wiring = fieldWiring(name, id, hint, errors, describedBy);
   return (
     <FieldShell label={label} hint={hint} errors={errors} wiring={wiring}>
       <select

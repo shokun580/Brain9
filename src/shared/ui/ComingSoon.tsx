@@ -4,9 +4,9 @@ import { EmptyState } from "./EmptyState";
 export function ComingSoon({ title, owner }: { title: string; owner: string }) {
   return (
     <div className="mx-auto mt-10 max-w-xl">
-      <h1 className="sr-only">{title}</h1>
       <EmptyState
         title={title}
+        headingLevel={1}
         description="หน้านี้ยังไม่ได้พัฒนา"
         action={
           <p className="text-small text-fg-muted">

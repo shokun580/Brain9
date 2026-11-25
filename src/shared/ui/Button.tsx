@@ -12,6 +12,35 @@ const variants: Record<Variant, string> = {
   danger: "bg-danger text-on-danger active:opacity-90",
 };
 
+const linkOnlyAttributes = [
+  "target",
+  "rel",
+  "download",
+  "hrefLang",
+  "ping",
+  "referrerPolicy",
+  "type",
+  "media",
+] as const;
+
+/** Drops the attributes that only make sense on a real link. */
+function withoutLinkAttributes<T extends object>(
+  props: T,
+): Omit<T, (typeof linkOnlyAttributes)[number]> {
+  const copy: Record<string, unknown> = { ...(props as Record<string, unknown>) };
+  for (const key of linkOnlyAttributes) delete copy[key];
+  return copy as Omit<T, (typeof linkOnlyAttributes)[number]>;
+}
+
+/** Props for the span that stands in for a disabled link: no link attributes, no event handlers. */
+export function inertLinkProps<T extends object>(props: T): Partial<T> {
+  const copy: Record<string, unknown> = { ...withoutLinkAttributes(props) };
+  for (const key of Object.keys(copy)) {
+    if (/^on[A-Z]/.test(key)) delete copy[key];
+  }
+  return copy as Partial<T>;
+}
+
 type Own = {
   variant?: Variant;
   size?: "default" | "sm";
@@ -50,8 +79,17 @@ export function Button({
   );
 
   if ("href" in props && props.href !== undefined) {
-    const { href, ...anchor } = props as AnchorHTMLAttributes<HTMLAnchorElement> & { href: string };
-    return <Link href={href} className={classes} {...anchor} />;
+    const { href, ...anchor } = props as AnchorHTMLAttributes<HTMLAnchorElement> & {
+      href: string;
+      disabled?: boolean;
+    };
+    const { disabled, ...anchorProps } = anchor;
+    const spanProps = inertLinkProps(anchorProps);
+    // A disabled link must not navigate: drop the href and the link behaviour, keep the look.
+    if (disabled || anchor["aria-disabled"] === true || anchor["aria-disabled"] === "true") {
+      return <span {...spanProps} role="link" aria-disabled="true" className={classes} />;
+    }
+    return <Link href={href} className={classes} {...anchorProps} />;
   }
   const { type = "button", ...button } = props as ButtonHTMLAttributes<HTMLButtonElement>;
   return <button ref={ref} type={type} className={classes} {...button} />;

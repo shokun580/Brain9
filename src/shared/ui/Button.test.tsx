@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { html } from "../../../test/render";
-import { Button } from "./Button";
+import { Button, inertLinkProps } from "./Button";
 
 describe("Button", () => {
   it("defaults to type=button", () => {
@@ -46,5 +46,90 @@ describe("Button", () => {
         </Button>,
       ),
     ).toContain("aspect-square");
+  });
+});
+
+describe("Button as a disabled link", () => {
+  it("renders no href when aria-disabled", () => {
+    const out = html(
+      <Button href="/home" aria-disabled="true">
+        ไป
+      </Button>,
+    );
+    expect(out).not.toContain("href=");
+    expect(out).toContain('aria-disabled="true"');
+    expect(out).toContain("min-h-control");
+  });
+  it("renders no href when disabled", () => {
+    const out = html(
+      <Button href="/home" disabled>
+        ไป
+      </Button>,
+    );
+    expect(out).not.toContain("href=");
+    expect(out).toContain('aria-disabled="true"');
+  });
+  it("keeps the caller's attributes and drops link-only ones", () => {
+    const out = html(
+      <Button
+        href="/home"
+        disabled
+        iconOnly
+        aria-label="ย้อนกลับ"
+        id="back"
+        data-x="1"
+        title="t"
+        target="_blank"
+        rel="noopener"
+      >
+        <svg />
+      </Button>,
+    );
+    expect(out).toContain('aria-label="ย้อนกลับ"');
+    expect(out).toContain('id="back"');
+    expect(out).toContain('data-x="1"');
+    expect(out).toContain('title="t"');
+    expect(out).toContain('role="link"');
+    expect(out).toContain('aria-disabled="true"');
+    expect(out).toContain("aspect-square");
+    expect(out).not.toMatch(/ href=| target=| rel=| disabled=/);
+  });
+  it("renders an enabled link without a disabled attribute", () => {
+    const out = html(<Button href="/home">ไป</Button>);
+    expect(out).toMatch(/<a[^>]*href="\/home"/);
+    expect(out).not.toMatch(/ disabled[ =>]/);
+  });
+});
+
+describe("Button props that style it never reach the DOM", () => {
+  const leaks = /fullwidth|icononly|variant=|size=/i;
+  const own = { fullWidth: true, iconOnly: true, variant: "secondary", size: "sm" } as const;
+
+  it("on a button", () => {
+    expect(html(<Button {...own} aria-label="เมนู" />)).not.toMatch(leaks);
+  });
+  it("on a link", () => {
+    expect(html(<Button {...own} href="/home" aria-label="เมนู" />)).not.toMatch(leaks);
+  });
+  it("on a disabled link", () => {
+    expect(
+      html(<Button {...own} href="/home" aria-disabled="true" aria-label="เมนู" />),
+    ).not.toMatch(leaks);
+  });
+});
+
+describe("inertLinkProps", () => {
+  it("drops every on* handler and keeps aria, id, data and title", () => {
+    const props = inertLinkProps({
+      onClick: () => {},
+      onKeyDown: () => {},
+      onPointerDown: () => {},
+      "aria-label": "ไป",
+      id: "go",
+      title: "t",
+      "data-x": "1",
+      target: "_blank",
+    });
+    expect(Object.keys(props).sort()).toEqual(["aria-label", "data-x", "id", "title"]);
   });
 });

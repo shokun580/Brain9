@@ -23,13 +23,18 @@ export function fieldWiring(
   id: string | undefined,
   hint: string | undefined,
   errors: string[] | undefined,
+  /** A caller-supplied aria-describedby, kept after the component's own id. */
+  extraDescribedBy?: string,
 ): FieldWiring {
   const fieldId = id ?? `field-${name}`;
   const hasError = Boolean(errors?.length);
   return {
     id: fieldId,
     hasError,
-    describedBy: hasError ? `${fieldId}-error` : hint ? `${fieldId}-hint` : undefined,
+    describedBy:
+      [hasError ? `${fieldId}-error` : hint ? `${fieldId}-hint` : undefined, extraDescribedBy]
+        .filter(Boolean)
+        .join(" ") || undefined,
   };
 }
 
@@ -57,6 +62,19 @@ export function FieldShell({
         {label}
       </label>
       {children}
+      <FieldMessages hint={hint} errors={errors} wiring={wiring} />
+    </div>
+  );
+}
+
+/** Hint (hidden while an error shows) and the error line. Errors carry a ✕ so colour is never the only cue. */
+export function FieldMessages({
+  hint,
+  errors,
+  wiring,
+}: Pick<FieldBase, "hint" | "errors"> & { wiring: FieldWiring }) {
+  return (
+    <>
       {hint && !wiring.hasError ? (
         <p id={`${wiring.id}-hint`} className="text-small text-fg-muted">
           {hint}
@@ -67,6 +85,6 @@ export function FieldShell({
           ✕ {errors?.join(" ")}
         </p>
       ) : null}
-    </div>
+    </>
   );
 }
