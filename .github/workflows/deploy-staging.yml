@@ -42,8 +42,11 @@ jobs:
       - name: Pull staging settings and environment variables from Vercel
         run: vercel pull --yes --environment=preview --git-branch=staging --token="$VERCEL_TOKEN"
 
+      # Always name the target. Without it Vercel may treat a deployment as production
+      # (it does so for the first deployment of a project), which would put a staging
+      # build on the production domain.
       - name: Build
-        run: vercel build --token="$VERCEL_TOKEN"
+        run: vercel build --target=preview --token="$VERCEL_TOKEN"
 
       - name: Apply database migrations (Neon branch "staging")
         env:
@@ -55,7 +58,7 @@ jobs:
         env:
           STAGING_DOMAIN: ${{ vars.STAGING_DOMAIN }}
         run: |
-          url="$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")"
+          url="$(vercel deploy --prebuilt --target=preview --token="$VERCEL_TOKEN")"
           if [ -n "$STAGING_DOMAIN" ]; then
             vercel alias set "$url" "$STAGING_DOMAIN" --token="$VERCEL_TOKEN"
             url="https://$STAGING_DOMAIN"
