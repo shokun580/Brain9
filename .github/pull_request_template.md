@@ -34,7 +34,7 @@ Closes #
 - [ ] Every new query / action / route handler authorizes on the server
 - [ ] All input validated with Zod on the server
 - [ ] New logic has unit tests
-- [ ] User-facing text is Thai; UI follows the elderly-friendly rules
+- [ ] User-facing text is Thai; UI is built only from @/shared/ui and tokens, following docs/design-system.md
 - [ ] No secrets, no real personal data, nothing sensitive in logs
 
 ## AI assistance

@@ -22,12 +22,16 @@ rules exactly. If a request conflicts with them, say so instead of complying.
   shared client as `db` from `@/shared/lib/db`; never `new PrismaClient()`; never import
   from `@prisma/client`.
 - Zod **4**, Tailwind CSS **4** (tokens in `globals.css` become utilities: colours `bg-page`,
-  `bg-surface`, `text-fg`, `text-fg-2`, `text-fg-muted`, `bg-primary`, `text-primary-press`,
-  `bg-primary-soft`, `text-danger`, `border-line`, `border-line-strong`, `border-edge`; type
+  `bg-surface`, `bg-surface-subtle`, `bg-surface-muted`, `text-fg`, `text-fg-2`,
+  `text-fg-muted`, `border-line`, `border-line-strong`, `border-edge`, `bg-primary`,
+  `text-on-primary`, `bg-primary-soft` (text on it is `text-primary-press`), `bg-success`,
+  `bg-success-soft`, `text-success`, `bg-danger` (text on it is `text-on-danger`),
+  `bg-danger-soft`, `text-danger`, `bg-attention-soft`, `text-attention`, `bg-ink`; type
   `text-title|heading|lead|body|small|micro`; sizes `min-h-control`, `min-h-control-sm`,
-  `size-icon`, `size-icon-sm`; radii `rounded-control|field|panel|dialog`). Sizes come from the
-  scope on the layout root, `data-ui="elder" | "admin"`; never hard-code colours or sizes.
-  Vitest.
+  `size-icon`, `size-icon-sm`; radii `rounded-control|field|panel|dialog`; a border that must
+  thicken in high contrast is `border-[length:var(--b9-border)]`; chart colours are the CSS
+  variables `--chart-1` to `--chart-4`). Sizes come from the scope on the layout root,
+  `data-ui="elder" | "admin"`; never hard-code colours or sizes. Vitest.
 
 ## Lanes — work in exactly one
 
@@ -108,23 +112,64 @@ export async function createCourseAction(
 }
 ```
 
-Page:
+Page (admin list page; the only approved shape for a list):
 
 ```tsx
-import { Suspense } from "react";
-import { CourseList, CreateCourseForm } from "@/modules/content/ui";
+import { CourseList, CourseListSkeleton } from "@/modules/content/ui";
+import { AdminSection, PageHeader, Reveal, TableCard } from "@/shared/ui";
 
 export default function Page() {
   return (
     <>
-      <Suspense fallback={<p>กำลังโหลด…</p>}>
-        <CourseList /> {/* async Server Component: authorizes, then reads the db */}
-      </Suspense>
-      <CreateCourseForm /> {/* "use client" + useActionState(createCourseAction, null) */}
+      <PageHeader title="คอร์สและแบบฝึก" description="ดูคอร์สทั้งหมด" />
+      <AdminSection title="คอร์สทั้งหมด">
+        <Reveal fallback={<CourseListSkeleton />}>
+          <TableCard>
+            <CourseList /> {/* async Server Component: authorizes, then reads the db */}
+          </TableCard>
+        </Reveal>
+      </AdminSection>
     </>
   );
 }
 ```
+
+Page (elderly step screen: one question, one primary button, no cards):
+
+```tsx
+import { Button, ChoiceList, ElderHeader, Section, StepProgress } from "@/shared/ui";
+
+export default function Page() {
+  return (
+    <>
+      <ElderHeader title="เลือกแบบฝึก" backHref="/home" />
+      <form action="/courses">
+        <Section first>
+          <StepProgress current={1} total={3} />
+        </Section>
+        <Section>
+          <ChoiceList
+            name="mode"
+            legend="วันนี้อยากฝึกแบบไหน"
+            defaultValue="training"
+            options={[
+              { value: "training", title: "ฝึกเบา ๆ", description: "มีคำใบ้ ลองได้ไม่จำกัด" },
+              { value: "test", title: "ทดสอบ", description: "ไม่มีคำใบ้" },
+            ]}
+          />
+        </Section>
+        <Section>
+          <Button type="submit" fullWidth>
+            ไปต่อ
+          </Button>
+        </Section>
+      </form>
+    </>
+  );
+}
+```
+
+(A page that reads data puts that component inside `<Reveal fallback={…skeleton…}>`.)
 
 Identity API available to every lane (`@/modules/identity`):
 `getCurrentUser(): Promise<CurrentUser | null>`, `requireUser()`, `requireAdmin()`,
@@ -134,7 +179,47 @@ Identity API available to every lane (`@/modules/identity`):
 `ActionResult<T> = { ok: true, data: T } | { ok: false, code, message, fieldErrors? }`
 with codes `VALIDATION | UNAUTHENTICATED | FORBIDDEN | NOT_FOUND | CONFLICT | INTERNAL`.
 
-Shared UI (`@/shared/ui`): `Button`, `Checkbox`, `ComingSoon`, `ConfirmDialog`, `EmptyState`, `Notice`, `NumberField`, `Select`, `TextField`, `Textarea`, `Toast`.
+Shared UI (`@/shared/ui`) — the only components you may use:
+
+- Forms: `Button`, `TextField`, `Textarea`, `NumberField`, `Select`, `Checkbox`, `ChoiceList`,
+  `SegmentedControl`, `PinPad`, `DisplaySettings`
+- Feedback: `Notice`, `Toast`, `ConfirmDialog`, `ResultBanner`, `Badge`, `EmptyState`,
+  `ComingSoon`, `Meter`
+- Elderly layout: `ElderHeader`, `StepProgress`, `Section`, `ListRow`, `TabBar`, `TabBarView`
+- Admin layout: `AdminShell`, `PageHeader`, `AdminSection`, `SaveBar`, `StatTile`, `Tabs`,
+  `Tag`, `StatusDot`
+- Tables: `TableCard`, `Table`, `THead`, `TBody`, `Tr`, `Th`, `Td`, `Pagination`, `RowActions`
+- Loading: `Reveal`, `SkeletonRegion`, `SkeletonLine`, `SkeletonBlock`, `TableSkeleton`,
+  `ListRowSkeleton`, `StatTileSkeleton`, `AdminPageSkeleton`
+- Brand: `BrandMark`
+
+## Design rules (the design is closed)
+
+Every screen is built from the design system and nothing else. Hard rules:
+
+- **Components:** build only with `@/shared/ui`. Do not write your own button, field,
+  table, dialog, card, badge, tab, menu, skeleton or page frame, and do not restyle a
+  shared component through `className` (it is for layout only: width, margin, placement).
+- **Missing something?** Stop and tell the user to open an `infra` issue that describes the
+  screen and what is missing. Do not hand-roll it and do not add a UI library.
+- **Tokens:** no raw colours and no arbitrary colour or font-size values (`#0B7A75`,
+  `bg-[#fff]`, `text-[19px]`). ESLint rejects them. Never fix a size in px.
+- **Pages follow a recipe**; do not invent a layout.
+  - Elderly screens: no cards, one primary button per screen, one step at a time with
+    `StepProgress`, every icon has a text label, text never below 17.5px, targets at least 48px.
+  - Admin screens: one column, `PageHeader` → `AdminSection`s → optional `SaveBar`. Tables in
+    `TableCard` + `Table`, figures in `StatTile`, status as `StatusDot` or `Tag`. Forms are
+    one column (at most `max-w-[35rem]`) and never wrapped in a card. One primary action per page.
+- **Loading:** a component that reads data is wrapped in `Reveal` (or `Suspense`) with a
+  skeleton from `@/shared/ui`, never a line of text.
+- **Motion:** only the shared page fade exists. Add no animation, transition or
+  `ViewTransition` of your own; nothing inside a training exercise animates.
+- **Meaning:** correct and wrong always show ✓ / ✕ **and** words, never colour alone.
+- **Irreversible actions** are confirmed with `ConfirmDialog`, stating what will happen.
+- **Logo:** `BrandMark` only; do not redraw or recolour it.
+- **Exception:** the 3x3 board (engine) and the Pattern Editor grid (content) are built by
+  their lanes with the cell states: shown `bg-primary-tint`, lit and tapped `bg-primary`,
+  correct `bg-success` with ✓, wrong `bg-danger` with ✕.
 
 ## Non-negotiable rules
 
@@ -144,9 +229,9 @@ Shared UI (`@/shared/ui`): `Button`, `Checkbox`, `ComingSoon`, `ConfirmDialog`, 
 3. Validate all input with Zod on the server.
 4. Code, comments, commit messages in **English**. Text shown to users in **Thai**,
    polite and encouraging, never blaming.
-5. Elderly-friendly UI: touch targets ≥ 64px, large rem-based text, every icon has a text
-   label, never colour alone (add ✓ / ✕ / words), one step at a time, confirm before
-   anything irreversible.
+5. UI follows the design rules above: only `@/shared/ui` and tokens, one step at a time on
+   the elderly side, every icon has a text label, never colour alone (add ✓ / ✕ / words),
+   confirm before anything irreversible.
 6. Never output secrets, real names or real phone numbers. Use fake data.
 7. Never log PINs, passwords, hashes, tokens or full phone numbers.
 8. Pure logic (scoring, validation, metrics, slot rules) gets Vitest unit tests.

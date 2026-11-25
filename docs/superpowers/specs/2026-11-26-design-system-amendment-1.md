@@ -1,6 +1,6 @@
 # Design system — amendment 1: admin layout v2, loading skeletons, motion
 
-Date: 2026-11-26. Approved by the lead the same day (menu, cards, motion, skeleton, then the table style). Amends `2026-11-26-design-system-design.md` (sections 5.1, 5.4, 5.6,
+Date: 2026-11-26 · Status: implemented. Approved by the lead the same day (menu, cards, motion, skeleton, then the table style). Amends `2026-11-26-design-system-design.md` (sections 5.1, 5.4, 5.6,
 6.1, 6.2, 7, 10, 12). Where this file and the original disagree, this file wins.
 Prototype the lead reacted to: `.superpowers/brainstorm/…/content/nav2-round2.html`.
 

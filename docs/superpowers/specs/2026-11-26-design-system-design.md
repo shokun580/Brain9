@@ -1,6 +1,6 @@
 # Brain9 design system — design
 
-Date: 2026-11-26 · Owner: infra (team lead, Apinan) · Status: draft for approval
+Date: 2026-11-26 · Owner: infra (team lead, Apinan) · Status: implemented
 
 ## 1. Intent
 
