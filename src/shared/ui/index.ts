@@ -48,5 +48,18 @@ export { TableCard, type TableCardProps } from "./TableCard";
 export { RowActions, type RowAction, type RowActionsProps } from "./RowActions";
 
 // skeleton (Task 22)
+export {
+  AdminPageSkeleton,
+  ListRowSkeleton,
+  SkeletonBlock,
+  SkeletonLine,
+  SkeletonRegion,
+  StatTileSkeleton,
+  TableSkeleton,
+  type SkeletonBlockProps,
+  type SkeletonLineProps,
+  type SkeletonRegionProps,
+  type TableSkeletonProps,
+} from "./Skeleton";
 
 // motion (Task 23)
