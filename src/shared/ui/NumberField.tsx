@@ -17,10 +17,20 @@ export function NumberField({
   "aria-describedby": describedBy,
   ...props
 }: NumberFieldProps) {
-  const wiring = fieldWiring(name, id, hint, errors, describedBy);
+  const unitId = `${id ?? `field-${name}`}-unit`;
+  // Own hint/error id first, then the unit, then the caller's ids.
+  const wiring = fieldWiring(
+    name,
+    id,
+    hint,
+    errors,
+    [unit ? unitId : undefined, describedBy].filter(Boolean).join(" ") || undefined,
+  );
   return (
     <FieldShell label={label} hint={hint} errors={errors} wiring={wiring}>
-      <div
+      {/* A label, not a div, so a click on the padding or the unit focuses the input. */}
+      <label
+        htmlFor={wiring.id}
         className={cn(
           "flex min-h-control w-full has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus items-center gap-3 rounded-field border-[length:var(--b9-border)] bg-surface px-4",
           wiring.hasError ? "border-danger" : "border-line-strong",
@@ -38,8 +48,12 @@ export function NumberField({
           )}
           {...props}
         />
-        {unit ? <span className="text-body text-fg-muted">{unit}</span> : null}
-      </div>
+        {unit ? (
+          <span id={unitId} aria-hidden="true" className="text-body text-fg-muted">
+            {unit}
+          </span>
+        ) : null}
+      </label>
     </FieldShell>
   );
 }

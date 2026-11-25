@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { CourseList, CreateCourseForm } from "@/modules/content/ui";
+import { PageHeader, Panel } from "@/shared/ui";
 
-export const metadata = { title: "จัดการคอร์ส" };
+export const metadata = { title: "คอร์สและแบบฝึก" };
 
 /**
  * Reference page for the project. A route file stays thin:
@@ -12,25 +13,21 @@ export const metadata = { title: "จัดการคอร์ส" };
 export default function AdminCoursesPage() {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-title font-bold">จัดการคอร์ส</h1>
+      <PageHeader
+        title="คอร์สและแบบฝึก"
+        breadcrumbs={[{ label: "เนื้อหาและผล" }, { label: "คอร์สและแบบฝึก" }]}
+        description="ดูคอร์สทั้งหมดและสร้างคอร์สใหม่"
+      />
 
-      <section aria-labelledby="course-list-heading" className="flex flex-col gap-3">
-        <h2 id="course-list-heading" className="text-heading font-bold">
-          คอร์สทั้งหมด
-        </h2>
-        <Suspense fallback={<p className="text-body text-fg-2">กำลังโหลดรายการคอร์ส…</p>}>
+      <Panel title="คอร์สทั้งหมด" padded={false}>
+        <Suspense fallback={<p className="p-4 text-body text-fg-2">กำลังโหลดรายการคอร์ส…</p>}>
           <CourseList />
         </Suspense>
-      </section>
+      </Panel>
 
-      <section aria-labelledby="course-create-heading">
-        <div className="flex flex-col gap-4 rounded-panel border border-line bg-surface p-5">
-          <h2 id="course-create-heading" className="text-heading font-bold">
-            สร้างคอร์สใหม่
-          </h2>
-          <CreateCourseForm />
-        </div>
-      </section>
+      <Panel title="สร้างคอร์สใหม่">
+        <CreateCourseForm />
+      </Panel>
     </div>
   );
 }

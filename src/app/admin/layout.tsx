@@ -1,15 +1,11 @@
-import Link from "next/link";
 import { Suspense } from "react";
-import { requireAdmin } from "@/modules/identity";
+import { getCurrentUser, requireAdmin } from "@/modules/identity";
+import { AdminShell } from "@/shared/ui";
+import { adminNav } from "./nav";
 
 // Shell for the admin area. OWNER: infra (team lead).
-// To add a menu entry for your module, open a PR that edits only the `nav` array.
-const nav = [
-  { href: "/admin/users", label: "ผู้ใช้งาน" },
-  { href: "/admin/schedule", label: "ตารางเวลา" },
-  { href: "/admin/content/courses", label: "คอร์ส" },
-  { href: "/admin/analytics", label: "วิเคราะห์ผล" },
-] as const;
+// The menu lives in ./nav.tsx; a lane edits only its own lines there, through a PR the lead
+// approves. Keep this file free of data access outside <Suspense>.
 
 /**
  * Redirects non-admins away. A layout is NOT a security boundary — it does not re-run on
@@ -20,33 +16,36 @@ async function AdminGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/** Name and role only: no phone number or other personal field reaches the top bar. */
+async function AdminUser() {
+  const user = await getCurrentUser();
+  // A non-admin is about to be redirected by AdminGate: never label them as an admin.
+  if (!user || user.role !== "ADMIN") return null;
+  return (
+    <div className="min-w-0 leading-tight">
+      <p className="truncate text-small font-bold">
+        {user.firstName} {user.lastName}
+      </p>
+      <p className="text-micro text-fg-muted">ผู้ดูแลระบบ</p>
+    </div>
+  );
+}
+
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
-    <div data-ui="admin" className="flex min-h-dvh flex-1 flex-col bg-page text-fg">
-      <header className="border-b border-line bg-surface">
-        <nav
-          aria-label="เมนูผู้ดูแล"
-          className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 p-3"
-        >
-          <Link href="/admin" className="mr-4 text-heading font-bold">
-            Brain9 Admin
-          </Link>
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-control px-3 py-2 font-bold text-primary-press hover:bg-primary-soft"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-      </header>
-      <main className="mx-auto w-full max-w-5xl flex-1 p-5">
-        <Suspense fallback={<p className="text-body text-fg-2">กำลังตรวจสอบสิทธิ์…</p>}>
-          <AdminGate>{children}</AdminGate>
+    <AdminShell
+      brand="Brain9"
+      roleLabel="ผู้ดูแล"
+      nav={adminNav}
+      user={
+        <Suspense fallback={null}>
+          <AdminUser />
         </Suspense>
-      </main>
-    </div>
+      }
+    >
+      <Suspense fallback={<p className="text-body text-fg-2">กำลังตรวจสอบสิทธิ์…</p>}>
+        <AdminGate>{children}</AdminGate>
+      </Suspense>
+    </AdminShell>
   );
 }

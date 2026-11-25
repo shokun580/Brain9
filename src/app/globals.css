@@ -32,6 +32,10 @@
   --b9-attention: #9a5b00;
   --b9-attention-soft: #fff1dc;
   --b9-ink: #122029;
+  /* Text on ink (the admin menu): white, item text, and group labels. All >= 4.5:1. */
+  --b9-on-ink: #ffffff;
+  --b9-on-ink-2: #c5d0d6;
+  --b9-on-ink-muted: #9fb0b9;
   --b9-focus: #0b7a75;
   --b9-edge: transparent;
 
@@ -161,6 +165,9 @@ html[data-contrast="high"] [data-ui="elder"] {
   --color-attention: var(--b9-attention);
   --color-attention-soft: var(--b9-attention-soft);
   --color-ink: var(--b9-ink);
+  --color-on-ink: var(--b9-on-ink);
+  --color-on-ink-2: var(--b9-on-ink-2);
+  --color-on-ink-muted: var(--b9-on-ink-muted);
   --color-focus: var(--b9-focus);
   --color-edge: var(--b9-edge);
 

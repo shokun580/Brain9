@@ -32,6 +32,9 @@ const ROOT: Record<string, string> = {
   "--b9-attention": "#9A5B00",
   "--b9-attention-soft": "#FFF1DC",
   "--b9-ink": "#122029",
+  "--b9-on-ink": "#FFFFFF",
+  "--b9-on-ink-2": "#C5D0D6",
+  "--b9-on-ink-muted": "#9FB0B9",
 };
 
 /** Returns the body of the first top-level block whose selector matches `selector`. */
@@ -72,6 +75,9 @@ describe("design tokens", () => {
       [c("attention"), c("attention-soft")],
       ["#FFFFFF", c("danger")],
       ["#FFFFFF", c("ink")],
+      [c("on-ink"), c("ink")],
+      [c("on-ink-2"), c("ink")],
+      [c("on-ink-muted"), c("ink")],
     ];
     for (const [a, b] of pairs) {
       expect(contrastRatio(a, b), `${a} on ${b}`).toBeGreaterThanOrEqual(4.5);
@@ -114,6 +120,13 @@ describe("design tokens", () => {
     expect(root).toContain("--b9-edge: transparent;");
     expect(high).toContain("--b9-edge: #ffffff;");
     expect(block("@theme inline")).toContain("--color-edge: var(--b9-edge);");
+  });
+
+  it("maps the admin menu text colours that sit on ink", () => {
+    const theme = block("@theme inline");
+    for (const name of ["on-ink", "on-ink-2", "on-ink-muted"]) {
+      expect(theme).toContain(`--color-${name}: var(--b9-${name});`);
+    }
   });
 
   it("defines icon sizes per scope and maps them to size utilities", () => {

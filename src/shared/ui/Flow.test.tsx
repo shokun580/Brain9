@@ -202,11 +202,21 @@ describe("ChoiceList hint, errors and required", () => {
     expect(inputOf(c, "b")).toContain("required");
     expect(inputOf(base, "a")).not.toContain("required");
   });
-  it("leaves the markup unchanged without the new props", () => {
+  it("renders no messages wrapper without a hint or errors", () => {
     expect(base).not.toContain("aria-describedby");
     expect(base).not.toContain("aria-invalid");
     expect(base).not.toContain('role="alert"');
+    expect(base).not.toContain("-hint");
+    expect(base).not.toContain("mt-2");
     expect(html(<ChoiceList name="mode" legend="เลือก" options={options} errors={[]} />)).toBe(base);
+  });
+  it("renders the messages wrapper when there is a hint or an error", () => {
+    const withHint = html(<ChoiceList name="mode" legend="เลือก" options={options} hint="ช่วย" />);
+    const withError = html(
+      <ChoiceList name="mode" legend="เลือก" options={options} errors={["ผิด"]} />,
+    );
+    expect(withHint).toContain("mt-2");
+    expect(withError).toContain("mt-2");
   });
 });
 
