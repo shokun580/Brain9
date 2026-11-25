@@ -1,0 +1,42 @@
+name: Cross-module request
+description: Ask another lane (or infra) for a function, component, column or shared change
+title: "<from lane> → <to lane>: <what you need>"
+labels: ["cross-module"]
+body:
+  - type: dropdown
+    id: from
+    attributes:
+      label: Requesting lane
+      options: [identity, booking, content, engine, analytics, infra]
+    validations:
+      required: true
+  - type: dropdown
+    id: to
+    attributes:
+      label: Owning lane
+      options: [identity, booking, content, engine, analytics, infra]
+    validations:
+      required: true
+  - type: textarea
+    id: need
+    attributes:
+      label: Exactly what is needed
+      description: Function signature, component props, column name and type, or the hot-file change.
+      render: ts
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why, and which issue is blocked
+    validations:
+      required: true
+  - type: input
+    id: needed-by
+    attributes:
+      label: Needed by (date or sprint)
+  - type: textarea
+    id: agreed
+    attributes:
+      label: Agreed contract
+      description: Filled in by the owner. Copy it to docs/contracts/ when it lands.

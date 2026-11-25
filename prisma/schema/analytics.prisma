@@ -1,0 +1,171 @@
+// OWNER: analytics module (Saruta, @ptxsm).
+// Derived data only. Everything here can be recomputed from engine's item_results,
+// so analytics never writes to another module's tables.
+
+enum TrendDirection {
+  IMPROVING
+  STABLE
+  DECLINING
+  INSUFFICIENT_DATA
+}
+
+enum SnapshotPeriod {
+  DAY
+  WEEK
+  MONTH
+}
+
+enum RecommendationReason {
+  START /// No history yet: begin with the easiest exercise.
+  LEVEL_UP /// Doing well: try a harder exercise.
+  REPEAT /// Stay at this difficulty.
+  STEP_DOWN /// Struggling: try an easier exercise.
+}
+
+enum RecommendationStatus {
+  ACTIVE
+  ACCEPTED
+  DISMISSED
+  SUPERSEDED
+}
+
+/// Per-session metrics ("ตารางผลสรุป"). One row per completed TrainingSession.
+model SessionSummary {
+  sessionId            String       @id @map("session_id") @db.Uuid
+  userId               String       @map("user_id") @db.Uuid
+  courseId             String       @map("course_id") @db.Uuid
+  exerciseId           String       @map("exercise_id") @db.Uuid
+  mode                 TrainingMode
+  difficultyLevel      Int          @map("difficulty_level") @db.SmallInt
+  context              UsageContext
+  centerId             String?      @map("center_id") @db.Uuid
+  itemsTotal           Int          @map("items_total") @db.SmallInt
+  itemsCorrect         Int          @map("items_correct") @db.SmallInt
+  /// Accuracy (%) = itemsCorrect / itemsTotal * 100.
+  accuracyPct          Decimal      @map("accuracy_pct") @db.Decimal(5, 2)
+  /// Response Time: mean over items answered correctly, in milliseconds.
+  avgResponseTimeMs    Int?         @map("avg_response_time_ms")
+  medianResponseTimeMs Int?         @map("median_response_time_ms")
+  /// Attempts: total tries used across all items.
+  totalAttempts        Int          @map("total_attempts")
+  avgAttemptsPerItem   Decimal      @map("avg_attempts_per_item") @db.Decimal(4, 2)
+  /// Longest sequence reproduced correctly (Corsi-span-like).
+  maxCorrectSequence   Int?         @map("max_correct_sequence") @db.SmallInt
+  completedAt          DateTime     @map("completed_at") @db.Timestamptz(3)
+  computedAt           DateTime     @default(now()) @map("computed_at") @db.Timestamptz(3)
+
+  session  TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user     User            @relation(fields: [userId], references: [id], onDelete: Restrict)
+  course   Course          @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  exercise Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  center   Center?         @relation(fields: [centerId], references: [id], onDelete: SetNull)
+
+  performanceLevels UserPerformanceLevel[]
+  recommendations   Recommendation[]
+
+  @@index([userId, mode, completedAt(sort: Desc)])
+  @@index([exerciseId, mode])
+  @@index([centerId, completedAt])
+  @@map("session_summaries")
+}
+
+/// Thresholds that define each Performance Level (1 = needs support … 4 = excellent).
+/// Kept as data so the Requirement Owner can tune them without a deploy.
+/// difficultyLevel 0 = applies to every difficulty.
+model PerformanceLevelCriterion {
+  id                   String   @id @default(uuid(7)) @db.Uuid
+  level                Int      @db.SmallInt
+  name                 String   @db.VarChar(100)
+  description          String?  @db.VarChar(500)
+  difficultyLevel      Int      @default(0) @map("difficulty_level") @db.SmallInt
+  minAccuracyPct       Decimal  @map("min_accuracy_pct") @db.Decimal(5, 2)
+  /// NULL = no response-time requirement for this level.
+  maxAvgResponseTimeMs Int?     @map("max_avg_response_time_ms")
+  isActive             Boolean  @default(true) @map("is_active")
+  effectiveFrom        DateTime @default(now()) @map("effective_from") @db.Timestamptz(3)
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  performanceLevels UserPerformanceLevel[]
+
+  @@unique([level, difficultyLevel, effectiveFrom])
+  @@map("performance_level_criteria")
+}
+
+/// A user's Performance Level at one difficulty ("ตารางระดับความสามารถ").
+/// History is kept: a new row is inserted when the level is recomputed and the previous
+/// row gets isCurrent = false. A partial unique index (migration SQL) guarantees one
+/// current row per (user, difficulty).
+model UserPerformanceLevel {
+  id                   String   @id @default(uuid(7)) @db.Uuid
+  userId               String   @map("user_id") @db.Uuid
+  difficultyLevel      Int      @map("difficulty_level") @db.SmallInt
+  level                Int      @db.SmallInt
+  criterionId          String?  @map("criterion_id") @db.Uuid
+  accuracyPct          Decimal  @map("accuracy_pct") @db.Decimal(5, 2)
+  avgResponseTimeMs    Int?     @map("avg_response_time_ms")
+  /// Number of TEST sessions the level is based on.
+  sessionsCount        Int      @map("sessions_count")
+  isCurrent            Boolean  @default(true) @map("is_current")
+  triggeredBySessionId String?  @map("triggered_by_session_id") @db.Uuid
+  computedAt           DateTime @default(now()) @map("computed_at") @db.Timestamptz(3)
+
+  user               User                       @relation(fields: [userId], references: [id], onDelete: Restrict)
+  criterion          PerformanceLevelCriterion? @relation(fields: [criterionId], references: [id], onDelete: SetNull)
+  triggeredBySession SessionSummary?            @relation(fields: [triggeredBySessionId], references: [sessionId], onDelete: SetNull)
+
+  recommendations Recommendation[]
+
+  @@index([userId, isCurrent])
+  @@index([userId, difficultyLevel, computedAt(sort: Desc)])
+  @@map("user_performance_levels")
+}
+
+/// Period roll-up used for graphs and Progress Trend (moving average + slope).
+/// difficultyLevel 0 = all difficulties combined.
+model UserMetricSnapshot {
+  id                   String         @id @default(uuid(7)) @db.Uuid
+  userId               String         @map("user_id") @db.Uuid
+  mode                 TrainingMode
+  difficultyLevel      Int            @default(0) @map("difficulty_level") @db.SmallInt
+  periodType           SnapshotPeriod @map("period_type")
+  /// First day of the period (local date).
+  periodStart          DateTime       @map("period_start") @db.Date
+  sessionsCount        Int            @map("sessions_count")
+  accuracyPct          Decimal        @map("accuracy_pct") @db.Decimal(5, 2)
+  avgResponseTimeMs    Int?           @map("avg_response_time_ms")
+  avgAttemptsPerItem   Decimal?       @map("avg_attempts_per_item") @db.Decimal(4, 2)
+  /// Moving average of accuracy over the last N periods.
+  movingAvgAccuracyPct Decimal?       @map("moving_avg_accuracy_pct") @db.Decimal(5, 2)
+  /// Slope of the accuracy trend line (percentage points per period).
+  trendSlope           Decimal?       @map("trend_slope") @db.Decimal(8, 4)
+  trendDirection       TrendDirection @default(INSUFFICIENT_DATA) @map("trend_direction")
+  computedAt           DateTime       @default(now()) @map("computed_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, mode, difficultyLevel, periodType, periodStart])
+  @@index([userId, periodType, periodStart(sort: Desc)])
+  @@map("user_metric_snapshots")
+}
+
+/// "Try this next" suggestion shown on the elderly user's result screen.
+model Recommendation {
+  id               String               @id @default(uuid(7)) @db.Uuid
+  userId           String               @map("user_id") @db.Uuid
+  exerciseId       String               @map("exercise_id") @db.Uuid
+  reason           RecommendationReason
+  status           RecommendationStatus @default(ACTIVE)
+  basedOnLevelId   String?              @map("based_on_level_id") @db.Uuid
+  basedOnSessionId String?              @map("based_on_session_id") @db.Uuid
+  createdAt        DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  resolvedAt       DateTime?            @map("resolved_at") @db.Timestamptz(3)
+
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  exercise       Exercise              @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  basedOnLevel   UserPerformanceLevel? @relation(fields: [basedOnLevelId], references: [id], onDelete: SetNull)
+  basedOnSession SessionSummary?       @relation(fields: [basedOnSessionId], references: [sessionId], onDelete: SetNull)
+
+  @@index([userId, status, createdAt(sort: Desc)])
+  @@map("recommendations")
+}

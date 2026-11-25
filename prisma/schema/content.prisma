@@ -1,0 +1,109 @@
+// OWNER: content module (Apinan, @shokun580).
+// Course -> Exercise -> Pattern (one Pattern = one item / "ข้อ" on the 3x3 grid).
+// Content is soft-deleted (deletedAt) because results reference it.
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED /// Visible to elderly users.
+  ARCHIVED /// Hidden from users; history kept.
+}
+
+model Course {
+  id                 String        @id @default(uuid(7)) @db.Uuid
+  title              String        @db.VarChar(200)
+  description        String?       @db.Text
+  /// Overall difficulty 1 (easiest) … 5 (hardest). CHECK constraint in migration SQL.
+  difficultyLevel    Int           @default(1) @map("difficulty_level") @db.SmallInt
+  status             ContentStatus @default(DRAFT)
+  sortOrder          Int           @default(0) @map("sort_order")
+  // ---- training settings (course-level defaults; an Exercise may override) ----
+  /// Tries allowed per item in TEST mode.
+  defaultMaxAttempts Int           @default(3) @map("default_max_attempts") @db.SmallInt
+  trainingEnabled    Boolean       @default(true) @map("training_enabled")
+  testEnabled        Boolean       @default(true) @map("test_enabled")
+  /// How long each step is lit, and the pause between steps, in milliseconds.
+  defaultShowMs      Int           @default(800) @map("default_show_ms")
+  defaultGapMs       Int           @default(300) @map("default_gap_ms")
+  publishedAt        DateTime?     @map("published_at") @db.Timestamptz(3)
+  createdById        String        @map("created_by_id") @db.Uuid
+  updatedById        String?       @map("updated_by_id") @db.Uuid
+  createdAt          DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt          DateTime?     @map("deleted_at") @db.Timestamptz(3)
+
+  createdBy User  @relation("CourseCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy User? @relation("CourseUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  exercises        Exercise[]
+  trainingSessions TrainingSession[]
+  sessionSummaries SessionSummary[]
+
+  @@index([status, sortOrder])
+  @@map("courses")
+}
+
+model Exercise {
+  id              String        @id @default(uuid(7)) @db.Uuid
+  courseId        String        @map("course_id") @db.Uuid
+  title           String        @db.VarChar(200)
+  description     String?       @db.Text
+  /// 1 … 5. Analytics uses this to recommend the next exercise.
+  difficultyLevel Int           @default(1) @map("difficulty_level") @db.SmallInt
+  status          ContentStatus @default(DRAFT)
+  /// Position inside the course (easy -> hard).
+  sortOrder       Int           @default(0) @map("sort_order")
+  // ---- overrides; NULL = inherit from the course ----
+  maxAttempts     Int?          @map("max_attempts") @db.SmallInt
+  trainingEnabled Boolean?      @map("training_enabled")
+  testEnabled     Boolean?      @map("test_enabled")
+  showMs          Int?          @map("show_ms")
+  gapMs           Int?          @map("gap_ms")
+  createdById     String        @map("created_by_id") @db.Uuid
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt       DateTime?     @map("deleted_at") @db.Timestamptz(3)
+
+  course    Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  createdBy User   @relation("ExerciseCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  patterns         Pattern[]
+  trainingSessions TrainingSession[]
+  sessionSummaries SessionSummary[]
+  recommendations  Recommendation[]
+
+  @@index([courseId, sortOrder])
+  @@index([status, difficultyLevel])
+  @@map("exercises")
+}
+
+/// One item of an exercise: an ordered list of steps on the 3x3 grid.
+/// `steps` follows the PatternSteps contract (docs/contracts/pattern-format.md):
+///   { "v": 1, "steps": [ { "cells": [4] }, { "cells": [0, 8], "showMs": 1000 } ] }
+/// cells are 0–8, row-major; a step with two cells is a two-finger simultaneous press.
+/// Every edit increments `version`; results keep the version + a snapshot of the steps.
+model Pattern {
+  id              String    @id @default(uuid(7)) @db.Uuid
+  exerciseId      String    @map("exercise_id") @db.Uuid
+  /// Item number inside the exercise.
+  sortOrder       Int       @default(0) @map("sort_order")
+  steps           Json
+  /// Derived from `steps` on save, for filtering and analytics.
+  sequenceLength  Int       @map("sequence_length") @db.SmallInt
+  hasSimultaneous Boolean   @default(false) @map("has_simultaneous")
+  /// Per-pattern timing overrides; NULL = inherit exercise/course.
+  showMs          Int?      @map("show_ms")
+  gapMs           Int?      @map("gap_ms")
+  version         Int       @default(1)
+  createdById     String    @map("created_by_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  exercise  Exercise @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  createdBy User     @relation("PatternCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  itemResults ItemResult[]
+
+  @@index([exerciseId, sortOrder])
+  @@map("patterns")
+}

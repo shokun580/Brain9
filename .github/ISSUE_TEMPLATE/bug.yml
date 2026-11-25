@@ -1,0 +1,39 @@
+name: Bug
+description: Something works differently from what was agreed
+title: "<lane>: <what is wrong>"
+labels: ["type:bug"]
+body:
+  - type: dropdown
+    id: lane
+    attributes:
+      label: Lane
+      options: [identity, booking, content, engine, analytics, infra, not sure]
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options: [local, staging, production]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Use the demo accounts. Never paste real personal data, tokens or connection strings.
+      value: |
+        1.
+        2.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser

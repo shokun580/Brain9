@@ -1,0 +1,105 @@
+// OWNER: identity module (Chanon, @chanon-max).
+// Community centers and the shared devices ("kiosks") registered at each one.
+
+enum DeviceType {
+  TABLET
+  DESKTOP
+  LAPTOP
+  PHONE
+  OTHER
+}
+
+enum DeviceStatus {
+  PENDING /// Registration started but not yet approved by an Admin.
+  ACTIVE /// Approved; may be used as a center device.
+  MAINTENANCE /// Temporarily out of service; does not count toward capacity.
+  REVOKED /// No longer a center device; its device token is rejected.
+}
+
+model Center {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  /// Short human-readable code, e.g. "BSN-01".
+  code      String   @unique @db.VarChar(20)
+  name      String   @db.VarChar(200)
+  address   String?  @db.Text
+  district  String?  @db.VarChar(100)
+  province  String?  @db.VarChar(100)
+  phone     String?  @db.VarChar(20)
+  /// IANA time zone used to turn schedule templates into concrete time slots.
+  timezone  String   @default("Asia/Bangkok") @db.VarChar(50)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  homeUsers          User[]              @relation("UserHomeCenter")
+  devices            CenterDevice[]
+  scheduleTemplates  ScheduleTemplate[]
+  scheduleExceptions ScheduleException[]
+  timeSlots          TimeSlot[]
+  bookings           Booking[]
+  trainingSessions   TrainingSession[]
+  sessionSummaries   SessionSummary[]
+
+  @@map("centers")
+}
+
+/// A physical device an Admin has registered as shared equipment of a center.
+/// The browser on that device holds an opaque "device token" cookie (hash stored here);
+/// while it is present and the device is ACTIVE the app runs in center mode:
+/// no remembered account, auto sign-out, training tagged with the center, booking required.
+model CenterDevice {
+  id                  String       @id @default(uuid(7)) @db.Uuid
+  centerId            String       @map("center_id") @db.Uuid
+  /// Name staff use to point at the device, e.g. "แท็บเล็ต 1".
+  label               String       @db.VarChar(100)
+  /// Inventory / asset number of the organisation, if any.
+  assetTag            String?      @map("asset_tag") @db.VarChar(100)
+  deviceType          DeviceType   @map("device_type")
+  brand               String       @db.VarChar(100)
+  model               String       @db.VarChar(100)
+  serialNumber        String?      @map("serial_number") @db.VarChar(100)
+  osName              String?      @map("os_name") @db.VarChar(50)
+  osVersion           String?      @map("os_version") @db.VarChar(50)
+  browserName         String?      @map("browser_name") @db.VarChar(50)
+  browserVersion      String?      @map("browser_version") @db.VarChar(50)
+  screenSizeInch      Decimal?     @map("screen_size_inch") @db.Decimal(4, 1)
+  screenWidthPx       Int?         @map("screen_width_px")
+  screenHeightPx      Int?         @map("screen_height_px")
+  /// navigator.maxTouchPoints captured at registration; < 2 means two-finger patterns
+  /// cannot be played on this device.
+  maxTouchPoints      Int?         @map("max_touch_points")
+  /// Year the device was manufactured / purchased (Gregorian).
+  purchaseYear        Int?         @map("purchase_year")
+  acquiredAt          DateTime?    @map("acquired_at") @db.Date
+  status              DeviceStatus @default(PENDING)
+  /// SHA-256 of the device token cookie. NULL until approved and after revocation.
+  deviceTokenHash     String?      @unique @map("device_token_hash") @db.Char(64)
+  /// User-agent string seen when the device was registered (evidence of what was approved).
+  registeredUserAgent String?      @map("registered_user_agent") @db.VarChar(500)
+  registeredById      String       @map("registered_by_id") @db.Uuid
+  registeredAt        DateTime     @default(now()) @map("registered_at") @db.Timestamptz(3)
+  approvedById        String?      @map("approved_by_id") @db.Uuid
+  approvedAt          DateTime?    @map("approved_at") @db.Timestamptz(3)
+  revokedById         String?      @map("revoked_by_id") @db.Uuid
+  revokedAt           DateTime?    @map("revoked_at") @db.Timestamptz(3)
+  revokeReason        String?      @map("revoke_reason") @db.VarChar(500)
+  lastSeenAt          DateTime?    @map("last_seen_at") @db.Timestamptz(3)
+  notes               String?      @db.Text
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  center       Center @relation(fields: [centerId], references: [id], onDelete: Restrict)
+  registeredBy User   @relation("DeviceRegisteredBy", fields: [registeredById], references: [id], onDelete: Restrict)
+  approvedBy   User?  @relation("DeviceApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+  revokedBy    User?  @relation("DeviceRevokedBy", fields: [revokedById], references: [id], onDelete: SetNull)
+
+  authSessions      AuthSession[]
+  consents          UserConsent[]
+  auditLogs         AuditLog[]
+  checkedInBookings Booking[]
+  trainingSessions  TrainingSession[]
+
+  @@unique([centerId, label])
+  @@index([centerId, status])
+  @@map("center_devices")
+}

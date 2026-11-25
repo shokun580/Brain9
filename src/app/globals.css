@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/* =========================================================================================
+   Brain9 design tokens — ported from the elderly-side prototype (demov1).
+   Principles: large type, large targets (>= 64px), strong contrast, never colour alone.
+   OWNER: infra (team lead). Use the Tailwind utilities generated below (bg-primary,
+   text-text-2, rounded-card …) instead of hard-coding colours in components.
+   ========================================================================================= */
+
+:root {
+  --bg: #f7f4ee;
+  --surface: #ffffff;
+  --surface-2: #efeae1;
+  --text: #1a1c22;
+  --text-2: #464a55;
+  --border: #d7d0c4;
+  --border-strong: #8f887b;
+  --primary: #1f4e8c;
+  --primary-press: #163a69;
+  --primary-soft: #e3ebf6;
+  --on-primary: #ffffff;
+  --success: #1e6b3e;
+  --success-soft: #e1f2e7;
+  --on-success: #ffffff;
+  --danger: #a32a20;
+  --danger-soft: #fbe6e3;
+  --on-danger: #ffffff;
+  --warn: #7a4f00;
+  --warn-soft: #fff0cc;
+  --duo: #6a3da8;
+  --duo-soft: #eee5fa;
+  --on-duo: #ffffff;
+  --board: #24324d;
+  --cell: #eaf0f8;
+  --lit: #ffc43d;
+  --focus: #e07800;
+  --shadow-card: 0 2px 0 rgba(0, 0, 0, 0.05), 0 6px 18px rgba(30, 30, 50, 0.06);
+  color-scheme: light;
+}
+
+/* High-contrast mode: set <html data-contrast="high">. */
+html[data-contrast="high"] {
+  --bg: #000000;
+  --surface: #000000;
+  --surface-2: #161616;
+  --text: #ffffff;
+  --text-2: #f0f0f0;
+  --border: #ffffff;
+  --border-strong: #ffffff;
+  --primary: #ffe14d;
+  --primary-press: #e6c700;
+  --primary-soft: #262000;
+  --on-primary: #000000;
+  --success: #5be38a;
+  --success-soft: #0b2a16;
+  --on-success: #000000;
+  --danger: #ff8a7e;
+  --danger-soft: #300e0a;
+  --on-danger: #000000;
+  --warn: #ffd36e;
+  --warn-soft: #2b2000;
+  --duo: #c9a6ff;
+  --duo-soft: #24153d;
+  --on-duo: #000000;
+  --board: #000000;
+  --cell: #1e1e1e;
+  --lit: #ffe14d;
+  --focus: #00e5ff;
+  --shadow-card: none;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-primary: var(--primary);
+  --color-primary-press: var(--primary-press);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-on-success: var(--on-success);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-on-danger: var(--on-danger);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-duo: var(--duo);
+  --color-duo-soft: var(--duo-soft);
+  --color-on-duo: var(--on-duo);
+  --color-board: var(--board);
+  --color-cell: var(--cell);
+  --color-lit: var(--lit);
+  --color-focus: var(--focus);
+  --radius-card: 20px;
+  --shadow-card: var(--shadow-card);
+  --font-sans: var(--font-line-seed), "Noto Sans Thai", Thonburi, system-ui, sans-serif;
+}
+
+/* Base size is 20px; the text-size control sets <html data-size="2|3">. All spacing and
+   type use rem, so the whole interface scales with it. */
+html {
+  font-size: 20px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+html[data-size="2"] {
+  font-size: 24px;
+}
+html[data-size="3"] {
+  font-size: 28px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

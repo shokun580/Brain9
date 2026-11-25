@@ -1,0 +1,70 @@
+name: Deploy staging
+
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+# Never run two staging deploys at once, and never cancel one halfway through a migration.
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+jobs:
+  deploy:
+    name: deploy-staging
+    # Set the repository variable DEPLOY_ENABLED=true once Vercel and Neon are configured
+    # (docs/deployment.md). Until then this job is skipped instead of failing.
+    if: vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull staging settings and environment variables from Vercel
+        run: vercel pull --yes --environment=preview --git-branch=staging --token="$VERCEL_TOKEN"
+
+      - name: Build
+        run: vercel build --token="$VERCEL_TOKEN"
+
+      - name: Apply database migrations (Neon branch "staging")
+        env:
+          BRAIN9_ENV_FILE: .vercel/.env.preview.local
+        run: pnpm db:deploy
+
+      - name: Deploy
+        id: deploy
+        env:
+          STAGING_DOMAIN: ${{ vars.STAGING_DOMAIN }}
+        run: |
+          url="$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")"
+          if [ -n "$STAGING_DOMAIN" ]; then
+            vercel alias set "$url" "$STAGING_DOMAIN" --token="$VERCEL_TOKEN"
+            url="https://$STAGING_DOMAIN"
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed to $url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Health check
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          curl --fail --silent --show-error --retry 6 --retry-delay 5 --retry-all-errors "$URL/api/health"

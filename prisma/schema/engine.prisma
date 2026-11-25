@@ -1,0 +1,129 @@
+// OWNER: engine module (Supanat, @Pxrch).
+// What actually happened when a user played: session -> item result -> each attempt.
+// `ItemResult` is the hand-off table to analytics. Rows are immutable once completed.
+
+enum TrainingMode {
+  TRAINING /// Hints + next-cell highlight, unlimited retries (errorless learning).
+  TEST /// No hints, limited attempts. Primary data source for analytics.
+}
+
+enum TrainingSessionStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum InputType {
+  TOUCH
+  MOUSE
+  PEN
+}
+
+/// One run of one exercise in one mode by one user.
+model TrainingSession {
+  id                   String                @id @default(uuid(7)) @db.Uuid
+  userId               String                @map("user_id") @db.Uuid
+  courseId             String                @map("course_id") @db.Uuid
+  exerciseId           String                @map("exercise_id") @db.Uuid
+  mode                 TrainingMode
+  status               TrainingSessionStatus @default(IN_PROGRESS)
+  // ---- where it happened ----
+  context              UsageContext          @default(HOME)
+  centerId             String?               @map("center_id") @db.Uuid
+  deviceId             String?               @map("device_id") @db.Uuid
+  bookingId            String?               @map("booking_id") @db.Uuid
+  authSessionId        String?               @map("auth_session_id") @db.Uuid
+  // ---- settings in force when the session started (content may change later) ----
+  difficultyLevel      Int                   @map("difficulty_level") @db.SmallInt
+  maxAttempts          Int                   @map("max_attempts") @db.SmallInt
+  showMs               Int                   @map("show_ms")
+  gapMs                Int                   @map("gap_ms")
+  /// Two taps within this window count as one simultaneous two-finger press.
+  simultaneityWindowMs Int?                  @map("simultaneity_window_ms")
+  inputType            InputType?            @map("input_type")
+  /// Non-identifying client facts: viewport size, maxTouchPoints, app version.
+  clientInfo           Json?                 @map("client_info")
+  itemsTotal           Int                   @default(0) @map("items_total") @db.SmallInt
+  startedAt            DateTime              @default(now()) @map("started_at") @db.Timestamptz(3)
+  finishedAt           DateTime?             @map("finished_at") @db.Timestamptz(3)
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  course      Course        @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  exercise    Exercise      @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  center      Center?       @relation(fields: [centerId], references: [id], onDelete: SetNull)
+  device      CenterDevice? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  booking     Booking?      @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  authSession AuthSession?  @relation(fields: [authSessionId], references: [id], onDelete: SetNull)
+
+  itemResults ItemResult[]
+  summary     SessionSummary?
+
+  @@index([userId, startedAt(sort: Desc)])
+  @@index([exerciseId, mode, status])
+  @@index([centerId, startedAt])
+  @@map("training_sessions")
+}
+
+/// Final outcome of one item (pattern) inside a session.
+model ItemResult {
+  id                String    @id @default(uuid(7)) @db.Uuid
+  sessionId         String    @map("session_id") @db.Uuid
+  /// Denormalised from the session so analytics can filter without a join.
+  userId            String    @map("user_id") @db.Uuid
+  patternId         String    @map("pattern_id") @db.Uuid
+  patternVersion    Int       @map("pattern_version")
+  /// Position of the item in the session (1-based).
+  itemOrder         Int       @map("item_order") @db.SmallInt
+  /// Snapshot of Pattern.steps at play time (same PatternSteps contract).
+  expectedSteps     Json      @map("expected_steps")
+  sequenceLength    Int       @map("sequence_length") @db.SmallInt
+  hasSimultaneous   Boolean   @default(false) @map("has_simultaneous")
+  /// true when any attempt reproduced the whole sequence.
+  isCorrect         Boolean   @map("is_correct")
+  attemptsUsed      Int       @map("attempts_used") @db.SmallInt
+  /// Steps reproduced correctly in the best attempt (for partial-credit accuracy).
+  correctSteps      Int       @map("correct_steps") @db.SmallInt
+  totalSteps        Int       @map("total_steps") @db.SmallInt
+  /// From the end of the pattern display to the last tap of the final attempt.
+  responseTimeMs    Int?      @map("response_time_ms")
+  /// From the end of the pattern display to the first tap (planning time).
+  firstTapLatencyMs Int?      @map("first_tap_latency_ms")
+  startedAt         DateTime  @map("started_at") @db.Timestamptz(3)
+  completedAt       DateTime? @map("completed_at") @db.Timestamptz(3)
+
+  session TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Restrict)
+  pattern Pattern         @relation(fields: [patternId], references: [id], onDelete: Restrict)
+
+  attempts ItemAttempt[]
+
+  @@unique([sessionId, patternId])
+  @@index([userId, completedAt(sort: Desc)])
+  @@index([patternId])
+  @@map("item_results")
+}
+
+/// Raw record of each try at an item. The server re-checks `taps` against the pattern
+/// before saving, so `isCorrect` here is never trusted from the browser.
+model ItemAttempt {
+  id                  String   @id @default(uuid(7)) @db.Uuid
+  itemResultId        String   @map("item_result_id") @db.Uuid
+  /// 1-based.
+  attemptNo           Int      @map("attempt_no") @db.SmallInt
+  /// AttemptTaps contract: [ { "cells": [4], "t": 512 }, { "cells": [0, 8], "t": 1340 } ]
+  /// t = milliseconds since the pattern finished displaying (performance.now based).
+  taps                Json
+  isCorrect           Boolean  @map("is_correct")
+  /// Index (0-based) of the first wrong step; NULL when correct.
+  firstErrorStep      Int?     @map("first_error_step") @db.SmallInt
+  correctSteps        Int      @map("correct_steps") @db.SmallInt
+  responseTimeMs      Int?     @map("response_time_ms")
+  /// Milliseconds between consecutive steps.
+  interTapIntervalsMs Int[]    @map("inter_tap_intervals_ms")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  itemResult ItemResult @relation(fields: [itemResultId], references: [id], onDelete: Cascade)
+
+  @@unique([itemResultId, attemptNo])
+  @@map("item_attempts")
+}

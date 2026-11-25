@@ -1,0 +1,291 @@
+// OWNER: identity module (Chanon, @chanon-max).
+// Users, credentials, sessions, PDPA consent, data-subject requests, audit trail.
+// Other modules add back-relation fields on `User` only — never change its columns.
+
+enum UserRole {
+  USER /// Elderly person who trains, books, and views their own results.
+  ADMIN /// Caregiver / community-center staff. Sees every user and every center.
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING_DELETION /// Erasure requested; waiting for an admin to process it.
+  ANONYMIZED /// Personal data wiped; row kept so historic statistics stay consistent.
+}
+
+enum CredentialType {
+  PIN /// 4–6 digit PIN (elderly users).
+  PASSWORD /// Long passphrase (admins).
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  UNDISCLOSED
+}
+
+enum SessionEndReason {
+  LOGOUT
+  IDLE_TIMEOUT
+  SLOT_ENDED
+  EXPIRED
+  REVOKED_BY_ADMIN
+  CREDENTIAL_CHANGED
+  CONSENT_WITHDRAWN
+}
+
+enum PolicyType {
+  PRIVACY_NOTICE
+  TERMS_OF_USE
+}
+
+enum ConsentPurpose {
+  TERMS_OF_USE /// Acceptance of the usage policy.
+  PERSONAL_DATA /// Account, profile, booking data.
+  COGNITIVE_DATA /// Training results that may be read as health-related (sensitive) data.
+}
+
+enum ConsentAction {
+  GRANTED
+  WITHDRAWN
+}
+
+enum DataRequestType {
+  ACCESS
+  RECTIFICATION
+  ERASURE
+  RESTRICT_PROCESSING
+  OBJECTION
+}
+
+enum DataRequestStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+  CANCELLED
+}
+
+model User {
+  id                  String         @id @default(uuid(7)) @db.Uuid
+  /// Login identifier. Digits only, normalised (e.g. 0812345678). NULL once anonymized.
+  phone               String?        @unique @db.VarChar(20)
+  firstName           String         @map("first_name") @db.VarChar(100)
+  lastName            String         @map("last_name") @db.VarChar(100)
+  role                UserRole       @default(USER)
+  status              UserStatus     @default(ACTIVE)
+  credentialType      CredentialType @default(PIN) @map("credential_type")
+  /// bcrypt hash of the PIN / password. Never store or log the plain value.
+  credentialHash      String?        @map("credential_hash") @db.VarChar(255)
+  credentialUpdatedAt DateTime?      @map("credential_updated_at") @db.Timestamptz(3)
+  failedLoginCount    Int            @default(0) @map("failed_login_count")
+  lockedUntil         DateTime?      @map("locked_until") @db.Timestamptz(3)
+  lastLoginAt         DateTime?      @map("last_login_at") @db.Timestamptz(3)
+  birthDate           DateTime?      @map("birth_date") @db.Date
+  gender              Gender?
+  homeCenterId        String?        @map("home_center_id") @db.Uuid
+  /// Admin who created the account on the user's behalf (walk-in sign-up). NULL = self sign-up.
+  registeredById      String?        @map("registered_by_id") @db.Uuid
+  createdAt           DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  anonymizedAt        DateTime?      @map("anonymized_at") @db.Timestamptz(3)
+
+  homeCenter      Center? @relation("UserHomeCenter", fields: [homeCenterId], references: [id], onDelete: SetNull)
+  registeredBy    User?   @relation("UserRegisteredBy", fields: [registeredById], references: [id], onDelete: SetNull)
+  registeredUsers User[]  @relation("UserRegisteredBy")
+
+  // --- identity ---
+  emergencyContacts   EmergencyContact[]
+  authSessions        AuthSession[]
+  consents            UserConsent[]        @relation("ConsentSubject")
+  consentsRecorded    UserConsent[]        @relation("ConsentRecorder")
+  policiesPublished   PolicyDocument[]
+  dataRequests        DataSubjectRequest[] @relation("DataRequestSubject")
+  dataRequestsHandled DataSubjectRequest[] @relation("DataRequestHandler")
+  auditLogsAsActor    AuditLog[]           @relation("AuditActor")
+  auditLogsAsTarget   AuditLog[]           @relation("AuditTarget")
+
+  // --- centers (back-relations) ---
+  devicesRegistered CenterDevice[] @relation("DeviceRegisteredBy")
+  devicesApproved   CenterDevice[] @relation("DeviceApprovedBy")
+  devicesRevoked    CenterDevice[] @relation("DeviceRevokedBy")
+
+  // --- booking (back-relations) ---
+  scheduleTemplatesCreated  ScheduleTemplate[]
+  scheduleExceptionsCreated ScheduleException[]
+  bookings                  Booking[]           @relation("BookingUser")
+  bookingsCreated           Booking[]           @relation("BookingCreatedBy")
+  bookingsCancelled         Booking[]           @relation("BookingCancelledBy")
+
+  // --- content (back-relations) ---
+  coursesCreated   Course[]   @relation("CourseCreatedBy")
+  coursesUpdated   Course[]   @relation("CourseUpdatedBy")
+  exercisesCreated Exercise[] @relation("ExerciseCreatedBy")
+  patternsCreated  Pattern[]  @relation("PatternCreatedBy")
+
+  // --- engine (back-relations) ---
+  trainingSessions TrainingSession[]
+  itemResults      ItemResult[]
+
+  // --- analytics (back-relations) ---
+  sessionSummaries  SessionSummary[]
+  performanceLevels UserPerformanceLevel[]
+  metricSnapshots   UserMetricSnapshot[]
+  recommendations   Recommendation[]
+
+  @@index([role, status])
+  @@index([homeCenterId])
+  @@index([lastName, firstName])
+  @@map("users")
+}
+
+model EmergencyContact {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  name         String   @db.VarChar(200)
+  /// Free text, e.g. "ลูกสาว", "หลาน".
+  relationship String?  @db.VarChar(100)
+  phone        String   @db.VarChar(20)
+  isPrimary    Boolean  @default(false) @map("is_primary")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("emergency_contacts")
+}
+
+/// Server-side login session. The browser only holds an opaque random token in an
+/// HttpOnly + Secure cookie; we store its SHA-256 hash, never the token itself.
+model AuthSession {
+  id         String            @id @default(uuid(7)) @db.Uuid
+  userId     String            @map("user_id") @db.Uuid
+  tokenHash  String            @unique @map("token_hash") @db.Char(64)
+  context    UsageContext      @default(HOME)
+  /// Set when the login happened on a registered community-center device.
+  deviceId   String?           @map("device_id") @db.Uuid
+  /// The booking that allowed this center login (center devices require a booking to train).
+  bookingId  String?           @map("booking_id") @db.Uuid
+  ipAddress  String?           @map("ip_address") @db.VarChar(45)
+  userAgent  String?           @map("user_agent") @db.VarChar(500)
+  createdAt  DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  lastSeenAt DateTime          @default(now()) @map("last_seen_at") @db.Timestamptz(3)
+  expiresAt  DateTime          @map("expires_at") @db.Timestamptz(3)
+  endedAt    DateTime?         @map("ended_at") @db.Timestamptz(3)
+  endReason  SessionEndReason? @map("end_reason")
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device  CenterDevice? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  booking Booking?      @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  trainingSessions TrainingSession[]
+
+  @@index([userId, endedAt])
+  @@index([deviceId, endedAt])
+  @@index([expiresAt])
+  @@map("auth_sessions")
+}
+
+/// A published version of the privacy notice or terms of use. Rows are immutable once
+/// published — publish a new version instead of editing, so consent evidence stays valid.
+model PolicyDocument {
+  id            String     @id @default(uuid(7)) @db.Uuid
+  type          PolicyType
+  version       String     @db.VarChar(20)
+  title         String     @db.VarChar(200)
+  /// Plain-language summary shown in large type on the sign-up screen.
+  summary       String?    @db.Text
+  content       String     @db.Text
+  effectiveAt   DateTime   @map("effective_at") @db.Timestamptz(3)
+  publishedAt   DateTime?  @map("published_at") @db.Timestamptz(3)
+  publishedById String?    @map("published_by_id") @db.Uuid
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  publishedBy User?         @relation(fields: [publishedById], references: [id], onDelete: SetNull)
+  consents    UserConsent[]
+
+  @@unique([type, version])
+  @@index([type, effectiveAt])
+  @@map("policy_documents")
+}
+
+/// APPEND-ONLY consent ledger (PDPA evidence). Never UPDATE or DELETE rows.
+/// Current state for (user, purpose) = the row with the latest `occurredAt`.
+/// Withdrawing consent inserts a new row with action = WITHDRAWN.
+model UserConsent {
+  id               String         @id @default(uuid(7)) @db.Uuid
+  userId           String         @map("user_id") @db.Uuid
+  policyDocumentId String         @map("policy_document_id") @db.Uuid
+  purpose          ConsentPurpose
+  action           ConsentAction
+  occurredAt       DateTime       @default(now()) @map("occurred_at") @db.Timestamptz(3)
+  context          UsageContext   @default(HOME)
+  deviceId         String?        @map("device_id") @db.Uuid
+  /// Admin who assisted (e.g. walk-in sign-up at a center). NULL = done by the user themself.
+  recordedById     String?        @map("recorded_by_id") @db.Uuid
+  ipAddress        String?        @map("ip_address") @db.VarChar(45)
+  userAgent        String?        @map("user_agent") @db.VarChar(500)
+  note             String?        @db.VarChar(500)
+
+  user           User           @relation("ConsentSubject", fields: [userId], references: [id], onDelete: Restrict)
+  policyDocument PolicyDocument @relation(fields: [policyDocumentId], references: [id], onDelete: Restrict)
+  device         CenterDevice?  @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  recordedBy     User?          @relation("ConsentRecorder", fields: [recordedById], references: [id], onDelete: SetNull)
+
+  @@index([userId, purpose, occurredAt(sort: Desc)])
+  @@index([policyDocumentId])
+  @@map("user_consents")
+}
+
+/// Requests a data subject can make under PDPA (see, fix, erase, restrict, object).
+model DataSubjectRequest {
+  id             String            @id @default(uuid(7)) @db.Uuid
+  userId         String            @map("user_id") @db.Uuid
+  type           DataRequestType
+  status         DataRequestStatus @default(PENDING)
+  details        String?           @db.Text
+  requestedAt    DateTime          @default(now()) @map("requested_at") @db.Timestamptz(3)
+  /// Deadline to respond (PDPA: within 30 days of the request).
+  dueAt          DateTime          @map("due_at") @db.Timestamptz(3)
+  handledById    String?           @map("handled_by_id") @db.Uuid
+  handledAt      DateTime?         @map("handled_at") @db.Timestamptz(3)
+  resolutionNote String?           @map("resolution_note") @db.Text
+
+  user      User  @relation("DataRequestSubject", fields: [userId], references: [id], onDelete: Restrict)
+  handledBy User? @relation("DataRequestHandler", fields: [handledById], references: [id], onDelete: SetNull)
+
+  @@index([status, dueAt])
+  @@index([userId, requestedAt(sort: Desc)])
+  @@map("data_subject_requests")
+}
+
+/// APPEND-ONLY record of security- and privacy-relevant actions, especially an Admin
+/// reading or changing another person's data. Written through identity's `recordAudit()`.
+model AuditLog {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  actorId      String?  @map("actor_id") @db.Uuid
+  /// Dot-separated verb, e.g. "user.view", "user.suspend", "device.approve", "consent.withdraw".
+  action       String   @db.VarChar(100)
+  entityType   String   @map("entity_type") @db.VarChar(50)
+  entityId     String?  @map("entity_id") @db.VarChar(64)
+  /// The person whose personal data was touched, when applicable.
+  targetUserId String?  @map("target_user_id") @db.Uuid
+  /// Extra context. MUST NOT contain credentials, tokens, or full personal records.
+  metadata     Json?
+  deviceId     String?  @map("device_id") @db.Uuid
+  ipAddress    String?  @map("ip_address") @db.VarChar(45)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  actor      User?         @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  targetUser User?         @relation("AuditTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
+  device     CenterDevice? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@index([actorId, createdAt(sort: Desc)])
+  @@index([targetUserId, createdAt(sort: Desc)])
+  @@index([entityType, entityId])
+  @@index([action, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
