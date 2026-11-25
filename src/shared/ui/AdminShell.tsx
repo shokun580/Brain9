@@ -3,14 +3,7 @@
 import { ChevronsLeft, CircleHelp, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Suspense,
-  useState,
-  useSyncExternalStore,
-  ViewTransition,
-  type ReactNode,
-  type ViewTransitionClass,
-} from "react";
+import { Suspense, useState, useSyncExternalStore, ViewTransition, type ReactNode } from "react";
 import { cn } from "@/shared/lib/cn";
 import { NAV_TYPES, panelEnter } from "@/shared/lib/motion";
 import { findActiveNav, sectionHref, type AdminNavSection } from "./admin-nav";
@@ -204,13 +197,7 @@ export function AdminNavView({
           <p id="admin-panel-title" className="px-3 pb-2 text-small text-on-ink-muted">
             {activeSection ? activeSection.label : "เมนูทั้งหมด"}
           </p>
-          {/* The cast: motion.ts types the class map as Record<string, string>, which React's
-              ViewTransitionClass (a map of "none" | "auto" | string) does not accept as is. */}
-          <ViewTransition
-            key={activeSection?.id ?? "all"}
-            enter={panelEnter as ViewTransitionClass}
-            default="none"
-          >
+          <ViewTransition key={activeSection?.id ?? "all"} enter={panelEnter} default="none">
             <div className="flex flex-col">
               {activeSection ? (
                 <PanelSection section={activeSection} activeHref={activeHref} heading={false} />

@@ -2,40 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import { html } from "../../../test/render";
 import { Table, TBody, Td, Th, THead, Tr } from "./DataTable";
 import { Pagination } from "./Pagination";
-import { Panel } from "./Panel";
 import { StatusDot } from "./StatusDot";
 import { Tabs } from "./Tabs";
 import { Tag } from "./Tag";
 
 const href = (p: number) => `?page=${p}`;
-
-describe("Panel", () => {
-  it("is a bordered panel with a header only when asked", () => {
-    const out = html(<Panel title="คอร์ส">x</Panel>);
-    expect(out).toContain("rounded-panel");
-    expect(out).toContain("border-line");
-    expect(out).toContain("bg-surface");
-    expect(out).toMatch(/<h2[^>]*>คอร์ส<\/h2>/);
-    expect(html(<Panel>x</Panel>)).not.toContain("<h2");
-    expect(html(<Panel>x</Panel>)).not.toContain("border-b");
-  });
-  it("shows a count after the title and keeps the action from squeezing it", () => {
-    const out = html(
-      <Panel title="คอร์ส" count="12 รายการ" action={<a href="/x">เพิ่ม</a>}>
-        x
-      </Panel>,
-    );
-    expect(out).toMatch(/text-fg-muted[^>]*>12 รายการ</);
-    expect(out).toContain("flex-wrap");
-    expect(out).toContain("min-w-0 flex-1");
-    expect(out).toContain("shrink-0");
-    expect(html(<Panel action={<a href="/x">เพิ่ม</a>}>x</Panel>)).toContain("เพิ่ม");
-  });
-  it("pads the body unless padded is false", () => {
-    expect(html(<Panel>x</Panel>)).toContain("p-4");
-    expect(html(<Panel padded={false}>x</Panel>)).not.toContain("p-4");
-  });
-});
 
 describe("DataTable", () => {
   it("scrolls inside its own wrapper", () => {

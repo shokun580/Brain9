@@ -18,7 +18,7 @@ export function CreateCourseForm() {
   const fieldErrors = state && !state.ok ? state.fieldErrors : undefined;
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} className="flex max-w-[35rem] flex-col gap-5">
       <TextField label="ชื่อคอร์ส" name="title" required maxLength={200} errors={fieldErrors?.title} />
       <Textarea
         label="คำอธิบาย (ไม่บังคับ)"
@@ -40,7 +40,7 @@ export function CreateCourseForm() {
       ) : null}
       {state?.ok ? <Notice tone="success">สร้างคอร์สเรียบร้อยแล้ว</Notice> : null}
 
-      <div className="flex justify-end">
+      <div>
         <Button type="submit" disabled={pending}>
           {pending ? "กำลังบันทึก…" : "สร้างคอร์ส"}
         </Button>
