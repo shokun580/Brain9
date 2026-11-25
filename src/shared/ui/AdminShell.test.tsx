@@ -1,84 +1,205 @@
 import { describe, expect, it } from "vitest";
 import { html } from "../../../test/render";
-import { AdminShell, collapseLabel, type AdminNavGroup } from "./AdminShell";
+import { AdminNavView, AdminShell, collapseLabel } from "./AdminShell";
+import type { AdminNavSection } from "./admin-nav";
 
 // Same shape and labels as the real menu; src/shared must not import from src/app.
-const nav: AdminNavGroup[] = [
-  { items: [{ href: "/admin", label: "ภาพรวม", icon: <i /> }] },
+const sections: AdminNavSection[] = [
   {
+    id: "overview",
+    label: "ภาพรวม",
+    railLabel: "ภาพรวม",
+    icon: <i />,
+    groups: [{ items: [{ href: "/admin", label: "ภาพรวม", icon: <i /> }] }],
+  },
+  {
+    id: "people",
     label: "ผู้ใช้และศูนย์",
-    items: [
-      { href: "/admin/users", label: "ผู้ใช้งาน", icon: <i /> },
-      { href: "/admin/privacy", label: "คำขอข้อมูลส่วนบุคคล", icon: <i />, badge: "3" },
+    railLabel: "ผู้ใช้",
+    icon: <i />,
+    groups: [
+      {
+        label: "ผู้ใช้",
+        items: [
+          { href: "/admin/users", label: "ผู้ใช้งาน", icon: <i /> },
+          { href: "/admin/privacy", label: "คำขอข้อมูลส่วนบุคคล", icon: <i />, badge: "3" },
+        ],
+      },
+      { label: "ศูนย์", items: [{ href: "/admin/centers", label: "ศูนย์และเครื่อง", icon: <i /> }] },
     ],
   },
   {
+    id: "content",
     label: "เนื้อหาและผล",
-    items: [{ href: "/admin/content/courses", label: "คอร์สและแบบฝึก", icon: <i /> }],
+    railLabel: "เนื้อหา",
+    icon: <i />,
+    groups: [
+      {
+        label: "เนื้อหา",
+        items: [{ href: "/admin/content/courses", label: "คอร์สและแบบฝึก", icon: <i /> }],
+      },
+    ],
   },
 ];
 
 const shell = (extra: Partial<Parameters<typeof AdminShell>[0]> = {}) =>
   html(
-    <AdminShell brand="Brain9" roleLabel="ผู้ดูแล" nav={nav} {...extra}>
-      เนื้อหา
+    <AdminShell brand="Brain9" roleLabel="ผู้ดูแล" nav={sections} {...extra}>
+      เนื้อหาตัวอย่าง
     </AdminShell>,
   );
 
+const view = (pathname: string | null) =>
+  html(<AdminNavView sections={sections} pathname={pathname} />);
+
+const navs = (markup: string) => markup.match(/<nav[\s\S]*?<\/nav>/g) ?? [];
+const links = (markup: string) => markup.match(/<a [^>]*>/g) ?? [];
+
+describe("AdminNavView", () => {
+  it("renders the rail and the panel as two labelled landmarks", () => {
+    const out = view("/admin/users");
+    const [rail, panel] = navs(out);
+    expect(navs(out)).toHaveLength(2);
+    expect(rail).toContain('aria-label="หมวดเมนูผู้ดูแล"');
+    expect(rail).toContain("bg-nav-rail");
+    expect(panel).toContain('id="admin-panel"');
+    expect(panel).toContain('aria-labelledby="admin-panel-title"');
+    expect(panel).toContain('id="admin-panel-title"');
+    expect(panel).toContain("bg-ink");
+  });
+
+  it("points each section link at its first page and shows the rail word", () => {
+    const [rail = ""] = navs(view("/admin/users"));
+    expect(rail).toContain('href="/admin/users"');
+    expect(rail).toContain('href="/admin/content/courses"');
+    expect(rail).toContain('title="ผู้ใช้และศูนย์"');
+    expect(rail).toContain(">ผู้ใช้<");
+    expect(rail).toContain(">เนื้อหา<");
+  });
+
+  it("marks the current section and the current page, nothing else", () => {
+    const out = view("/admin/privacy");
+    const [rail = "", panel = ""] = navs(out);
+    const railCurrent = links(rail).filter((a) => a.includes("aria-current"));
+    expect(railCurrent).toHaveLength(1);
+    expect(railCurrent[0]).toContain('href="/admin/users"');
+    expect(railCurrent[0]).toContain('aria-current="true"');
+    expect(railCurrent[0]).toContain("bg-nav-fill");
+    const panelCurrent = links(panel).filter((a) => a.includes("aria-current"));
+    expect(panelCurrent).toHaveLength(1);
+    expect(panelCurrent[0]).toContain('href="/admin/privacy"');
+    expect(panelCurrent[0]).toContain('aria-current="page"');
+    expect(panelCurrent[0]).toContain("bg-nav-fill");
+    expect(panelCurrent[0]).toContain("text-on-ink");
+  });
+
+  it("uses aria-current=page on the rail link when the section's first page is open", () => {
+    const [rail = ""] = navs(view("/admin/users"));
+    const current = links(rail).filter((a) => a.includes("aria-current"));
+    expect(current[0]).toContain('aria-current="page"');
+  });
+
+  it("lists only the pages of the current section in the panel", () => {
+    const [, panel = ""] = navs(view("/admin/content/courses/abc"));
+    expect(panel).toContain("เนื้อหาและผล");
+    expect(panel).toContain("คอร์สและแบบฝึก");
+    expect(panel).not.toContain("ผู้ใช้งาน");
+  });
+
+  it("keeps the two navs free of shadows, bold text and an accent bar", () => {
+    for (const path of ["/admin/users", null]) {
+      for (const nav of navs(view(path))) {
+        expect(nav).not.toMatch(/shadow/);
+        expect(nav).not.toMatch(/font-bold/);
+        expect(nav).not.toMatch(/before:/);
+      }
+    }
+  });
+
+  it("stacks every section when the pathname is unknown", () => {
+    for (const path of [null, "/somewhere-else"]) {
+      const out = view(path);
+      for (const label of ["ภาพรวม", "ผู้ใช้และศูนย์", "เนื้อหาและผล"]) expect(out).toContain(label);
+      for (const label of ["ผู้ใช้งาน", "คำขอข้อมูลส่วนบุคคล", "ศูนย์และเครื่อง", "คอร์สและแบบฝึก"]) {
+        expect(out).toContain(label);
+      }
+      expect(out).not.toContain("aria-current");
+    }
+  });
+
+  it("renders a group label for screen readers only, with a rule between groups", () => {
+    const [, panel = ""] = navs(view("/admin/users"));
+    expect(panel).toMatch(/<p class="sr-only">ศูนย์<\/p>/);
+    expect(panel).toContain("border-nav-line");
+  });
+
+  it("announces the badge", () => {
+    const [, panel = ""] = navs(view("/admin/users"));
+    expect(panel).toContain("3");
+    expect(panel).toMatch(/sr-only[^>]*>[^<]+<\/span>3/);
+  });
+});
+
 describe("AdminShell", () => {
-  it("renders the menu, groups, toggles and content with working links", () => {
+  it("renders the frame, the skip link, the main landmark and no heading", () => {
     const out = shell();
-    expect(out).toContain("<aside");
-    expect(out).toContain('<nav aria-label="เมนูผู้ดูแล"');
-    expect(out).toContain("<main");
-    expect(out).toContain("คอร์สและแบบฝึก");
-    expect(out).toContain("ผู้ใช้และศูนย์");
-    expect(out).toContain("ย่อเมนู");
-    expect(out).toContain('aria-label="เปิดหรือปิดเมนู"');
-    expect(out).toContain('href="/admin/users"');
-    expect(out).toContain("เนื้อหา");
-    expect(out).not.toMatch(/type="search"/);
+    expect(navs(out)).toHaveLength(2);
+    expect(out).toContain('href="#main"');
+    expect(out).toContain("ข้ามไปยังเนื้อหา");
+    expect(out).toMatch(/<main[^>]*id="main"/);
+    expect(out).toContain("max-w-admin");
+    expect(out).toContain("เนื้อหาตัวอย่าง");
+    expect(out).toContain('data-ui="admin"');
     expect(out).not.toContain("<h1");
+    expect(out).not.toMatch(/type="search"/);
   });
 
-  it("gives every item an accessible name and title for the icon rail", () => {
+  it("hides the panel through CSS below 1024px and lets noscript force it open", () => {
     const out = shell();
-    expect(out).toContain('aria-label="ผู้ใช้งาน"');
-    expect(out).toContain('title="ผู้ใช้งาน"');
-    expect(out).toContain('title="คอร์สและแบบฝึก"');
+    expect(out).toContain('data-panel="auto"');
+    const [, panel = ""] = navs(out);
+    expect(panel).toContain("invisible");
+    expect(panel).toContain("w-0");
+    expect(panel).toContain("max-lg:");
+    expect(panel).toContain("noscript:");
   });
 
-  it("uses real buttons that report the menu state", () => {
+  it("renders every page as a working link before hydration and marks none current", () => {
+    const out = shell();
+    expect(out).toContain('href="/admin/centers"');
+    expect(out).toContain("ศูนย์และเครื่อง");
+    expect(out).not.toContain("aria-current");
+  });
+
+  it("uses real buttons: the rail foot names its action, the top bar reports its state", () => {
     const out = shell();
     const buttons = out.match(/<button[^>]*>/g) ?? [];
-    expect(buttons.length).toBe(2);
+    expect(buttons).toHaveLength(2);
     for (const b of buttons) expect(b).toContain('type="button"');
-    // Only the top-bar toggle reports a state; the bottom button names the action it does.
-    const [bottom, top] = buttons;
-    expect(bottom).not.toContain("aria-expanded");
-    expect(bottom).toContain('aria-label="ย่อเมนู"');
-    expect(bottom).toContain('title="ย่อเมนู"');
+    const top = buttons.find((b) => b.includes("aria-expanded")) ?? "";
+    expect(top).toContain('aria-controls="admin-panel"');
     expect(top).toContain('aria-expanded="true"');
-    expect(top).toContain('aria-label="เปิดหรือปิดเมนู"');
+    const foot = buttons.find((b) => !b.includes("aria-expanded")) ?? "";
+    expect(foot).toContain('aria-label="ย่อเมนู"');
   });
 
-  it("tolerates a null pathname: no item is marked current", () => {
-    expect(shell()).not.toContain("aria-current");
-  });
-
-  it("starts collapsed below 1024px through CSS, not through state", () => {
+  it("names the shared elements for view transitions", () => {
     const out = shell();
-    expect(out).toContain('data-menu="auto"');
-    expect(out).toContain("max-lg:");
+    expect(out).toContain("view-transition-name:admin-nav");
+    expect(out).toContain("view-transition-name:admin-topbar");
   });
 
-  it("renders the badge, the default footer, and the slots", () => {
-    const out = shell({ user: <span>คุณตัวอย่าง</span>, centerSlot: <span>ศูนย์ตัวอย่าง</span> });
-    expect(out).toContain(">3<");
+  it("renders the default footer, the environment label and the slots", () => {
+    const out = shell({
+      user: <span>คุณตัวอย่าง</span>,
+      centerSlot: <span>ศูนย์ตัวอย่าง</span>,
+      environmentLabel: "staging",
+    });
     expect(out).toContain("Brain9 ระบบฝึกสมองผู้สูงอายุ");
+    expect(out).toContain("staging");
     expect(out).toContain("คุณตัวอย่าง");
     expect(out).toContain("ศูนย์ตัวอย่าง");
-    expect(out).toContain('data-ui="admin"');
+    expect(shell()).not.toContain("staging");
   });
 
   it("shows the help link only when it has a destination", () => {
@@ -92,7 +213,7 @@ describe("AdminShell", () => {
 });
 
 describe("collapseLabel", () => {
-  it("names the action the bottom button performs in each state", () => {
+  it("names the action the rail-foot button performs in each state", () => {
     expect(collapseLabel(true)).toBe("ย่อเมนู");
     expect(collapseLabel(false)).toBe("ขยายเมนู");
   });

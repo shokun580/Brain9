@@ -31,14 +31,16 @@ export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { SaveBar, type SaveBarProps } from "./SaveBar";
 export { SegmentedControl, type SegmentedControlProps } from "./SegmentedControl";
 export { StatTile, type StatTileProps } from "./StatTile";
-export {
-  AdminShell,
-  type AdminNavGroup,
-  type AdminNavItem,
-  type AdminShellProps,
-} from "./AdminShell";
+export { AdminShell, AdminNavView, type AdminShellProps } from "./AdminShell";
 
 // admin shell (Task 19)
+export {
+  findActiveNav,
+  sectionHref,
+  type AdminNavGroup,
+  type AdminNavItem,
+  type AdminNavSection,
+} from "./admin-nav";
 
 // admin layout (Tasks 20, 21)
 export { AdminSection, type AdminSectionProps } from "./AdminSection";

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { getCurrentUser, requireAdmin } from "@/modules/identity";
+import { env } from "@/shared/lib/env";
 import { AdminShell } from "@/shared/ui";
 import { adminNav } from "./nav";
 
@@ -31,12 +32,19 @@ async function AdminUser() {
   );
 }
 
+/** Names a non-production deployment in the footer; production shows nothing. */
+function environmentLabel(): string | undefined {
+  const appEnv = env().APP_ENV;
+  return appEnv === "production" ? undefined : appEnv;
+}
+
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
     <AdminShell
       brand="Brain9"
       roleLabel="ผู้ดูแล"
       nav={adminNav}
+      environmentLabel={environmentLabel()}
       user={
         <Suspense fallback={null}>
           <AdminUser />
