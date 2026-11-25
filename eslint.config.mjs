@@ -26,6 +26,23 @@ const PRISMA_DIRECT = {
     "Import the client as `db` from '@/shared/lib/db' and types from '@/generated/prisma/*'.",
 };
 
+// ---------------------------------------------------------------------------------------
+// Soft delete only (see AGENTS.md → "Database rules").
+// No row is ever physically deleted: set `deletedAt` instead. A call is rejected when it
+// is `.deleteMany()` (which exists only on the Prisma client), `.delete()` on a model of
+// the client (`db.<model>` / `tx.<model>`), or `.delete()` with Prisma's `{ where }`
+// argument — so `Map#delete`, `cookies().delete()` and `searchParams.delete()` stay allowed.
+// ---------------------------------------------------------------------------------------
+const NO_HARD_DELETE = {
+  selector: `CallExpression:matches(${[
+    "[callee.property.name='deleteMany']",
+    "[callee.property.name='delete'][callee.object.object.name=/^(db|tx|prisma)$/]",
+    "[callee.property.name='delete'][arguments.0.type='ObjectExpression']:has(Property[key.name='where'])",
+  ].join(", ")})`,
+  message:
+    "Hard deletes are forbidden: every table is soft-delete only (AGENTS.md §5 \"Database rules\"). Set `deletedAt` instead — `data: softDelete()` from '@/shared/lib/soft-delete' — and read with `where: notDeleted`. Append-only ledgers are never deleted at all.",
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -72,6 +89,11 @@ const eslintConfig = defineConfig([
         },
       ],
     },
+  },
+  {
+    // Soft delete only: no Prisma hard deletes anywhere in application code.
+    files: ["src/**"],
+    rules: { "no-restricted-syntax": ["error", NO_HARD_DELETE] },
   },
   {
     // Command-line scripts may print to the terminal.
