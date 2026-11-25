@@ -178,4 +178,97 @@ describe("design tokens", () => {
     const theme = block("@theme inline");
     expect(theme).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
   });
+
+  describe("motion, skeleton and admin navigation tokens", () => {
+    const flat = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\s+/g, " ");
+
+    it("keeps the motion durations on :root so view-transition pseudo-elements inherit them", () => {
+      expect(root).toContain("--b9-motion-enter: 300ms;");
+      expect(root).toContain("--b9-motion-exit: 100ms;");
+    });
+
+    it("defines the skeleton colours, with a high-contrast override", () => {
+      expect(root).toContain("--b9-skeleton: #e3e9ec;");
+      expect(root).toContain("--b9-skeleton-shine: #f6f9fa;");
+      const high = block('html[data-contrast="high"] [data-ui="elder"]');
+      expect(high).toContain("--b9-skeleton: #3a3a3a;");
+      expect(high).toContain("--b9-skeleton-shine: #5a5a5a;");
+    });
+
+    it("defines the admin navigation colours without raw hex inside @theme", () => {
+      expect(root).toContain("--b9-nav-rail: #0c161d;");
+      expect(root).toContain("--b9-nav-fill: rgb(255 255 255 / 0.1);");
+      expect(root).toContain("--b9-nav-line: rgb(255 255 255 / 0.14);");
+      const theme = block("@theme inline");
+      for (const name of ["skeleton", "skeleton-shine", "nav-rail", "nav-fill", "nav-line"]) {
+        expect(theme).toContain(`--color-${name}: var(--b9-${name});`);
+      }
+      expect(theme).toContain("--container-admin: 53.75rem;");
+    });
+
+    it("keeps the menu text colours readable on the rail", () => {
+      for (const name of ["on-ink", "on-ink-2", "on-ink-muted"]) {
+        expect(
+          contrastRatio(ROOT[`--b9-${name}`] as string, "#0C161D"),
+          name,
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+    });
+
+    it("defines the shimmer and the noscript variant", () => {
+      expect(flat).toContain("@custom-variant noscript (@media (scripting: none));");
+      expect(flat).toContain("@utility animate-skeleton {");
+      expect(flat).toContain("b9-skeleton-shimmer 1.5s linear infinite");
+      expect(flat).toContain("@keyframes b9-skeleton-shimmer");
+    });
+
+    it("lets clicks through the view-transition overlay", () => {
+      expect(flat).toContain("::view-transition { pointer-events: none; }");
+    });
+
+    it("defines the page, panel and reveal transition rules", () => {
+      expect(flat).toContain("::view-transition-new(.b9-page-in)");
+      expect(flat).toContain("::view-transition-old(.b9-page-out)");
+      expect(flat).toContain("::view-transition-new(.b9-panel-in)");
+      expect(flat).toContain("::view-transition-new(.b9-content-in)");
+      expect(flat).toContain("::view-transition-old(.b9-skeleton-out)");
+    });
+
+    it("anchors the chrome so it never animates", () => {
+      for (const name of ["admin-topbar", "elder-tabbar"]) {
+        const rule = (part: string, body: string) =>
+          new RegExp(`::view-transition-${part}\\(${name}\\)[^{}]*\\{ ${body} \\}`);
+        expect(flat, name).toMatch(rule("group", "animation: none; z-index: 100;"));
+        expect(flat, name).toMatch(rule("old", "display: none;"));
+        expect(flat, name).toMatch(rule("new", "animation: none;"));
+      }
+    });
+
+    it("keeps the unnamed chrome still by neutralising the root snapshot, and names no menu", () => {
+      expect(flat).toContain("::view-transition-old(root) { display: none; }");
+      expect(flat).toContain("::view-transition-new(root) { animation: none; }");
+      expect(flat).not.toContain("admin-nav)");
+    });
+
+    it("removes view-transition motion under prefers-reduced-motion", () => {
+      expect(flat).toMatch(
+        /@media \(prefers-reduced-motion: reduce\) \{[^@]*::view-transition-old\(\*\), ::view-transition-new\(\*\), ::view-transition-group\(\*\) \{ animation-duration: 0s !important;/,
+      );
+      expect(flat).toMatch(
+        /\*, \*::before, \*::after \{[^}]*animation-iteration-count: 1 !important;/,
+      );
+    });
+  });
+});
+
+describe("brand icon", () => {
+  const token = (name: string) =>
+    new RegExp(`${name}:\\s*(#[0-9a-f]{6})`).exec(css)?.[1] ?? "missing";
+
+  it("is the same drawing with the literal colours of the primary tokens", () => {
+    const icon = readFileSync(join(process.cwd(), "src/app/icon.svg"), "utf8").toLowerCase();
+    expect(icon).toContain(`fill="${token("--b9-primary")}"`);
+    expect(icon).toContain(`fill="${token("--b9-on-primary")}"`);
+    expect(icon.match(/<rect/g)).toHaveLength(10);
+  });
 });

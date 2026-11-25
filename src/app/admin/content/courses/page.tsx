@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { CourseList, CreateCourseForm } from "@/modules/content/ui";
-import { PageHeader, Panel } from "@/shared/ui";
+import { AdminSection, PageHeader, TableCard } from "@/shared/ui";
 
 export const metadata = { title: "คอร์สและแบบฝึก" };
 
@@ -12,22 +12,24 @@ export const metadata = { title: "คอร์สและแบบฝึก" };
  */
 export default function AdminCoursesPage() {
   return (
-    <div className="flex flex-col gap-6">
+    <>
       <PageHeader
         title="คอร์สและแบบฝึก"
         breadcrumbs={[{ label: "เนื้อหาและผล" }, { label: "คอร์สและแบบฝึก" }]}
         description="ดูคอร์สทั้งหมดและสร้างคอร์สใหม่"
       />
 
-      <Panel title="คอร์สทั้งหมด" padded={false}>
-        <Suspense fallback={<p className="p-4 text-body text-fg-2">กำลังโหลดรายการคอร์ส…</p>}>
-          <CourseList />
-        </Suspense>
-      </Panel>
+      <AdminSection title="คอร์สทั้งหมด">
+        <TableCard>
+          <Suspense fallback={<p className="p-4 text-body text-fg-2">กำลังโหลดรายการคอร์ส…</p>}>
+            <CourseList />
+          </Suspense>
+        </TableCard>
+      </AdminSection>
 
-      <Panel title="สร้างคอร์สใหม่">
+      <AdminSection title="สร้างคอร์สใหม่">
         <CreateCourseForm />
-      </Panel>
-    </div>
+      </AdminSection>
+    </>
   );
 }

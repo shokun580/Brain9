@@ -3,40 +3,42 @@
 import { ChevronsLeft, CircleHelp, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense, useState, useSyncExternalStore, type ReactNode } from "react";
+import { Suspense, useState, useSyncExternalStore, ViewTransition, type ReactNode } from "react";
+import { BrandMark } from "./BrandMark";
 import { cn } from "@/shared/lib/cn";
-import { isActivePath } from "@/shared/lib/nav";
-
-export type AdminNavItem = { href: string; label: string; icon: ReactNode; badge?: string };
-export type AdminNavGroup = { label?: string; items: AdminNavItem[] };
+import { NAV_TYPES, panelEnter } from "@/shared/lib/motion";
+import { findActiveNav, sectionHref, type AdminNavSection } from "./admin-nav";
 
 export type AdminShellProps = {
   brand: string;
   roleLabel: string;
-  nav: AdminNavGroup[];
+  nav: AdminNavSection[];
   /** Name and role of the signed-in admin. Nothing else about the person belongs here. */
   user?: ReactNode;
   centerSlot?: ReactNode;
   footer?: ReactNode;
   /** The help link is rendered only when there is somewhere to go. */
   helpHref?: string;
+  /** Short name of a non-production deployment (`local`, `staging`); never a secret. */
+  environmentLabel?: string;
   children: ReactNode;
 };
 
-// The menu has three states on the root's `data-menu`: "open", "closed", and "auto" (nobody
-// has pressed a toggle yet). "auto" is the server-rendered default: expanded from 1024px up,
-// the icon rail below it. It is decided by CSS, so there is no flash and no layout jump, and
-// without JavaScript the menu is still visible and every link works.
-const HIDE_IN_RAIL =
-  "group-data-[menu=closed]/shell:hidden group-data-[menu=auto]/shell:max-lg:hidden";
-const SHOW_IN_RAIL =
-  "hidden group-data-[menu=closed]/shell:block group-data-[menu=auto]/shell:max-lg:block";
-const CENTER_IN_RAIL =
-  "group-data-[menu=closed]/shell:justify-center group-data-[menu=auto]/shell:max-lg:justify-center";
-const FLIP_IN_RAIL =
-  "group-data-[menu=closed]/shell:rotate-180 group-data-[menu=auto]/shell:max-lg:rotate-180";
+// The page list (the "panel") has three states on the root's `data-panel`: "open", "closed",
+// and "auto" (nobody has pressed a toggle yet). "auto" is the server-rendered default: shown
+// from 1024px up, hidden below it. It is decided by CSS, so there is no flash and no layout
+// jump. Hidden means `w-0 invisible`: invisible takes the links out of the tab order. Without
+// JavaScript (`noscript:`) the panel is forced open so every page stays reachable.
+const PANEL_CLASSES = cn(
+  "w-[232px] shrink-0 overflow-hidden bg-ink transition-[width] duration-200 ease-out",
+  "group-data-[panel=closed]/shell:invisible group-data-[panel=closed]/shell:w-0",
+  "group-data-[panel=auto]/shell:max-lg:invisible group-data-[panel=auto]/shell:max-lg:w-0",
+  "noscript:visible! noscript:w-[232px]!",
+);
+const FLIP_WHEN_CLOSED =
+  "group-data-[panel=closed]/shell:rotate-180 group-data-[panel=auto]/shell:max-lg:rotate-180";
 
-/** Name of the bottom button: it collapses an open menu and expands the rail. */
+/** Name of the rail-foot button: it collapses an open panel and expands a closed one. */
 export function collapseLabel(open: boolean): string {
   return open ? "ย่อเมนู" : "ขยายเมนู";
 }
@@ -49,7 +51,7 @@ function subscribeToWidth(onChange: () => void) {
   return () => query.removeEventListener("change", onChange);
 }
 
-/** Whether the menu is expanded by default at the current width (matches the CSS above). */
+/** Whether the panel is shown by default at the current width (matches the CSS above). */
 function useWide(): boolean {
   return useSyncExternalStore(
     subscribeToWidth,
@@ -60,60 +62,78 @@ function useWide(): boolean {
   );
 }
 
-function MenuLinks({ nav, pathname }: { nav: AdminNavGroup[]; pathname: string | null }) {
+function RailLink({
+  section,
+  active,
+  current,
+}: {
+  section: AdminNavSection;
+  active: boolean;
+  current: "page" | "true" | undefined;
+}) {
   return (
-    <>
-      {nav.map((group, index) => (
-        <div key={group.label ?? `group-${index}`} className="flex flex-col gap-0.5">
-          {group.label ? (
-            <>
-              <p
-                className={cn(
-                  "px-2.5 pt-4 pb-1.5 text-micro font-bold tracking-wide text-on-ink-muted",
-                  HIDE_IN_RAIL,
-                )}
-              >
-                {group.label}
-              </p>
-              <div aria-hidden="true" className={cn("mx-2 my-2 h-px bg-on-ink/10", SHOW_IN_RAIL)} />
-            </>
-          ) : null}
+    <Link
+      href={sectionHref(section)}
+      title={section.label}
+      transitionTypes={[NAV_TYPES.section]}
+      aria-current={current}
+      className={cn(
+        "flex min-h-control w-full flex-col items-center justify-center gap-1 rounded-control px-1 py-2 text-center text-micro transition-colors duration-150 ease-out hover:bg-nav-fill hover:text-on-ink",
+        active ? "bg-nav-fill text-on-ink" : "text-on-ink-2",
+      )}
+    >
+      <span aria-hidden="true" className="grid size-icon shrink-0 place-items-center">
+        {section.icon}
+      </span>
+      <span className="[overflow-wrap:anywhere]">{section.railLabel}</span>
+    </Link>
+  );
+}
+
+function PanelSection({
+  section,
+  activeHref,
+  heading,
+}: {
+  section: AdminNavSection;
+  activeHref: string | null;
+  /** Stacked layout only: the section's own title above its pages. */
+  heading: boolean;
+}) {
+  return (
+    <div className="flex flex-col">
+      {heading ? (
+        <p className="px-3 pt-4 pb-1.5 text-small text-on-ink-muted">{section.label}</p>
+      ) : null}
+      {section.groups.map((group, index) => (
+        <div
+          key={group.label ?? `group-${index}`}
+          className={cn(
+            "flex flex-col gap-0.5",
+            index > 0 && "mt-2 border-t-[length:var(--b9-border)] border-nav-line pt-2",
+          )}
+        >
+          {group.label ? <p className="sr-only">{group.label}</p> : null}
           {group.items.map((item) => {
-            const active = pathname !== null && isActivePath(pathname, item.href);
+            const active = item.href === activeHref;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                title={item.label}
-                aria-label={item.label}
+                transitionTypes={[NAV_TYPES.page]}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex min-h-control items-center gap-3 rounded-control px-2.5 py-2 text-body transition-colors duration-150 ease-out hover:bg-on-ink/[0.06] hover:text-on-ink",
-                  CENTER_IN_RAIL,
-                  active
-                    ? "bg-on-ink/[0.09] font-bold text-on-ink before:absolute before:inset-y-1.5 before:-left-2.5 before:w-[3px] before:rounded-r-[3px] before:bg-primary-bright"
-                    : "text-on-ink-2",
+                  "flex min-h-control items-center gap-3 rounded-control px-3 py-2 text-lead transition-colors duration-150 ease-out hover:bg-nav-fill hover:text-on-ink",
+                  active ? "bg-nav-fill text-on-ink" : "text-on-ink-2",
                 )}
               >
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "grid size-icon shrink-0 place-items-center",
-                    active ? "text-primary-bright" : "text-on-ink-muted",
-                  )}
-                >
+                <span aria-hidden="true" className="grid size-icon shrink-0 place-items-center">
                   {item.icon}
                 </span>
-                <span className={cn("min-w-0 flex-1 [overflow-wrap:anywhere]", HIDE_IN_RAIL)}>
-                  {item.label}
-                </span>
+                <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{item.label}</span>
                 {item.badge ? (
-                  <span
-                    className={cn(
-                      "rounded-full bg-attention-soft px-2 text-micro font-bold text-attention",
-                      HIDE_IN_RAIL,
-                    )}
-                  >
+                  <span className="rounded-full bg-attention-soft px-2 text-micro text-attention">
+                    <span className="sr-only">ที่รอดำเนินการ </span>
                     {item.badge}
                   </span>
                 ) : null}
@@ -122,20 +142,95 @@ function MenuLinks({ nav, pathname }: { nav: AdminNavGroup[]; pathname: string |
           })}
         </div>
       ))}
+    </div>
+  );
+}
+
+/**
+ * Exported for tests only (the shell is its one consumer).
+ * The two menus: a rail of sections and, beside it, the pages of the selected section.
+ * Pure (the pathname is a prop) so it renders in tests; the shell feeds it `usePathname()`.
+ * With an unknown pathname the panel lists every section stacked, so no page is unreachable.
+ */
+export function AdminNavView({
+  sections,
+  pathname,
+  railHead,
+  railFoot,
+}: {
+  sections: AdminNavSection[];
+  pathname: string | null;
+  /** Brand mark above the section links. */
+  railHead?: ReactNode;
+  /** Panel toggle below the section links. */
+  railFoot?: ReactNode;
+}) {
+  const found = findActiveNav(sections, pathname);
+  const activeSection = found ? sections.find((s) => s.id === found.sectionId) : undefined;
+  const activeHref = found?.href ?? null;
+
+  return (
+    <>
+      <nav
+        aria-label="หมวดเมนูผู้ดูแล"
+        className="flex w-20 shrink-0 flex-col items-center gap-1 overflow-y-auto bg-nav-rail px-1.5 py-2"
+      >
+        {railHead}
+        {sections.map((section) => {
+          const active = section.id === activeSection?.id;
+          const onItsPage = active && activeHref === sectionHref(section);
+          return (
+            <RailLink
+              key={section.id}
+              section={section}
+              active={active}
+              current={active ? (onItsPage ? "page" : "true") : undefined}
+            />
+          );
+        })}
+        <div className="mt-auto w-full">{railFoot}</div>
+      </nav>
+      <nav
+        id="admin-panel"
+        aria-labelledby="admin-panel-title"
+        className={cn(PANEL_CLASSES, "border-r border-nav-line")}
+      >
+        <div className="h-full w-[232px] overflow-y-auto px-3 py-4">
+          <p id="admin-panel-title" className="px-3 pb-2 text-small text-on-ink-muted">
+            {activeSection ? activeSection.label : "เมนูทั้งหมด"}
+          </p>
+          <ViewTransition key={activeSection?.id ?? "all"} enter={panelEnter} default="none">
+            <div className="flex flex-col">
+              {activeSection ? (
+                <PanelSection section={activeSection} activeHref={activeHref} heading={false} />
+              ) : (
+                sections.map((section) => (
+                  <PanelSection key={section.id} section={section} activeHref={null} heading />
+                ))
+              )}
+            </div>
+          </ViewTransition>
+        </div>
+      </nav>
     </>
   );
 }
 
 /** Reads the path in its own client leaf so a suspending `usePathname` cannot blank the shell. */
-function ActiveMenuLinks({ nav }: { nav: AdminNavGroup[] }) {
+function ActiveNav(props: {
+  sections: AdminNavSection[];
+  railHead: ReactNode;
+  railFoot: ReactNode;
+}) {
   // `null` outside a router: render the menu, mark nothing.
   const pathname = usePathname();
-  return <MenuLinks nav={nav} pathname={pathname} />;
+  return <AdminNavView {...props} pathname={pathname} />;
 }
 
 /**
- * Frame of every admin page: a dark grouped menu on the left, a 56px top bar and the content.
- * The page owns its own `<h1>` (PageHeader); the shell never renders one.
+ * Frame of every admin page: a dark rail of sections, a panel with the pages of the selected
+ * section, a 56px top bar and the content. The page owns its own `<h1>` (PageHeader); the
+ * shell never renders one.
  */
 export function AdminShell({
   brand,
@@ -145,6 +240,7 @@ export function AdminShell({
   centerSlot,
   footer = "Brain9 ระบบฝึกสมองผู้สูงอายุ",
   helpHref,
+  environmentLabel,
   children,
 }: AdminShellProps) {
   // null until a toggle is pressed: then CSS decides (see above). After that the user decides.
@@ -153,62 +249,60 @@ export function AdminShell({
   const open = chosen ?? wide;
   const toggle = () => setChosen(!open);
 
+  const railHead = (
+    <span aria-hidden="true" title={`${brand} ${roleLabel}`} className="mb-2 shrink-0">
+      <BrandMark className="size-9" />
+    </span>
+  );
+  const railFoot = (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={collapseLabel(open)}
+      title={collapseLabel(open)}
+      className="flex min-h-control w-full flex-col items-center justify-center gap-1 rounded-control px-1 py-2 text-micro text-on-ink-muted hover:bg-nav-fill hover:text-on-ink"
+    >
+      <ChevronsLeft
+        aria-hidden="true"
+        strokeWidth={1.9}
+        className={cn("size-icon shrink-0 transition-transform duration-200", FLIP_WHEN_CLOSED)}
+      />
+      <span>{collapseLabel(open)}</span>
+    </button>
+  );
+
   return (
     <div
       data-ui="admin"
-      data-menu={chosen === null ? "auto" : chosen ? "open" : "closed"}
+      data-panel={chosen === null ? "auto" : chosen ? "open" : "closed"}
       className="group/shell flex min-h-dvh bg-page text-fg"
     >
-      <aside className="sticky top-0 flex h-dvh w-60 shrink-0 flex-col bg-ink text-on-ink-2 transition-[width] duration-200 ease-out [--b9-focus:var(--b9-primary-bright)] group-data-[menu=auto]/shell:max-lg:w-16 group-data-[menu=closed]/shell:w-16">
-        <div className="flex h-14 shrink-0 items-center gap-2.5 border-b border-on-ink/10 px-4 group-data-[menu=auto]/shell:max-lg:justify-center group-data-[menu=auto]/shell:max-lg:px-0 group-data-[menu=closed]/shell:justify-center group-data-[menu=closed]/shell:px-0">
-          <span
-            aria-hidden="true"
-            className="grid size-7 shrink-0 place-items-center rounded-control bg-primary text-lead font-bold text-on-primary"
-          >
-            9
-          </span>
-          <span className={cn("min-w-0 truncate text-lead font-bold text-on-ink", HIDE_IN_RAIL)}>
-            {brand}
-          </span>
-          <span
-            className={cn(
-              "ml-auto shrink-0 rounded-[5px] border border-on-ink/20 px-1.5 text-micro text-on-ink-muted",
-              HIDE_IN_RAIL,
-            )}
-          >
-            {roleLabel}
-          </span>
-        </div>
-        <nav aria-label="เมนูผู้ดูแล" className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2.5">
-          <Suspense fallback={<MenuLinks nav={nav} pathname={null} />}>
-            <ActiveMenuLinks nav={nav} />
-          </Suspense>
-        </nav>
-        <button
-          type="button"
-          onClick={toggle}
-          aria-label={collapseLabel(open)}
-          title={collapseLabel(open)}
-          className={cn(
-            "flex min-h-control shrink-0 items-center gap-2.5 border-t border-on-ink/10 px-5 text-small text-on-ink-muted hover:text-on-ink",
-            CENTER_IN_RAIL,
-            "group-data-[menu=closed]/shell:px-0 group-data-[menu=auto]/shell:max-lg:px-0",
-          )}
+      <a
+        href="#main"
+        className="sr-only z-50 rounded-control bg-surface px-4 py-3 text-body text-fg focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+      >
+        ข้ามไปยังเนื้อหา
+      </a>
+
+      <div className="sticky top-0 flex h-dvh shrink-0 text-on-ink-2 [--b9-focus:var(--b9-primary-bright)]">
+        <Suspense
+          fallback={
+            <AdminNavView sections={nav} pathname={null} railHead={railHead} railFoot={railFoot} />
+          }
         >
-          <ChevronsLeft
-            aria-hidden="true"
-            strokeWidth={1.9}
-            className={cn("size-icon shrink-0 transition-transform duration-200", FLIP_IN_RAIL)}
-          />
-          <span className={HIDE_IN_RAIL}>{collapseLabel(open)}</span>
-        </button>
-      </aside>
+          <ActiveNav sections={nav} railHead={railHead} railFoot={railFoot} />
+        </Suspense>
+      </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b border-line bg-surface px-3">
+        <header
+          style={{ viewTransitionName: "admin-topbar" }}
+          className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b border-line bg-surface px-3"
+        >
           <button
             type="button"
             onClick={toggle}
+            aria-controls="admin-panel"
             aria-expanded={open}
             aria-label="เปิดหรือปิดเมนู"
             title="เปิดหรือปิดเมนู"
@@ -221,7 +315,7 @@ export function AdminShell({
             {helpHref ? (
               <Link
                 href={helpHref}
-                className="flex min-h-control items-center gap-1.5 rounded-control px-2.5 text-small font-bold text-fg-2 hover:bg-surface-muted"
+                className="flex min-h-control items-center gap-1.5 rounded-control px-2.5 text-small text-fg-2 hover:bg-surface-muted"
               >
                 <CircleHelp aria-hidden="true" strokeWidth={1.9} className="size-icon-sm" />
                 ช่วยเหลือ
@@ -232,9 +326,12 @@ export function AdminShell({
             ) : null}
           </div>
         </header>
-        <main className="min-w-0 flex-1 p-6">{children}</main>
+        <main id="main" tabIndex={-1} className="min-w-0 flex-1 bg-surface p-6 outline-none">
+          <div className="max-w-admin">{children}</div>
+        </main>
         <footer className="border-t border-line bg-surface px-6 py-2.5 text-micro text-fg-muted">
           {footer}
+          {environmentLabel ? ` · ${environmentLabel}` : null}
         </footer>
       </div>
     </div>

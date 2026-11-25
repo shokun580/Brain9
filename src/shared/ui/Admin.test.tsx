@@ -2,40 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import { html } from "../../../test/render";
 import { Table, TBody, Td, Th, THead, Tr } from "./DataTable";
 import { Pagination } from "./Pagination";
-import { Panel } from "./Panel";
 import { StatusDot } from "./StatusDot";
 import { Tabs } from "./Tabs";
 import { Tag } from "./Tag";
 
 const href = (p: number) => `?page=${p}`;
-
-describe("Panel", () => {
-  it("is a bordered panel with a header only when asked", () => {
-    const out = html(<Panel title="คอร์ส">x</Panel>);
-    expect(out).toContain("rounded-panel");
-    expect(out).toContain("border-line");
-    expect(out).toContain("bg-surface");
-    expect(out).toMatch(/<h2[^>]*>คอร์ส<\/h2>/);
-    expect(html(<Panel>x</Panel>)).not.toContain("<h2");
-    expect(html(<Panel>x</Panel>)).not.toContain("border-b");
-  });
-  it("shows a count after the title and keeps the action from squeezing it", () => {
-    const out = html(
-      <Panel title="คอร์ส" count="12 รายการ" action={<a href="/x">เพิ่ม</a>}>
-        x
-      </Panel>,
-    );
-    expect(out).toMatch(/text-fg-muted[^>]*>12 รายการ</);
-    expect(out).toContain("flex-wrap");
-    expect(out).toContain("min-w-0 flex-1");
-    expect(out).toContain("shrink-0");
-    expect(html(<Panel action={<a href="/x">เพิ่ม</a>}>x</Panel>)).toContain("เพิ่ม");
-  });
-  it("pads the body unless padded is false", () => {
-    expect(html(<Panel>x</Panel>)).toContain("p-4");
-    expect(html(<Panel padded={false}>x</Panel>)).not.toContain("p-4");
-  });
-});
 
 describe("DataTable", () => {
   it("scrolls inside its own wrapper", () => {
@@ -67,7 +38,8 @@ describe("DataTable", () => {
       </table>,
     );
     expect(head).toContain("bg-surface-subtle");
-    expect(head).toContain("text-micro font-bold text-fg-muted");
+    expect(head).toContain("text-micro text-fg-muted");
+    expect(head).not.toContain("font-bold");
     const body = html(
       <table>
         <TBody>
@@ -79,6 +51,28 @@ describe("DataTable", () => {
     );
     expect(body).toContain("border-line");
     expect(body).toContain("var(--b9-border)");
+  });
+  it("tints a hovered body row but not the header row", () => {
+    const body = html(
+      <table>
+        <TBody>
+          <Tr>
+            <Td>ก</Td>
+          </Tr>
+        </TBody>
+      </table>,
+    );
+    expect(body).toContain("hover:bg-surface-subtle");
+    const head = html(
+      <table>
+        <THead>
+          <Tr>
+            <Th>ชื่อ</Th>
+          </Tr>
+        </THead>
+      </table>,
+    );
+    expect(head).not.toContain("hover:bg-surface-subtle");
   });
   it("Th defaults to scope col and maps sort to aria-sort", () => {
     expect(html(<Th>ชื่อ</Th>)).toContain('scope="col"');
@@ -92,8 +86,11 @@ describe("DataTable", () => {
     expect(html(<Th numeric>จำนวน</Th>)).toContain("text-right tabular-nums");
     expect(html(<Td numeric>3</Td>)).toContain("tabular-nums");
     expect(html(<Td numeric>3</Td>)).toContain("text-right");
-    expect(html(<Td primary>ก</Td>)).toContain("font-bold");
-    expect(html(<Td>ก</Td>)).not.toContain("font-bold");
+    expect(html(<Th>ชื่อ</Th>)).not.toContain("font-bold");
+    expect(html(<Td primary>ก</Td>)).not.toContain("font-bold");
+    expect(html(<Td primary>ก</Td>)).toContain("text-fg");
+    expect(html(<Td primary>ก</Td>)).not.toContain("text-fg-2");
+    expect(html(<Td>ก</Td>)).toContain("text-fg-2");
     expect(html(<Td muted>ก</Td>)).toContain("text-fg-muted");
   });
 });
