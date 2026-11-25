@@ -18,7 +18,7 @@ export { Section, type SectionProps } from "./Section";
 export { Select, type SelectProps } from "./Select";
 export { StepProgress, stepLabel, type StepProgressProps } from "./StepProgress";
 export { TextField, type TextFieldProps } from "./TextField";
-export { TabBar, type TabBarItem, type TabBarProps } from "./TabBar";
+export { TabBar, TabBarView, type TabBarItem, type TabBarProps } from "./TabBar";
 export { Textarea, type TextareaProps } from "./Textarea";
 export { Toast, type ToastProps } from "./Toast";
 export { Table, TBody, Td, Th, THead, Tr, type TdProps, type ThProps } from "./DataTable";
@@ -63,3 +63,4 @@ export {
 } from "./Skeleton";
 
 // motion (Task 23)
+export { Reveal, type RevealProps } from "./Reveal";

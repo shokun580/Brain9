@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { html } from "../../../test/render";
-import { TabBar } from "./TabBar";
+import { TabBar, TabBarView } from "./TabBar";
 
 const items = [
   { href: "/home", label: "หน้าหลัก", icon: <i /> },
@@ -28,5 +28,29 @@ describe("TabBar", () => {
       "grid-template-columns:repeat(4, minmax(0, 1fr))",
     );
     expect(html(<TabBar items={four} />)).not.toContain("grid-cols-4");
+  });
+});
+
+describe("TabBarView", () => {
+  it("marks the tab of the current path and no other", () => {
+    const t = html(<TabBarView items={items} pathname="/courses/abc" />);
+    expect((t.match(/aria-current="page"/g) ?? []).length).toBe(1);
+    expect(t).toMatch(/<a aria-current="page"[^>]*href="\/courses"/);
+  });
+
+  it("marks no tab while the pathname is unknown", () => {
+    const t = html(<TabBarView items={items} pathname={null} />);
+    expect(t).toContain("<nav");
+    expect(t).not.toContain("aria-current");
+  });
+
+  it("renders nothing on a hidden path", () => {
+    expect(html(<TabBarView items={items} pathname="/play/1" hideOn={["/play"]} />)).toBe("");
+  });
+
+  it("names the bar so it stays put during a page transition", () => {
+    expect(html(<TabBarView items={items} pathname="/home" />)).toContain(
+      "view-transition-name:elder-tabbar",
+    );
   });
 });
