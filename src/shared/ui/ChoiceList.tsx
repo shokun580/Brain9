@@ -79,9 +79,11 @@ export function ChoiceList({
           </label>
         ))}
       </div>
-      <div className="mt-2 flex flex-col gap-2">
-        <FieldMessages hint={hint} errors={errors} wiring={wiring} />
-      </div>
+      {hint || wiring.hasError ? (
+        <div className="mt-2 flex flex-col gap-2">
+          <FieldMessages hint={hint} errors={errors} wiring={wiring} />
+        </div>
+      ) : null}
     </fieldset>
   );
 }
