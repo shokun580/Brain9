@@ -108,6 +108,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "src/generated/**",
     "coverage/**",
+    ".claude/**",
   ]),
 ]);
 
