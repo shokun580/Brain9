@@ -36,8 +36,9 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Pinned to a major version: CLI flags have changed between majors.
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: npm install --global vercel@66
 
       - name: Pull staging settings and environment variables from Vercel
         run: vercel pull --yes --environment=preview --git-branch=staging --token="$VERCEL_TOKEN"
@@ -46,7 +47,7 @@ jobs:
       # (it does so for the first deployment of a project), which would put a staging
       # build on the production domain.
       - name: Build
-        run: vercel build --target=preview --token="$VERCEL_TOKEN"
+        run: vercel build --environment=preview --token="$VERCEL_TOKEN"
 
       - name: Apply database migrations (Neon branch "staging")
         env:
@@ -58,9 +59,11 @@ jobs:
         env:
           STAGING_DOMAIN: ${{ vars.STAGING_DOMAIN }}
         run: |
-          url="$(vercel deploy --prebuilt --target=preview --token="$VERCEL_TOKEN")"
+          url="$(vercel deploy --prebuilt --environment=preview --token="$VERCEL_TOKEN")"
           if [ -n "$STAGING_DOMAIN" ]; then
-            vercel alias set "$url" "$STAGING_DOMAIN" --token="$VERCEL_TOKEN"
+            # `alias` does not read VERCEL_ORG_ID, and the token is scoped to the team, so
+            # the team has to be named here or the API answers "User not found".
+            vercel alias set "$url" "$STAGING_DOMAIN" --scope "$VERCEL_ORG_ID" --token="$VERCEL_TOKEN"
             url="https://$STAGING_DOMAIN"
           fi
           echo "url=$url" >> "$GITHUB_OUTPUT"

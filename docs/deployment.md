@@ -225,9 +225,13 @@ Vercel for both environments — in the same PR that first reads it.
 Normally nobody does: the workflows deploy. If the lead ever has to deploy from a laptop,
 two things go wrong easily:
 
-- **Name the target.** `vercel deploy --prebuilt` without `--target=preview` made the very
-  first deployment of this project a production one. Use `--target=preview` for staging
-  and `--prod` for production, and check `vercel inspect <url>` before aliasing a domain.
+- **Name the environment.** `vercel deploy --prebuilt` with no environment made the very
+  first deployment of this project a production one. Use `--environment=preview` for
+  staging (`--target=preview` on CLI versions before 66) and `--prod` for production, and
+  check `vercel inspect <url>` before aliasing a domain.
+- **Name the team when aliasing.** `vercel alias set <url> <domain>` needs
+  `--scope <team id>` when it runs with the team-scoped token; without it the API answers
+  "User not found".
 - **No `.env*` files in the project folder while building.** The build output references
   files named `.env*` that sit in the folder (seen with `.env.example` and with a renamed
   backup of `.env.local`), so treat any such file as something that may be uploaded with
