@@ -1,6 +1,8 @@
 // OWNER: identity module (Chanon, @chanon-max).
 // Users, credentials, sessions, PDPA consent, data-subject requests, audit trail.
 // Other modules add back-relation fields on `User` only — never change its columns.
+// Soft delete only (AGENTS.md §5): no relation cascades, rows are never physically removed.
+// `user_consents` and `audit_logs` are append-only ledgers and have no `deleted_at`.
 
 enum UserRole {
   USER /// Elderly person who trains, books, and views their own results.
@@ -71,7 +73,10 @@ enum DataRequestStatus {
 model User {
   id                  String         @id @default(uuid(7)) @db.Uuid
   /// Login identifier. Digits only, normalised (e.g. 0812345678). NULL once anonymized.
-  phone               String?        @unique @db.VarChar(20)
+  /// Unique among rows that are not soft-deleted: partial unique index
+  /// `users_phone_live_key` in the migration SQL (Prisma cannot express it), so look a
+  /// user up with `findFirst({ where: { phone, deletedAt: null } })`, not `findUnique`.
+  phone               String?        @db.VarChar(20)
   firstName           String         @map("first_name") @db.VarChar(100)
   lastName            String         @map("last_name") @db.VarChar(100)
   role                UserRole       @default(USER)
@@ -90,7 +95,10 @@ model User {
   registeredById      String?        @map("registered_by_id") @db.Uuid
   createdAt           DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt           DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  /// PDPA erasure: personal fields overwritten, row kept (see src/modules/identity/AGENTS.md).
   anonymizedAt        DateTime?      @map("anonymized_at") @db.Timestamptz(3)
+  /// Account removed by an admin (duplicate, created by mistake). Not the same as erasure.
+  deletedAt           DateTime?      @map("deleted_at") @db.Timestamptz(3)
 
   homeCenter      Center? @relation("UserHomeCenter", fields: [homeCenterId], references: [id], onDelete: SetNull)
   registeredBy    User?   @relation("UserRegisteredBy", fields: [registeredById], references: [id], onDelete: SetNull)
@@ -142,17 +150,18 @@ model User {
 }
 
 model EmergencyContact {
-  id           String   @id @default(uuid(7)) @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  name         String   @db.VarChar(200)
+  id           String    @id @default(uuid(7)) @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  name         String    @db.VarChar(200)
   /// Free text, e.g. "ลูกสาว", "หลาน".
-  relationship String?  @db.VarChar(100)
-  phone        String   @db.VarChar(20)
-  isPrimary    Boolean  @default(false) @map("is_primary")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  relationship String?   @db.VarChar(100)
+  phone        String    @db.VarChar(20)
+  isPrimary    Boolean   @default(false) @map("is_primary")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz(3)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@index([userId])
   @@map("emergency_contacts")
@@ -160,6 +169,7 @@ model EmergencyContact {
 
 /// Server-side login session. The browser only holds an opaque random token in an
 /// HttpOnly + Secure cookie; we store its SHA-256 hash, never the token itself.
+/// A session is ENDED with `endedAt` + `endReason`; `deletedAt` is not part of sign-out.
 model AuthSession {
   id         String            @id @default(uuid(7)) @db.Uuid
   userId     String            @map("user_id") @db.Uuid
@@ -176,8 +186,9 @@ model AuthSession {
   expiresAt  DateTime          @map("expires_at") @db.Timestamptz(3)
   endedAt    DateTime?         @map("ended_at") @db.Timestamptz(3)
   endReason  SessionEndReason? @map("end_reason")
+  deletedAt  DateTime?         @map("deleted_at") @db.Timestamptz(3)
 
-  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User          @relation(fields: [userId], references: [id], onDelete: Restrict)
   device  CenterDevice? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
   booking Booking?      @relation(fields: [bookingId], references: [id], onDelete: SetNull)
 
@@ -191,6 +202,8 @@ model AuthSession {
 
 /// A published version of the privacy notice or terms of use. Rows are immutable once
 /// published — publish a new version instead of editing, so consent evidence stays valid.
+/// Only an unpublished draft may be soft-deleted. `(type, version)` stays unique across
+/// deleted rows too: a version label is never reused for a different text.
 model PolicyDocument {
   id            String     @id @default(uuid(7)) @db.Uuid
   type          PolicyType
@@ -203,6 +216,7 @@ model PolicyDocument {
   publishedAt   DateTime?  @map("published_at") @db.Timestamptz(3)
   publishedById String?    @map("published_by_id") @db.Uuid
   createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt     DateTime?  @map("deleted_at") @db.Timestamptz(3)
 
   publishedBy User?         @relation(fields: [publishedById], references: [id], onDelete: SetNull)
   consents    UserConsent[]
@@ -253,6 +267,7 @@ model DataSubjectRequest {
   handledById    String?           @map("handled_by_id") @db.Uuid
   handledAt      DateTime?         @map("handled_at") @db.Timestamptz(3)
   resolutionNote String?           @map("resolution_note") @db.Text
+  deletedAt      DateTime?         @map("deleted_at") @db.Timestamptz(3)
 
   user      User  @relation("DataRequestSubject", fields: [userId], references: [id], onDelete: Restrict)
   handledBy User? @relation("DataRequestHandler", fields: [handledById], references: [id], onDelete: SetNull)

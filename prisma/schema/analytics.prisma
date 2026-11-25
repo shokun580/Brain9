@@ -1,6 +1,8 @@
 // OWNER: analytics module (Saruta, @ptxsm).
 // Derived data only. Everything here can be recomputed from engine's item_results,
 // so analytics never writes to another module's tables.
+// Soft delete only (AGENTS.md §5): to recompute, update the row in place or soft-delete it
+// and insert a new one — never DELETE and re-insert.
 
 enum TrendDirection {
   IMPROVING
@@ -30,6 +32,8 @@ enum RecommendationStatus {
 }
 
 /// Per-session metrics ("ตารางผลสรุป"). One row per completed TrainingSession.
+/// The primary key is the session, so a soft-deleted summary is revived by the next
+/// recompute (upsert that sets `deletedAt` back to NULL), never duplicated.
 model SessionSummary {
   sessionId            String       @id @map("session_id") @db.Uuid
   userId               String       @map("user_id") @db.Uuid
@@ -53,8 +57,9 @@ model SessionSummary {
   maxCorrectSequence   Int?         @map("max_correct_sequence") @db.SmallInt
   completedAt          DateTime     @map("completed_at") @db.Timestamptz(3)
   computedAt           DateTime     @default(now()) @map("computed_at") @db.Timestamptz(3)
+  deletedAt            DateTime?    @map("deleted_at") @db.Timestamptz(3)
 
-  session  TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  session  TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Restrict)
   user     User            @relation(fields: [userId], references: [id], onDelete: Restrict)
   course   Course          @relation(fields: [courseId], references: [id], onDelete: Restrict)
   exercise Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
@@ -72,43 +77,47 @@ model SessionSummary {
 /// Thresholds that define each Performance Level (1 = needs support … 4 = excellent).
 /// Kept as data so the Requirement Owner can tune them without a deploy.
 /// difficultyLevel 0 = applies to every difficulty.
+/// (level, difficultyLevel, effectiveFrom) is unique among criteria that are not
+/// soft-deleted: partial unique index
+/// `performance_level_criteria_level_difficulty_effective_live_key` in the migration SQL.
 model PerformanceLevelCriterion {
-  id                   String   @id @default(uuid(7)) @db.Uuid
-  level                Int      @db.SmallInt
-  name                 String   @db.VarChar(100)
-  description          String?  @db.VarChar(500)
-  difficultyLevel      Int      @default(0) @map("difficulty_level") @db.SmallInt
-  minAccuracyPct       Decimal  @map("min_accuracy_pct") @db.Decimal(5, 2)
+  id                   String    @id @default(uuid(7)) @db.Uuid
+  level                Int       @db.SmallInt
+  name                 String    @db.VarChar(100)
+  description          String?   @db.VarChar(500)
+  difficultyLevel      Int       @default(0) @map("difficulty_level") @db.SmallInt
+  minAccuracyPct       Decimal   @map("min_accuracy_pct") @db.Decimal(5, 2)
   /// NULL = no response-time requirement for this level.
-  maxAvgResponseTimeMs Int?     @map("max_avg_response_time_ms")
-  isActive             Boolean  @default(true) @map("is_active")
-  effectiveFrom        DateTime @default(now()) @map("effective_from") @db.Timestamptz(3)
-  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt            DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  maxAvgResponseTimeMs Int?      @map("max_avg_response_time_ms")
+  isActive             Boolean   @default(true) @map("is_active")
+  effectiveFrom        DateTime  @default(now()) @map("effective_from") @db.Timestamptz(3)
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt            DateTime? @map("deleted_at") @db.Timestamptz(3)
 
   performanceLevels UserPerformanceLevel[]
 
-  @@unique([level, difficultyLevel, effectiveFrom])
   @@map("performance_level_criteria")
 }
 
 /// A user's Performance Level at one difficulty ("ตารางระดับความสามารถ").
 /// History is kept: a new row is inserted when the level is recomputed and the previous
 /// row gets isCurrent = false. A partial unique index (migration SQL) guarantees one
-/// current row per (user, difficulty).
+/// current row per (user, difficulty) among rows that are not soft-deleted.
 model UserPerformanceLevel {
-  id                   String   @id @default(uuid(7)) @db.Uuid
-  userId               String   @map("user_id") @db.Uuid
-  difficultyLevel      Int      @map("difficulty_level") @db.SmallInt
-  level                Int      @db.SmallInt
-  criterionId          String?  @map("criterion_id") @db.Uuid
-  accuracyPct          Decimal  @map("accuracy_pct") @db.Decimal(5, 2)
-  avgResponseTimeMs    Int?     @map("avg_response_time_ms")
+  id                   String    @id @default(uuid(7)) @db.Uuid
+  userId               String    @map("user_id") @db.Uuid
+  difficultyLevel      Int       @map("difficulty_level") @db.SmallInt
+  level                Int       @db.SmallInt
+  criterionId          String?   @map("criterion_id") @db.Uuid
+  accuracyPct          Decimal   @map("accuracy_pct") @db.Decimal(5, 2)
+  avgResponseTimeMs    Int?      @map("avg_response_time_ms")
   /// Number of TEST sessions the level is based on.
-  sessionsCount        Int      @map("sessions_count")
-  isCurrent            Boolean  @default(true) @map("is_current")
-  triggeredBySessionId String?  @map("triggered_by_session_id") @db.Uuid
-  computedAt           DateTime @default(now()) @map("computed_at") @db.Timestamptz(3)
+  sessionsCount        Int       @map("sessions_count")
+  isCurrent            Boolean   @default(true) @map("is_current")
+  triggeredBySessionId String?   @map("triggered_by_session_id") @db.Uuid
+  computedAt           DateTime  @default(now()) @map("computed_at") @db.Timestamptz(3)
+  deletedAt            DateTime? @map("deleted_at") @db.Timestamptz(3)
 
   user               User                       @relation(fields: [userId], references: [id], onDelete: Restrict)
   criterion          PerformanceLevelCriterion? @relation(fields: [criterionId], references: [id], onDelete: SetNull)
@@ -123,6 +132,9 @@ model UserPerformanceLevel {
 
 /// Period roll-up used for graphs and Progress Trend (moving average + slope).
 /// difficultyLevel 0 = all difficulties combined.
+/// The natural key below stays unique across soft-deleted rows too: there is one row per
+/// (user, mode, difficulty, period) for ever, and a recompute revives it with an upsert
+/// that sets `deletedAt` back to NULL.
 model UserMetricSnapshot {
   id                   String         @id @default(uuid(7)) @db.Uuid
   userId               String         @map("user_id") @db.Uuid
@@ -141,6 +153,7 @@ model UserMetricSnapshot {
   trendSlope           Decimal?       @map("trend_slope") @db.Decimal(8, 4)
   trendDirection       TrendDirection @default(INSUFFICIENT_DATA) @map("trend_direction")
   computedAt           DateTime       @default(now()) @map("computed_at") @db.Timestamptz(3)
+  deletedAt            DateTime?      @map("deleted_at") @db.Timestamptz(3)
 
   user User @relation(fields: [userId], references: [id], onDelete: Restrict)
 
@@ -160,6 +173,7 @@ model Recommendation {
   basedOnSessionId String?              @map("based_on_session_id") @db.Uuid
   createdAt        DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
   resolvedAt       DateTime?            @map("resolved_at") @db.Timestamptz(3)
+  deletedAt        DateTime?            @map("deleted_at") @db.Timestamptz(3)
 
   user           User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
   exercise       Exercise              @relation(fields: [exerciseId], references: [id], onDelete: Restrict)

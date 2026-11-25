@@ -1,5 +1,6 @@
 // OWNER: identity module (Chanon, @chanon-max).
 // Community centers and the shared devices ("kiosks") registered at each one.
+// Soft delete only (AGENTS.md §5).
 
 enum DeviceType {
   TABLET
@@ -17,19 +18,21 @@ enum DeviceStatus {
 }
 
 model Center {
-  id        String   @id @default(uuid(7)) @db.Uuid
-  /// Short human-readable code, e.g. "BSN-01".
-  code      String   @unique @db.VarChar(20)
-  name      String   @db.VarChar(200)
-  address   String?  @db.Text
-  district  String?  @db.VarChar(100)
-  province  String?  @db.VarChar(100)
-  phone     String?  @db.VarChar(20)
+  id        String    @id @default(uuid(7)) @db.Uuid
+  /// Short human-readable code, e.g. "BSN-01". Unique among centers that are not
+  /// soft-deleted: partial unique index `centers_code_live_key` in the migration SQL.
+  code      String    @db.VarChar(20)
+  name      String    @db.VarChar(200)
+  address   String?   @db.Text
+  district  String?   @db.VarChar(100)
+  province  String?   @db.VarChar(100)
+  phone     String?   @db.VarChar(20)
   /// IANA time zone used to turn schedule templates into concrete time slots.
-  timezone  String   @default("Asia/Bangkok") @db.VarChar(50)
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  timezone  String    @default("Asia/Bangkok") @db.VarChar(50)
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
 
   homeUsers          User[]              @relation("UserHomeCenter")
   devices            CenterDevice[]
@@ -50,7 +53,9 @@ model Center {
 model CenterDevice {
   id                  String       @id @default(uuid(7)) @db.Uuid
   centerId            String       @map("center_id") @db.Uuid
-  /// Name staff use to point at the device, e.g. "แท็บเล็ต 1".
+  /// Name staff use to point at the device, e.g. "แท็บเล็ต 1". Unique per center among
+  /// devices that are not soft-deleted: partial unique index
+  /// `center_devices_center_id_label_live_key` in the migration SQL.
   label               String       @db.VarChar(100)
   /// Inventory / asset number of the organisation, if any.
   assetTag            String?      @map("asset_tag") @db.VarChar(100)
@@ -87,6 +92,7 @@ model CenterDevice {
   notes               String?      @db.Text
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt           DateTime?    @map("deleted_at") @db.Timestamptz(3)
 
   center       Center @relation(fields: [centerId], references: [id], onDelete: Restrict)
   registeredBy User   @relation("DeviceRegisteredBy", fields: [registeredById], references: [id], onDelete: Restrict)
@@ -99,7 +105,6 @@ model CenterDevice {
   checkedInBookings Booking[]
   trainingSessions  TrainingSession[]
 
-  @@unique([centerId, label])
   @@index([centerId, status])
   @@map("center_devices")
 }

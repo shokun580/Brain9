@@ -1,6 +1,7 @@
 // OWNER: content module (Apinan, @shokun580).
 // Course -> Exercise -> Pattern (one Pattern = one item / "ข้อ" on the 3x3 grid).
-// Content is soft-deleted (deletedAt) because results reference it.
+// Content is soft-deleted (deletedAt) because results reference it. Soft delete only
+// (AGENTS.md §5).
 
 enum ContentStatus {
   DRAFT
