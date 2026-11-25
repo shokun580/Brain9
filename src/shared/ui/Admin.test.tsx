@@ -111,6 +111,7 @@ describe("Pagination", () => {
     const out = html(<Pagination page={4} pageSize={20} total={128} hrefFor={href} />);
     expect(out).toContain('<nav aria-label="การแบ่งหน้า"');
     expect(out).toMatch(/<a[^>]*aria-current="page"[^>]*>4<\/a>/);
+    expect(out).toMatch(/<a[^>]*href="\?page=4"[^>]*>4<\/a>/);
     expect(out).toContain('href="?page=3"');
     expect(out).toContain('href="?page=5"');
     expect(out).toContain('aria-label="หน้าก่อนหน้า"');
@@ -120,11 +121,42 @@ describe("Pagination", () => {
   });
   it("renders previous and next as disabled spans at the ends", () => {
     const first = html(<Pagination page={1} pageSize={20} total={128} hrefFor={href} />);
-    expect(first).toMatch(/<span[^>]*aria-disabled="true"[^>]*aria-label="หน้าก่อนหน้า"/);
+    expect(first).toMatch(/<span[^>]*aria-disabled="true"[^>]*>[\s\S]*?หน้าก่อนหน้า<\/span>/);
     expect(first).not.toContain('href="?page=0"');
     const last = html(<Pagination page={7} pageSize={20} total={128} hrefFor={href} />);
-    expect(last).toMatch(/<span[^>]*aria-disabled="true"[^>]*aria-label="หน้าถัดไป"/);
+    expect(last).toMatch(/<span[^>]*aria-disabled="true"[^>]*>[\s\S]*?หน้าถัดไป<\/span>/);
     expect(last).not.toContain('href="?page=8"');
+  });
+  it("names a disabled step with hidden text, not an aria-label on a span", () => {
+    const first = html(<Pagination page={1} pageSize={20} total={128} hrefFor={href} />);
+    const span = first.match(/<span[^>]*aria-disabled="true"[^>]*>[\s\S]*?<\/span>/)?.[0] ?? "";
+    expect(span).toContain("sr-only");
+    expect(span).toContain("หน้าก่อนหน้า");
+    expect(span).not.toContain("aria-label");
+    expect(span).not.toContain("href");
+  });
+  it("renders no nav landmark for a single page or none", () => {
+    for (const total of [0, 4]) {
+      const out = html(<Pagination page={1} pageSize={20} total={total} hrefFor={href} />);
+      expect(out).not.toContain("<nav");
+      expect(out).toContain("<p");
+    }
+  });
+  it("shows the clamped range and marks the last page for a page past the end", () => {
+    const out = html(<Pagination page={99} pageSize={20} total={128} hrefFor={href} />);
+    expect(out).toContain("แสดง 121–128 จาก 128 รายการ");
+    expect(out).toMatch(/<a[^>]*aria-current="page"[^>]*>7<\/a>/);
+  });
+  it("asks hrefFor for the neighbours of a middle page and of the last page", () => {
+    const middle = vi.fn(href);
+    html(<Pagination page={4} pageSize={20} total={128} hrefFor={middle} />);
+    const mid = middle.mock.calls.map(([p]) => p);
+    expect(mid).toEqual(expect.arrayContaining([3, 5]));
+    const end = vi.fn(href);
+    html(<Pagination page={7} pageSize={20} total={128} hrefFor={end} />);
+    const last = end.mock.calls.map(([p]) => p);
+    expect(last).toContain(6);
+    expect(last).not.toContain(8);
   });
   it("shows only the count for a single page or none", () => {
     for (const total of [0, 4]) {
@@ -188,6 +220,9 @@ describe("Tabs", () => {
     expect(html(<Tabs label="สถานะ" items={items} />)).toContain('aria-label="สถานะ"');
     expect(out.match(/aria-current="page"/g)).toHaveLength(1);
     expect(out).toMatch(/<a[^>]*aria-current="page"[^>]*>/);
+    expect(out).toMatch(
+      /<a[^>]*href="\?s=all"[^>]*aria-current="page"|<a[^>]*aria-current="page"[^>]*href="\?s=all"/,
+    );
   });
   it("styles active and inactive tabs and their count pills", () => {
     const [active, inactive] = html(<Tabs items={items} />).match(/<a[\s\S]*?<\/a>/g) ?? [];

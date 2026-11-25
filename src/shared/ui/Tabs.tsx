@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cn } from "@/shared/lib/cn";
 
 export type TabsProps = {
@@ -13,7 +14,7 @@ export function Tabs({ items, label = "แท็บ" }: TabsProps) {
       <ul className="m-0 flex list-none flex-wrap gap-x-5 p-0">
         {items.map((item) => (
           <li key={item.href}>
-            <a
+            <Link
               href={item.href}
               aria-current={item.active ? "page" : undefined}
               className={cn(
@@ -36,7 +37,7 @@ export function Tabs({ items, label = "แท็บ" }: TabsProps) {
                   {item.count}
                 </span>
               ) : null}
-            </a>
+            </Link>
           </li>
         ))}
       </ul>

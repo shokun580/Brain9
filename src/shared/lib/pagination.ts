@@ -8,6 +8,10 @@ function whole(value: number, min: number, fallback: number): number {
 /**
  * Which rows page `page` covers (1-based, inclusive). Total: bad input never throws or yields
  * NaN — a pageSize below 1 counts as 1, a bad total as 0, and the page is clamped into range.
+ *
+ * The clamp is silent, so query with the result, not the raw page: count first, then
+ * `const r = pageRange(rawPage, pageSize, total)`, read with `skip: r.from === 0 ? 0 : r.from - 1`
+ * and `take: pageSize`, and pass `r.page` to `<Pagination>`.
  */
 export function pageRange(page: number, pageSize: number, total: number): PageRange {
   const size = whole(pageSize, 1, 1);

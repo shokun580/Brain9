@@ -11,7 +11,8 @@ import {
 import type { AdminNavGroup } from "@/shared/ui";
 
 // Menu of the admin area. OWNER: infra (team lead).
-// A lane changes only its own lines here, through a PR the lead approves.
+// A lane changes only its own lines here, through a PR the lead approves, and adds the same
+// href to nav.test.tsx.
 const icon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon" } as const;
 
 export const adminNav: AdminNavGroup[] = [

@@ -30,10 +30,10 @@ export async function CourseList() {
           const status = courseStatusDisplay(course.status);
           return (
             <Tr key={course.id}>
-              <Td>
-                <span className="font-bold">{course.title}</span>
+              <Td primary>
+                {course.title}
                 {course.description ? (
-                  <span className="mt-0.5 block text-small text-fg-muted">
+                  <span className="mt-0.5 block text-small font-normal text-fg-muted">
                     {course.description}
                   </span>
                 ) : null}

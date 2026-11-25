@@ -49,7 +49,7 @@ export function NumberField({
           {...props}
         />
         {unit ? (
-          <span id={unitId} className="text-body text-fg-muted">
+          <span id={unitId} aria-hidden="true" className="text-body text-fg-muted">
             {unit}
           </span>
         ) : null}

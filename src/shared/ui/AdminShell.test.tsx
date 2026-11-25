@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { html } from "../../../test/render";
-import { AdminShell, type AdminNavGroup } from "./AdminShell";
+import { AdminShell, collapseLabel, type AdminNavGroup } from "./AdminShell";
 
 // Same shape and labels as the real menu; src/shared must not import from src/app.
 const nav: AdminNavGroup[] = [
@@ -52,10 +52,14 @@ describe("AdminShell", () => {
     const out = shell();
     const buttons = out.match(/<button[^>]*>/g) ?? [];
     expect(buttons.length).toBe(2);
-    for (const b of buttons) {
-      expect(b).toContain('type="button"');
-      expect(b).toContain('aria-expanded="true"');
-    }
+    for (const b of buttons) expect(b).toContain('type="button"');
+    // Only the top-bar toggle reports a state; the bottom button names the action it does.
+    const [bottom, top] = buttons;
+    expect(bottom).not.toContain("aria-expanded");
+    expect(bottom).toContain('aria-label="ย่อเมนู"');
+    expect(bottom).toContain('title="ย่อเมนู"');
+    expect(top).toContain('aria-expanded="true"');
+    expect(top).toContain('aria-label="เปิดหรือปิดเมนู"');
   });
 
   it("tolerates a null pathname: no item is marked current", () => {
@@ -84,5 +88,12 @@ describe("AdminShell", () => {
 
   it("lets the footer be replaced", () => {
     expect(shell({ footer: "ท้ายหน้าตัวอย่าง" })).toContain("ท้ายหน้าตัวอย่าง");
+  });
+});
+
+describe("collapseLabel", () => {
+  it("names the action the bottom button performs in each state", () => {
+    expect(collapseLabel(true)).toBe("ย่อเมนู");
+    expect(collapseLabel(false)).toBe("ขยายเมนู");
   });
 });

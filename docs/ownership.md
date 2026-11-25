@@ -39,15 +39,15 @@ Two deliberate exceptions, so nobody is blocked on the lead:
 
 ## Shared edges
 
-| Thing                                                  | Lives in | Used by                  | Rule                                                         |
-| ------------------------------------------------------ | -------- | ------------------------ | ------------------------------------------------------------ |
-| `getCurrentUser()` / `CurrentUser`                     | identity | everyone                 | Signature is frozen; changes need all lanes' approval        |
-| `PatternSteps` JSON                                    | content  | engine, analytics        | Versioned (`v`); see `docs/contracts/pattern-format.md`      |
-| `<PatternGrid />`                                      | engine   | content (Pattern Editor) | Props agreed in a cross-module issue                         |
-| `item_results` table                                   | engine   | analytics                | Column changes need analytics' approval                      |
-| `User` model back-relations                            | identity | everyone                 | Adding a relation field is fine; the identity owner approves |
-| Design tokens / UI kit                                 | infra    | everyone                 | Request additions with an `infra` issue                      |
-| Admin menu (`nav` array in `src/app/admin/layout.tsx`) | infra    | everyone                 | One-line PRs welcome, lead approves                          |
+| Thing                                              | Lives in | Used by                  | Rule                                                         |
+| -------------------------------------------------- | -------- | ------------------------ | ------------------------------------------------------------ |
+| `getCurrentUser()` / `CurrentUser`                 | identity | everyone                 | Signature is frozen; changes need all lanes' approval        |
+| `PatternSteps` JSON                                | content  | engine, analytics        | Versioned (`v`); see `docs/contracts/pattern-format.md`      |
+| `<PatternGrid />`                                  | engine   | content (Pattern Editor) | Props agreed in a cross-module issue                         |
+| `item_results` table                               | engine   | analytics                | Column changes need analytics' approval                      |
+| `User` model back-relations                        | identity | everyone                 | Adding a relation field is fine; the identity owner approves |
+| Design tokens / UI kit                             | infra    | everyone                 | Request additions with an `infra` issue                      |
+| Admin menu (`adminNav` in `src/app/admin/nav.tsx`) | infra    | everyone                 | One-line PRs welcome, lead approves                          |
 
 ## Requesting a change outside your lane
 

@@ -36,6 +36,11 @@ const CENTER_IN_RAIL =
 const FLIP_IN_RAIL =
   "group-data-[menu=closed]/shell:rotate-180 group-data-[menu=auto]/shell:max-lg:rotate-180";
 
+/** Name of the bottom button: it collapses an open menu and expands the rail. */
+export function collapseLabel(open: boolean): string {
+  return open ? "ย่อเมนู" : "ขยายเมนู";
+}
+
 const WIDE_QUERY = "(min-width: 1024px)";
 
 function subscribeToWidth(onChange: () => void) {
@@ -49,6 +54,8 @@ function useWide(): boolean {
   return useSyncExternalStore(
     subscribeToWidth,
     () => window.matchMedia(WIDE_QUERY).matches,
+    // Below 1024px the server HTML says "open" until hydration corrects it (the cost of the
+    // no-flash CSS default).
     () => true,
   );
 }
@@ -180,9 +187,8 @@ export function AdminShell({
         <button
           type="button"
           onClick={toggle}
-          aria-expanded={open}
-          aria-label="ย่อเมนู"
-          title="ย่อเมนู"
+          aria-label={collapseLabel(open)}
+          title={collapseLabel(open)}
           className={cn(
             "flex min-h-control shrink-0 items-center gap-2.5 border-t border-on-ink/10 px-5 text-small text-on-ink-muted hover:text-on-ink",
             CENTER_IN_RAIL,
@@ -194,7 +200,7 @@ export function AdminShell({
             strokeWidth={1.9}
             className={cn("size-icon shrink-0 transition-transform duration-200", FLIP_IN_RAIL)}
           />
-          <span className={HIDE_IN_RAIL}>ย่อเมนู</span>
+          <span className={HIDE_IN_RAIL}>{collapseLabel(open)}</span>
         </button>
       </aside>
 

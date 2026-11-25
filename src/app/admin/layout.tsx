@@ -19,7 +19,8 @@ async function AdminGate({ children }: { children: React.ReactNode }) {
 /** Name and role only: no phone number or other personal field reaches the top bar. */
 async function AdminUser() {
   const user = await getCurrentUser();
-  if (!user) return null;
+  // A non-admin is about to be redirected by AdminGate: never label them as an admin.
+  if (!user || user.role !== "ADMIN") return null;
   return (
     <div className="min-w-0 leading-tight">
       <p className="truncate text-small font-bold">

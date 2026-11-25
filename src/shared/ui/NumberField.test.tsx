@@ -55,6 +55,11 @@ describe("NumberField unit", () => {
     const out = html(<NumberField label="a" name="n" hint="ช่วย" />);
     expect(out).not.toContain("-unit");
   });
+  it("hides the unit from the label name but keeps it referenced by the input", () => {
+    const out = html(<NumberField label="a" name="n" unit="วินาที" />);
+    expect(out).toMatch(/<span id="field-n-unit"[^>]*aria-hidden="true"[^>]*>วินาที<\/span>/);
+    expect(out).toContain('aria-describedby="field-n-unit"');
+  });
   it("makes the whole box a label so a click anywhere focuses the input", () => {
     const out = html(<NumberField label="a" name="n" unit="วินาที" />);
     expect(out).toMatch(/<label for="field-n" class="[^"]*rounded-field[^"]*"/);

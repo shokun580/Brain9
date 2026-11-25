@@ -19,7 +19,7 @@ describe("PageHeader", () => {
     expect(out).toContain('aria-label="เส้นทาง"');
   });
   it("links earlier crumbs and marks the last as the current page", () => {
-    expect(out).toMatch(/<a href="\/admin\/users"[^>]*>ผู้ใช้และศูนย์<\/a>/);
+    expect(out).toMatch(/<a [^>]*href="\/admin\/users"[^>]*>ผู้ใช้และศูนย์<\/a>/);
     expect(out).toMatch(/<span[^>]*font-bold[^>]*aria-current="page"[^>]*>ผู้ใช้งาน<\/span>/);
     expect(out).toMatch(/aria-hidden="true"[^>]*>\//);
   });
@@ -92,7 +92,7 @@ describe("SegmentedControl", () => {
   });
   it("styles the selected segment and shows the focus ring on the segment", () => {
     expect(out).toContain("has-[:checked]:bg-ink");
-    expect(out).toContain("has-[:checked]:text-white");
+    expect(out).toContain("has-[:checked]:text-on-ink");
     expect(out).toContain("has-[:checked]:font-bold");
     expect(out).toContain("bg-surface text-fg");
     expect(out).toContain("has-[:focus-visible]:outline-3");

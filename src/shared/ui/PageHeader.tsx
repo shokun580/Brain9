@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 
 export type PageHeaderProps = {
@@ -25,9 +26,9 @@ export function PageHeader({ title, description, action, breadcrumbs }: PageHead
                         {crumb.label}
                       </span>
                     ) : crumb.href ? (
-                      <a href={crumb.href} className="text-fg-muted underline">
+                      <Link href={crumb.href} className="text-fg-muted underline">
                         {crumb.label}
-                      </a>
+                      </Link>
                     ) : (
                       <span>{crumb.label}</span>
                     )}
