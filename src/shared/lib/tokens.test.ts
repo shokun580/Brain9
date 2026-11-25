@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { contrastRatio } from "@/shared/lib/contrast";
+import { contrastRatio } from "./contrast";
 
 // Prettier puts each selector of the combined default block on its own line.
 const BASE = ':root,\n[data-ui="elder"]';

@@ -43,6 +43,26 @@ const NO_HARD_DELETE = {
     "Hard deletes are forbidden: every table is soft-delete only (AGENTS.md §5 \"Database rules\"). Set `deletedAt` instead — `data: softDelete()` from '@/shared/lib/soft-delete' — and read with `where: notDeleted`. Append-only ledgers are never deleted at all.",
 };
 
+// ---------------------------------------------------------------------------------------
+// Design tokens only (see docs/design-system.md). Feature code uses the token utilities and
+// `@/shared/ui`: no raw hex colours, no arbitrary colour values (`bg-[#fff]`, `border-[rgb(…)]`)
+// and no arbitrary font sizes (`text-[19px]`). Lengths such as `max-w-[560px]` stay allowed.
+// ---------------------------------------------------------------------------------------
+const RAW_DESIGN_VALUE =
+  "#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b|\\b(?:bg|text|border|fill|stroke|ring|outline|from|via|to|shadow|decoration|accent|caret|divide)-\\[(?:#|rgb|hsl|oklch|color)|\\btext-\\[\\d";
+const NO_RAW_DESIGN_VALUES = [
+  {
+    selector: `Literal[value=/${RAW_DESIGN_VALUE}/]`,
+    message:
+      "Use design tokens and @/shared/ui (docs/design-system.md): no raw colours or arbitrary colour/font-size values.",
+  },
+  {
+    selector: `TemplateElement[value.raw=/${RAW_DESIGN_VALUE}/]`,
+    message:
+      "Use design tokens and @/shared/ui (docs/design-system.md): no raw colours or arbitrary colour/font-size values.",
+  },
+];
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -94,6 +114,13 @@ const eslintConfig = defineConfig([
     // Soft delete only: no Prisma hard deletes anywhere in application code.
     files: ["src/**"],
     rules: { "no-restricted-syntax": ["error", NO_HARD_DELETE] },
+  },
+  {
+    // Feature code must use design tokens. `no-restricted-syntax` options are replaced, not
+    // merged, between config objects, so this object lists the hard-delete selector as well.
+    files: ["src/app/**", "src/modules/**"],
+    ignores: ["src/app/design/**", "src/app/layout.tsx", "src/app/globals.css"],
+    rules: { "no-restricted-syntax": ["error", NO_HARD_DELETE, ...NO_RAW_DESIGN_VALUES] },
   },
   {
     // Command-line scripts may print to the terminal.
