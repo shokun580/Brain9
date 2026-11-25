@@ -1,10 +1,18 @@
-export const metadata = { title: "ผู้ดูแล" };
+import { EmptyState, PageHeader, Panel } from "@/shared/ui";
+
+export const metadata = { title: "ภาพรวม" };
 
 export default function AdminHomePage() {
   return (
-    <section className="rounded-panel border border-line bg-surface p-5">
-      <h1 className="text-title font-bold">หน้าผู้ดูแล</h1>
-      <p className="mt-2 text-body text-fg-2">เลือกเมนูด้านบนเพื่อจัดการส่วนต่าง ๆ ของระบบ</p>
-    </section>
+    <div className="flex flex-col gap-6">
+      <PageHeader title="ภาพรวม" description="เลือกเมนูด้านซ้ายเพื่อจัดการส่วนต่าง ๆ ของระบบ" />
+      {/* TODO(analytics): replace with the admin dashboard */}
+      <Panel>
+        <EmptyState
+          title="ยังไม่มีข้อมูลสรุป"
+          description="ส่วนนี้จะแสดงภาพรวมของระบบเมื่อโมดูลวิเคราะห์ผลพร้อมใช้งาน"
+        />
+      </Panel>
+    </div>
   );
 }

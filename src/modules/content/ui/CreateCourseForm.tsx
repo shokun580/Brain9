@@ -40,9 +40,11 @@ export function CreateCourseForm() {
       ) : null}
       {state?.ok ? <Notice tone="success">สร้างคอร์สเรียบร้อยแล้ว</Notice> : null}
 
-      <Button type="submit" disabled={pending}>
-        {pending ? "กำลังบันทึก…" : "สร้างคอร์ส"}
-      </Button>
+      <div className="flex justify-end">
+        <Button type="submit" disabled={pending}>
+          {pending ? "กำลังบันทึก…" : "สร้างคอร์ส"}
+        </Button>
+      </div>
     </form>
   );
 }
