@@ -12,6 +12,26 @@ const variants: Record<Variant, string> = {
   danger: "bg-danger text-on-danger active:opacity-90",
 };
 
+const linkOnlyAttributes = [
+  "target",
+  "rel",
+  "download",
+  "hrefLang",
+  "ping",
+  "referrerPolicy",
+  "type",
+  "media",
+] as const;
+
+/** Drops the attributes that only make sense on a real link. */
+function withoutLinkAttributes<T extends object>(
+  props: T,
+): Omit<T, (typeof linkOnlyAttributes)[number]> {
+  const copy: Record<string, unknown> = { ...(props as Record<string, unknown>) };
+  for (const key of linkOnlyAttributes) delete copy[key];
+  return copy as Omit<T, (typeof linkOnlyAttributes)[number]>;
+}
+
 type Own = {
   variant?: Variant;
   size?: "default" | "sm";
@@ -55,13 +75,10 @@ export function Button({
       disabled?: boolean;
     };
     const { disabled, ...anchorProps } = anchor;
+    const spanProps = withoutLinkAttributes(anchorProps);
     // A disabled link must not navigate: drop the href and the link behaviour, keep the look.
     if (disabled || anchor["aria-disabled"] === true || anchor["aria-disabled"] === "true") {
-      return (
-        <span role="link" aria-disabled="true" className={classes}>
-          {anchor.children}
-        </span>
-      );
+      return <span {...spanProps} role="link" aria-disabled="true" className={classes} />;
     }
     return <Link href={href} className={classes} {...anchorProps} />;
   }

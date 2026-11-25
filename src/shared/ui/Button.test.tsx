@@ -69,4 +69,34 @@ describe("Button as a disabled link", () => {
     expect(out).not.toContain("href=");
     expect(out).toContain('aria-disabled="true"');
   });
+  it("keeps the caller's attributes and drops link-only ones", () => {
+    const out = html(
+      <Button
+        href="/home"
+        disabled
+        iconOnly
+        aria-label="ย้อนกลับ"
+        id="back"
+        data-x="1"
+        title="t"
+        target="_blank"
+        rel="noopener"
+      >
+        <svg />
+      </Button>,
+    );
+    expect(out).toContain('aria-label="ย้อนกลับ"');
+    expect(out).toContain('id="back"');
+    expect(out).toContain('data-x="1"');
+    expect(out).toContain('title="t"');
+    expect(out).toContain('role="link"');
+    expect(out).toContain('aria-disabled="true"');
+    expect(out).toContain("aspect-square");
+    expect(out).not.toMatch(/ href=| target=| rel=| disabled=/);
+  });
+  it("renders an enabled link without a disabled attribute", () => {
+    const out = html(<Button href="/home">ไป</Button>);
+    expect(out).toMatch(/<a[^>]*href="\/home"/);
+    expect(out).not.toMatch(/ disabled[ =>]/);
+  });
 });
