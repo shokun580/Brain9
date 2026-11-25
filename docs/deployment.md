@@ -60,8 +60,31 @@ Also in the dashboard:
 
 - **Settings → Deployment Protection → Vercel Authentication: off** (otherwise the staging
   URL asks teammates to log in to Vercel and the health check fails).
-- **Settings → Domains**: note the production domain (`brain9.vercel.app` or similar) and
-  choose a staging alias, for example `brain9-staging.vercel.app`.
+- **Settings → Domains**: `brain9.ast0miq.com` is attached to the project as the
+  production domain.
+
+#### Domains (DNS at Cloudflare)
+
+| Environment | Domain                       | How it is routed                                                                                                                 |
+| ----------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Production  | `brain9.ast0miq.com`         | Project domain; every production deploy serves it                                                                                |
+| Staging     | `staging.brain9.ast0miq.com` | Not a project domain. The staging workflow points it at the newest staging deployment with `vercel alias set` (`STAGING_DOMAIN`) |
+
+The staging domain must **not** be added to the project: project domains follow
+production, so staging would start serving the production build.
+
+DNS records in Cloudflare (zone `ast0miq.com`):
+
+| Type  | Name             | Target                 | Proxy status          |
+| ----- | ---------------- | ---------------------- | --------------------- |
+| CNAME | `brain9`         | `cname.vercel-dns.com` | DNS only (grey cloud) |
+| CNAME | `staging.brain9` | `cname.vercel-dns.com` | DNS only (grey cloud) |
+
+Keep both records on **DNS only**. Vercel issues and renews the TLS certificates itself,
+and Cloudflare's free certificate does not cover a two-level name such as
+`staging.brain9.ast0miq.com`, so proxying that record breaks HTTPS.
+
+Check with `vercel domains verify brain9.ast0miq.com`.
 
 ### 3. GitHub secrets and variables
 
@@ -72,7 +95,7 @@ Also in the dashboard:
 gh secret set VERCEL_TOKEN          # paste the token when prompted
 gh secret set VERCEL_ORG_ID         # orgId from .vercel/project.json
 gh secret set VERCEL_PROJECT_ID     # projectId from .vercel/project.json
-gh variable set STAGING_DOMAIN --body "brain9-staging.vercel.app"
+gh variable set STAGING_DOMAIN --body "staging.brain9.ast0miq.com"
 gh variable set DEPLOY_ENABLED --body true      # do this last: it switches the deploy workflows on
 ```
 
