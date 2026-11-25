@@ -27,3 +27,7 @@ export { Panel, type PanelProps } from "./Panel";
 export { StatusDot, type StatusDotProps } from "./StatusDot";
 export { Tabs, type TabsProps } from "./Tabs";
 export { Tag, type TagProps } from "./Tag";
+export { PageHeader, type PageHeaderProps } from "./PageHeader";
+export { SaveBar, type SaveBarProps } from "./SaveBar";
+export { SegmentedControl, type SegmentedControlProps } from "./SegmentedControl";
+export { StatTile, type StatTileProps } from "./StatTile";
