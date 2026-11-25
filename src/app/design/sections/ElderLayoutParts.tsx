@@ -1,7 +1,6 @@
 import { CalendarDays, ChartNoAxesColumn, House, LayoutGrid, UserRound } from "lucide-react";
 import {
   Badge,
-  DisplaySettings,
   ListRow,
   ListRowSkeleton,
   Section,
@@ -23,10 +22,10 @@ const rowIcon = {
 const tabIcon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon" } as const;
 
 const tabs: TabBarItem[] = [
-  { href: "#tab-home", label: "หน้าหลัก", icon: <House {...tabIcon} /> },
-  { href: "#tab-courses", label: "คอร์ส", icon: <LayoutGrid {...tabIcon} /> },
-  { href: "#tab-results", label: "ผลลัพธ์", icon: <ChartNoAxesColumn {...tabIcon} /> },
-  { href: "#tab-booking", label: "จองคิว", icon: <CalendarDays {...tabIcon} /> },
+  { href: "/home", label: "หน้าหลัก", icon: <House {...tabIcon} /> },
+  { href: "/courses", label: "คอร์ส", icon: <LayoutGrid {...tabIcon} /> },
+  { href: "/results", label: "ผลลัพธ์", icon: <ChartNoAxesColumn {...tabIcon} /> },
+  { href: "/booking", label: "จองคิว", icon: <CalendarDays {...tabIcon} /> },
 ];
 
 export function ElderLayoutParts() {
@@ -47,13 +46,13 @@ export function ElderLayoutParts() {
             action={<Badge tone="primary">2 รายการ</Badge>}
           >
             <ListRow
-              href="#elder-list"
+              href="#elder"
               icon={<ChartNoAxesColumn {...rowIcon} />}
               title="ผลลัพธ์ของฉัน"
               subtitle="ครั้งล่าสุด ถูก 4 จาก 5 ข้อ"
             />
             <ListRow
-              href="#elder-list"
+              href="#elder"
               icon={<CalendarDays {...rowIcon} />}
               title="นัดที่ศูนย์ตัวอย่าง"
               subtitle="พฤหัสบดี 10:00 น."
@@ -62,7 +61,7 @@ export function ElderLayoutParts() {
           </Section>
           <Section title="ตั้งค่า">
             <ListRow
-              href="#elder-list"
+              href="#elder"
               icon={<UserRound {...rowIcon} />}
               title="ข้อมูลของฉัน"
               subtitle="ความเป็นส่วนตัวและการตั้งค่า"
@@ -78,7 +77,7 @@ export function ElderLayoutParts() {
       >
         <ElderScope>
           <div className="[&>nav]:static">
-            <TabBarView items={tabs} pathname="#tab-home" />
+            <TabBarView items={tabs} pathname="/home" />
           </div>
         </ElderScope>
       </Example>
@@ -86,7 +85,7 @@ export function ElderLayoutParts() {
       <Example
         title="ConfirmDialog"
         importLine='import { ConfirmDialog } from "@/shared/ui";'
-        note="ใช้ก่อนทำสิ่งที่ย้อนไม่ได้ ปุ่มยกเลิกมาก่อนและถูกโฟกัสไว้ก่อน บอกผลที่จะเกิดขึ้น ลองกดดู"
+        note="ใช้ก่อนทำสิ่งที่ย้อนไม่ได้ ปุ่มยกเลิกมาก่อนและถูกโฟกัสไว้ก่อน บอกผลที่จะเกิดขึ้น โทน danger ใช้กับการกระทำที่ทำลายหรือย้อนไม่ได้เท่านั้น (ดูตัวอย่างฝั่งผู้ดูแล) ลองกดดู"
       >
         <ElderScope>
           <div className="flex flex-col gap-4">
@@ -102,7 +101,7 @@ export function ElderLayoutParts() {
               triggerLabel="ออกจากระบบ"
               title="ออกจากระบบไหม"
               confirmLabel="ออกจากระบบ"
-              tone="danger"
+              tone="primary"
             >
               <p>ถ้าออก ต้องเข้าสู่ระบบใหม่ด้วยเบอร์โทรและรหัสผ่านอีกครั้ง</p>
             </ConfirmDialogDemo>
@@ -117,16 +116,6 @@ export function ElderLayoutParts() {
       >
         <ElderScope>
           <ToastDemo />
-        </ElderScope>
-      </Example>
-
-      <Example
-        title="DisplaySettings"
-        importLine='import { DisplaySettings } from "@/shared/ui";'
-        note="ขนาดตัวอักษร 3 ระดับและสีตัดกันสูง ใช้กับหน้านี้ได้จริง: เลือกแล้วทุกตัวอย่างฝั่งผู้สูงอายุเปลี่ยนตาม และจำค่าไว้ในเบราว์เซอร์นี้"
-      >
-        <ElderScope>
-          <DisplaySettings />
         </ElderScope>
       </Example>
 

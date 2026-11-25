@@ -111,7 +111,7 @@ export function ElderStatus() {
           <EmptyState
             title="ยังไม่มีผลการฝึก"
             description="เริ่มฝึกครั้งแรกได้เลย ใช้เวลาไม่ถึง 5 นาที"
-            action={<Button href="#elder-empty">เริ่มฝึก</Button>}
+            action={<Button href="#elder">เริ่มฝึก</Button>}
           />
           <ComingSoon title="ผลลัพธ์ของฉัน" owner="analytics" />
         </ElderScope>

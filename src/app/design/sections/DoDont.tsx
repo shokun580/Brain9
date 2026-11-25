@@ -36,6 +36,7 @@ export function DoDontSection() {
   return (
     <Part id="dodont" intro="หกข้อที่พลาดบ่อยที่สุด ด้านซ้ายคือแบบที่ถูก ด้านขวาคือแบบที่ห้ามทำ">
       <Example
+        headingLevel={3}
         title="ฟอร์มและส่วนของหน้าไม่ต้องห่อด้วยการ์ด"
         importLine='import { AdminSection, Button, TextField } from "@/shared/ui";'
       >
@@ -69,6 +70,7 @@ export function DoDontSection() {
       </Example>
 
       <Example
+        headingLevel={3}
         title="บอกผลด้วยคำและเครื่องหมาย ไม่ใช้สีอย่างเดียว"
         importLine='import { Badge } from "@/shared/ui";'
       >
@@ -144,6 +146,7 @@ export function DoDontSection() {
       </Example>
 
       <Example
+        headingLevel={3}
         title="ระหว่างโหลดใช้โครงสีเทา ไม่ใช้ข้อความ"
         importLine='import { TableCard, TableSkeleton } from "@/shared/ui";'
       >
@@ -168,6 +171,7 @@ export function DoDontSection() {
       </Example>
 
       <Example
+        headingLevel={3}
         title="ใช้ Button ไม่ต้องทำปุ่มเอง"
         importLine='import { Button, Section } from "@/shared/ui";'
       >

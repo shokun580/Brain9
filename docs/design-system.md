@@ -185,9 +185,9 @@ Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.ti
 A page and a module's data components are Server Components. These shared components are
 client components (`"use client"`): `AdminShell`, `ConfirmDialog`, `DisplaySettings`,
 `PinPad`, `TabBar` and `TabBarView`. A Server Component may render a client component, but
-may not pass it a function (a Server Action is the one exception). `ChoiceList` and `SegmentedControl` also take a function prop
-(`onValueChange`), so use that prop only inside your own `"use client"` component; without
-it both work as plain native radios. Everything else in the catalogue works in either kind.
+may not pass it a function (a Server Action is the one exception). `ChoiceList` and
+`SegmentedControl` also take a function prop (`onValueChange`), so use that prop only inside
+your own `"use client"` component; without it both work as plain native radios. Everything else in the catalogue works in either kind.
 Anything that needs state, an `onClick` or a Server Action call (a dialog's `open`, a toast)
 goes in a small `"use client"` component in your lane's `ui/` (recipes in section 6).
 
@@ -333,12 +333,14 @@ A row with actions ends with a cell holding `RowActions` (props `primary`, `more
 `rowLabel`), and a matching column label in `thingColumns`:
 
 ```tsx
+import { RowActions } from "@/shared/ui";
+
 <Td>
   <RowActions
     primary={{ label: "แก้ไข", href: `/admin/things/${thing.id}` }}
     rowLabel={thing.name}
   />
-</Td>
+</Td>;
 ```
 
 **With filters or paging**, the list component owns the whole card, because only it knows
@@ -373,7 +375,7 @@ export default function AdminThingsPage({
 // src/modules/<lane>/ui/ThingPagedList.tsx — count first, then pageRange, query with its result
 import { requireAdmin } from "@/modules/identity";
 import { pageRange } from "@/shared/lib/pagination";
-import { Pagination, Table, TableCard, TBody, Td, Th, THead, Tr } from "@/shared/ui";
+import { EmptyState, Pagination, Table, TableCard, TBody, Td, Th, THead, Tr } from "@/shared/ui";
 import { countThings, listThingsPage } from "../server/thing-queries"; // your own queries
 import { thingColumns } from "./thing-columns";
 
@@ -389,6 +391,10 @@ export async function ThingPagedList({
   const total = await countThings();
   const r = pageRange(Number(page), PAGE_SIZE, total);
   const things = await listThingsPage({ skip: r.from === 0 ? 0 : r.from - 1, take: PAGE_SIZE });
+
+  if (total === 0) {
+    return <EmptyState title="ยังไม่มีรายการ" description="เริ่มเพิ่มรายการแรกได้เลย" />;
+  }
 
   return (
     <TableCard
@@ -719,7 +725,9 @@ export function ArchiveThingButton({ thingId, thingName }: { thingId: string; th
 
 **Show a toast after an action.** `Toast` only draws the message (`message`, and `tone`
 `success` or `danger`); your client component decides when it appears, for example from the
-state of `useActionState`. Keep the toast in the same client component as the form.
+state of `useActionState`. Keep the toast in the same client component as the form. A
+`Toast` never hides itself: it stays until your component stops rendering it (the next
+submit replaces the state), so only show it while the state says so.
 
 ```tsx
 // src/modules/<lane>/ui/RenameThingForm.tsx

@@ -8,25 +8,55 @@ export type ColourToken = {
   /** The resolved opaque colour; absent for transparent and translucent tokens. */
   hex?: string;
   group: ColourGroup;
-  /** The Tailwind utility suffix (`bg-`, `text-`, `border-`); chart colours have none. */
-  utility?: string;
+  /** The utilities people write for it (checked against @theme); empty: use the CSS variable. */
+  utilities: string[];
   /** The token it is usually seen against, for the contrast figure. */
   against?: string;
 };
 
-function token(
-  group: ColourGroup,
-  name: string,
-  declared: string,
-  against?: string,
-  utility: string | undefined = name,
-): ColourToken {
+/** The utility prefixes each colour is used with in `src/shared/ui` and the layouts. */
+const USED_AS: Record<string, string[]> = {
+  page: ["bg"],
+  surface: ["bg"],
+  "surface-subtle": ["bg"],
+  "surface-muted": ["bg"],
+  fg: ["text"],
+  "fg-2": ["text"],
+  "fg-muted": ["text"],
+  line: ["border"],
+  "line-strong": ["border"],
+  primary: ["bg", "text"],
+  "primary-press": ["text"],
+  "primary-soft": ["bg"],
+  "primary-tint": ["bg"],
+  "on-primary": ["text"],
+  focus: ["outline"],
+  success: ["bg", "text"],
+  "success-soft": ["bg"],
+  danger: ["bg", "text"],
+  "danger-soft": ["bg"],
+  "on-danger": ["text"],
+  attention: ["bg", "text"],
+  "attention-soft": ["bg"],
+  ink: ["bg"],
+  "on-ink": ["text"],
+  "on-ink-2": ["text"],
+  "on-ink-muted": ["text"],
+  "nav-rail": ["bg"],
+  "nav-fill": ["bg"],
+  "nav-line": ["border"],
+  skeleton: ["bg"],
+  edge: ["border"],
+  // primary-bright, skeleton-shine and the chart colours are read as variables: no utility.
+};
+
+function token(group: ColourGroup, name: string, declared: string, against?: string): ColourToken {
   return {
     cssVar: name.startsWith("chart-") ? `--${name}` : `--b9-${name}`,
     declared,
     hex: declared.startsWith("#") ? declared : undefined,
     group,
-    utility: name.startsWith("chart-") ? undefined : utility,
+    utilities: (USED_AS[name] ?? []).map((prefix) => `${prefix}-${name}`),
     against: against ? `--b9-${against}` : undefined,
   };
 }

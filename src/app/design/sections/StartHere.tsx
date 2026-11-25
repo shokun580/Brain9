@@ -38,6 +38,7 @@ export function StartHereSection() {
       </p>
 
       <Example
+        headingLevel={3}
         title="BrandMark"
         importLine='import { BrandMark } from "@/shared/ui";'
         note="ตารางแบบฝึก 3x3 ที่ไฟติดแนวทแยง ปรับขนาดด้วย className เช่น size-8 size-12 size-16"

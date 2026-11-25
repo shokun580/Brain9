@@ -32,6 +32,18 @@ describe("colour token table", () => {
     expect(listed.sort()).toEqual([...declared].sort());
   });
 
+  it("prints, for every utility, a colour that exists in @theme", () => {
+    for (const token of COLOUR_TOKENS) {
+      const name = token.cssVar.replace("--b9-", "");
+      for (const utility of token.utilities) {
+        const match = /^(bg|text|border|outline)-(.+)$/.exec(utility);
+        expect(match, utility).not.toBeNull();
+        expect(match?.[2], utility).toBe(name);
+        expect(css, utility).toContain(`--color-${name}: var(${token.cssVar});`);
+      }
+    }
+  });
+
   it("resolves chart-1 to the primary hex and points every contrast pair at a real token", () => {
     const byVar = new Map(COLOUR_TOKENS.map((token) => [token.cssVar, token]));
     expect(byVar.get("--chart-1")?.hex).toBe(byVar.get("--b9-primary")?.hex);

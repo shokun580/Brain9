@@ -34,12 +34,9 @@ export function AdminLayoutParts() {
         <AdminScope>
           <PageHeader
             title="คอร์สและแบบฝึก"
-            breadcrumbs={[
-              { label: "เนื้อหาและผล", href: "#admin-header" },
-              { label: "คอร์สและแบบฝึก" },
-            ]}
+            breadcrumbs={[{ label: "เนื้อหาและผล", href: "#admin" }, { label: "คอร์สและแบบฝึก" }]}
             description="ดูคอร์สทั้งหมดและสร้างคอร์สใหม่"
-            action={<Button href="#admin-header">สร้างคอร์สใหม่</Button>}
+            action={<Button href="#admin">สร้างคอร์สใหม่</Button>}
           />
         </AdminScope>
       </Example>
@@ -112,9 +109,9 @@ export function AdminLayoutParts() {
           <Tabs
             label="สถานะคอร์ส"
             items={[
-              { href: "#tabs-all", label: "ทั้งหมด", count: 48, active: true },
-              { href: "#tabs-open", label: "เปิดใช้งาน", count: 30 },
-              { href: "#tabs-draft", label: "ฉบับร่าง", count: 12 },
+              { href: "/admin/content/courses", label: "ทั้งหมด", count: 48, active: true },
+              { href: "/admin/content/courses?status=ok", label: "เปิดใช้งาน", count: 30 },
+              { href: "/admin/content/courses?status=draft", label: "ฉบับร่าง", count: 12 },
             ]}
           />
         </AdminScope>

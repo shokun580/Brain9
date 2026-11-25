@@ -99,7 +99,7 @@ export function ElderBoard() {
       <Example
         title="โหมดสีตัดกันสูง"
         importLine='import { Badge, Button, ChoiceList, Meter, Notice } from "@/shared/ui";'
-        note="ค่าสีของโหมดนี้ผูกกับ html[data-contrast='high'] ที่ฝั่งผู้สูงอายุเท่านั้น จึงจำลองในกรอบเล็ก ๆ ไม่ได้ ให้กดปุ่ม “ก ขนาดตัวอักษร” ในตัวอย่าง DisplaySettings ด้านบนเพื่อเปิดโหมดนี้ ตัวอย่างทั้งหมดในหน้านี้ รวมถึงชุดด้านล่าง จะเปลี่ยนไป ปิดได้จากปุ่มเดิม"
+        note="ค่าสีของโหมดนี้ผูกกับ html[data-contrast='high'] ที่ฝั่งผู้สูงอายุเท่านั้น จึงจำลองในกรอบเล็ก ๆ ไม่ได้ ให้กดปุ่ม “ก ขนาดตัวอักษร” ในตัวอย่าง ElderHeader ด้านบนเพื่อเปิดโหมดนี้ ตัวอย่างทั้งหมดในหน้านี้ รวมถึงชุดด้านล่าง จะเปลี่ยนไป ปิดได้จากปุ่มเดิม"
       >
         <ElderScope>
           <div className="flex flex-col gap-5">
@@ -135,18 +135,10 @@ export function ElderBoard() {
         note="ประกอบจาก ElderHeader, Section, Button, Meter และ ListRow เหมือนหน้า /home จริง"
       >
         <ElderScope>
-          <ElderHeader
-            greeting="สวัสดีตอนเช้า"
-            name="คุณตัวอย่าง"
-            action={
-              <Button variant="quiet" size="sm" className="rounded-full">
-                ก ขนาดตัวอักษร
-              </Button>
-            }
-          />
+          <ElderHeader greeting="สวัสดีตอนเช้า" name="คุณตัวอย่าง" />
           <Section first eyebrow="แบบฝึกวันนี้" title="จำลำดับ 3 ช่อง">
             <p className="mb-4 text-small text-fg-muted">คอร์สเริ่มต้น · ประมาณ 5 นาที</p>
-            <Button href="#elder-home" fullWidth>
+            <Button href="#elder" fullWidth>
               <Play aria-hidden="true" strokeWidth={1.9} className="size-icon shrink-0" />
               เริ่มฝึก
             </Button>
@@ -162,20 +154,20 @@ export function ElderBoard() {
           </Section>
           <Section>
             <ListRow
-              href="#elder-home"
+              href="#elder"
               icon={<ChartNoAxesColumn {...iconProp} />}
               title="ผลลัพธ์ของฉัน"
               subtitle="ครั้งล่าสุด ถูก 4 จาก 5 ข้อ"
             />
             <ListRow
-              href="#elder-home"
+              href="#elder"
               icon={<CalendarDays {...iconProp} />}
               title="นัดที่ศูนย์ตัวอย่าง"
               subtitle="พฤหัสบดี · 10:00 น."
               badge={<Badge tone="primary">ยืนยันแล้ว</Badge>}
             />
             <ListRow
-              href="#elder-home"
+              href="#elder"
               icon={<UserRound {...iconProp} />}
               title="ข้อมูลของฉัน"
               subtitle="ความเป็นส่วนตัวและการตั้งค่า"

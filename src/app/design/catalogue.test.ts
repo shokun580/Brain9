@@ -18,18 +18,32 @@ const NOT_DEMOED: Record<string, string> = {
   TabBar: "TabBarView plus the router's pathname; its view is demoed",
 };
 
-/** Every exported value (not `type`) whose name starts with an upper-case letter. */
-function exportedComponents(): string[] {
-  const source = readFileSync(join(root, "src/shared/ui/index.ts"), "utf8");
+/**
+ * Every exported value (not `type`) whose name starts with an upper-case letter, from any
+ * export form. `export *` hides names from this check, so it is refused outright.
+ */
+export function collectComponents(source: string): string[] {
+  if (/^\s*export\s*\*/m.test(source)) {
+    throw new Error("src/shared/ui/index.ts must not use `export *`: list every name");
+  }
   const names: string[] = [];
   for (const match of source.matchAll(/export\s*\{([^}]*)\}/g)) {
     for (const part of (match[1] ?? "").split(",")) {
       const name = part.trim();
       if (!name || name.startsWith("type ")) continue;
-      if (/^[A-Z]/.test(name)) names.push(name);
+      names.push(name.split(/\s+as\s+/).pop() ?? name);
     }
   }
-  return names;
+  for (const match of source.matchAll(
+    /^export\s+(?:async\s+)?(?:function|const|class)\s+(\w+)/gm,
+  )) {
+    names.push(match[1] ?? "");
+  }
+  return names.filter((name) => /^[A-Z]/.test(name));
+}
+
+function exportedComponents(): string[] {
+  return collectComponents(readFileSync(join(root, "src/shared/ui/index.ts"), "utf8"));
 }
 
 /** The text of every `importLine="…"` (prettier may pick single quotes when the text holds `"`). */
@@ -46,6 +60,25 @@ function importLines(): string[] {
   return lines;
 }
 
+describe("collectComponents", () => {
+  it("reads re-exports, aliases and declarations, and skips types and helpers", () => {
+    const source = [
+      'export { A, type AProps, helper } from "./A";',
+      'export { B as Bee } from "./B";',
+      "export function C() {}",
+      "export const D = 1;",
+      "export const lower = 2;",
+    ].join("\n");
+    expect(collectComponents(source)).toEqual(["A", "Bee", "C", "D"]);
+  });
+
+  it("fails loudly on export *", () => {
+    expect(() => collectComponents('export * from "./X";')).toThrow(/export \*/);
+  });
+});
+
+// The check reads the import lines, not the rendered demos: a line that names a component the
+// demo does not render would still pass. Reviewers verify the demos themselves.
 describe("the /design catalogue", () => {
   const components = exportedComponents();
   const lines = importLines();

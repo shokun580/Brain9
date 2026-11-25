@@ -46,13 +46,19 @@ const listCode = `<PageHeader title="คอร์สและแบบฝึก"
 </AdminSection>`;
 
 const formCode = `<PageHeader title="แก้ไขคอร์ส" breadcrumbs={[…]} />
-<AdminSection title="ข้อมูลคอร์ส">
-  <form action={formAction} className="flex max-w-[35rem] flex-col gap-5">
-    <TextField … />
-    <div><Button type="submit">บันทึก</Button></div>
-  </form>
-</AdminSection>
-<SaveBar dirty={dirty}>…</SaveBar> {/* เฉพาะหน้าที่แก้ข้อมูลเดิม */}`;
+<form action={formAction}>
+  <AdminSection title="ข้อมูลคอร์ส">
+    <div className="flex max-w-[35rem] flex-col gap-5">
+      <TextField … />
+    </div>
+  </AdminSection>
+  {/* หน้าแก้ข้อมูลเดิม: SaveBar อยู่ในฟอร์ม ปุ่มบันทึกเป็น type="submit" ปุ่มเดียว */}
+  <SaveBar dirty={dirty}>
+    <Button variant="secondary">ยกเลิก</Button>
+    <Button type="submit">บันทึก</Button>
+  </SaveBar>
+</form>
+{/* หน้าสร้างใหม่: ไม่มี SaveBar ใส่ <div><Button type="submit">…</Button></div> ใต้ช่อง */}`;
 
 const overviewCode = `<PageHeader title="ภาพรวม" description="…" />
 <AdminSection title="สรุปวันนี้">
@@ -68,8 +74,10 @@ const stepCode = `<ElderHeader title="ตั้งค่าการฝึก" b
 
 const loadingCode = `<PageHeader title="คอร์สและแบบฝึก" … />
 <AdminSection title="คอร์สทั้งหมด">
-  <Reveal fallback={<TableCard><TableSkeleton label="กำลังโหลด…" columns={courseColumns} /></TableCard>}>
-    <CourseList /> {/* async: อ่านฐานข้อมูล */}
+  <Reveal fallback={<CourseListSkeleton />}> {/* การ์ดและหัวตารางอยู่ใน fallback */}
+    <TableCard>
+      <CourseList /> {/* async: อ่านฐานข้อมูล */}
+    </TableCard>
   </Reveal>
 </AdminSection>`;
 
@@ -77,6 +85,7 @@ export function RecipesSection() {
   return (
     <Part id="recipes" intro="หน้าจอใหม่ทุกหน้าเริ่มจากหนึ่งในห้าแบบนี้ โค้ดใต้ภาพเป็นโครงโดยย่อ">
       <Example
+        headingLevel={3}
         title="หน้ารายการของผู้ดูแล"
         importLine='import { AdminSection, Button, PageHeader, Pagination, Table, TableCard } from "@/shared/ui";'
         note="PageHeader → AdminSection → TableCard (ตัวกรอง ตาราง Pagination)"
@@ -85,11 +94,8 @@ export function RecipesSection() {
           <Recipe code={listCode}>
             <PageHeader
               title="คอร์สและแบบฝึก"
-              breadcrumbs={[
-                { label: "เนื้อหาและผล", href: "#recipe-list" },
-                { label: "คอร์สและแบบฝึก" },
-              ]}
-              action={<Button href="#recipe-list">สร้างคอร์สใหม่</Button>}
+              breadcrumbs={[{ label: "เนื้อหาและผล", href: "#recipes" }, { label: "คอร์สและแบบฝึก" }]}
+              action={<Button href="#recipes">สร้างคอร์สใหม่</Button>}
             />
             <AdminSection title="คอร์สทั้งหมด" count="48 รายการ">
               <CourseTable rows={3} label="คอร์สในตัวอย่างหน้ารายการ" />
@@ -99,46 +105,47 @@ export function RecipesSection() {
       </Example>
 
       <Example
+        headingLevel={3}
         title="หน้าฟอร์มของผู้ดูแล"
         importLine='import { AdminSection, Button, PageHeader, SaveBar, Select, TextField } from "@/shared/ui";'
-        note="PageHeader → AdminSection → ฟอร์มคอลัมน์เดียว (max-w-[35rem]) ปุ่มอยู่ใต้ช่องทางซ้าย → SaveBar เมื่อแก้ข้อมูลเดิม"
+        note="PageHeader → AdminSection → ฟอร์มคอลัมน์เดียว (max-w-[35rem]) หน้าสร้างใหม่: ปุ่มส่งอยู่ใต้ช่องทางซ้าย หน้าแก้ข้อมูลเดิม: SaveBar อยู่ในฟอร์ม และปุ่มบันทึกของมันคือปุ่มส่งปุ่มเดียว"
       >
         <AdminScope>
           <Recipe code={formCode}>
             <PageHeader
               title="แก้ไขคอร์ส"
               breadcrumbs={[
-                { label: "คอร์สและแบบฝึก", href: "#recipe-form" },
+                { label: "คอร์สและแบบฝึก", href: "#recipes" },
                 { label: "คอร์สตัวอย่าง 01" },
               ]}
             />
-            <AdminSection title="ข้อมูลคอร์ส">
-              <div className="flex max-w-[35rem] flex-col gap-5">
-                <TextField label="ชื่อคอร์ส" name="r-title" defaultValue="คอร์สตัวอย่าง 01" />
-                <Select
-                  label="ระดับความยาก"
-                  name="r-level"
-                  options={[
-                    { value: "1", label: "ระดับ 1" },
-                    { value: "2", label: "ระดับ 2" },
-                  ]}
-                />
-                <div>
-                  <Button type="submit">บันทึก</Button>
+            <form>
+              <AdminSection title="ข้อมูลคอร์ส">
+                <div className="flex max-w-[35rem] flex-col gap-5">
+                  <TextField label="ชื่อคอร์ส" name="r-title" defaultValue="คอร์สตัวอย่าง 01" />
+                  <Select
+                    label="ระดับความยาก"
+                    name="r-level"
+                    options={[
+                      { value: "1", label: "ระดับ 1" },
+                      { value: "2", label: "ระดับ 2" },
+                    ]}
+                  />
                 </div>
+              </AdminSection>
+              <div className="mt-6 [&>div]:static">
+                <SaveBar dirty>
+                  <Button variant="secondary">ยกเลิก</Button>
+                  <Button type="submit">บันทึก</Button>
+                </SaveBar>
               </div>
-            </AdminSection>
-            <div className="mt-6 [&>div]:static">
-              <SaveBar dirty>
-                <Button variant="secondary">ยกเลิก</Button>
-                <Button>บันทึก</Button>
-              </SaveBar>
-            </div>
+            </form>
           </Recipe>
         </AdminScope>
       </Example>
 
       <Example
+        headingLevel={3}
         title="หน้าภาพรวมของผู้ดูแล"
         importLine='import { AdminSection, PageHeader, StatTile } from "@/shared/ui";'
         note="PageHeader → AdminSection → ตาราง StatTile"
@@ -164,6 +171,7 @@ export function RecipesSection() {
       </Example>
 
       <Example
+        headingLevel={3}
         title="หน้าจอผู้สูงอายุทีละขั้น"
         importLine='import { Button, ChoiceList, ElderHeader, StepProgress } from "@/shared/ui";'
         note="ElderHeader → StepProgress → หนึ่งคำถาม → ปุ่มหลักหนึ่งปุ่ม"
@@ -171,7 +179,7 @@ export function RecipesSection() {
         <ElderScope>
           <Recipe code={stepCode}>
             <div className="flex flex-col gap-6">
-              <ElderHeader title="ตั้งค่าการฝึก" backHref="#recipe-step" />
+              <ElderHeader title="ตั้งค่าการฝึก" backHref="#recipes" />
               <StepProgress current={2} total={4} />
               <ChoiceList
                 name="r-step-choice"
@@ -189,6 +197,7 @@ export function RecipesSection() {
       </Example>
 
       <Example
+        headingLevel={3}
         title="หน้าระหว่างโหลด"
         importLine='import { AdminSection, PageHeader, Reveal, TableCard, TableSkeleton } from "@/shared/ui";'
         note="หน้ารายการเดิม แต่ส่วนที่อ่านข้อมูลห่อด้วย Reveal และ fallback คือโครงสร้างจากรายการคอลัมน์เดียวกัน ภาพคือสิ่งที่ fallback แสดง"

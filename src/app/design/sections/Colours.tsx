@@ -16,7 +16,7 @@ export function ColoursSection() {
   return (
     <Part
       id="colours"
-      intro="ทุกสีมาจาก globals.css ใช้ผ่านชื่อ utility เท่านั้น เช่น bg-primary text-fg border-line"
+      intro="ทุกสีมาจาก globals.css ใช้ผ่านชื่อ utility ในคอลัมน์ “utility ที่ใช้” เท่านั้น ส่วนสีที่ไม่มี utility ให้อ่านผ่านตัวแปร CSS"
     >
       {COLOUR_GROUPS.map((group) => (
         <div key={group.id}>
@@ -28,7 +28,7 @@ export function ColoursSection() {
                 <Tr>
                   <Th>สี</Th>
                   <Th>โทเคน</Th>
-                  <Th>utility</Th>
+                  <Th>utility ที่ใช้</Th>
                   <Th>ค่า</Th>
                   <Th>คอนทราสต์</Th>
                 </Tr>
@@ -48,7 +48,9 @@ export function ColoursSection() {
                     </Td>
                     <Td>
                       <code className="font-mono text-small">
-                        {token.utility ? `bg-${token.utility}` : `var(${token.cssVar})`}
+                        {token.utilities.length
+                          ? token.utilities.join(" ")
+                          : `var(${token.cssVar})`}
                       </code>
                     </Td>
                     <Td>

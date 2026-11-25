@@ -34,19 +34,13 @@ export function CourseTable({
   return (
     <TableCard
       toolbar={toolbar}
-      footer={
-        <Pagination page={2} pageSize={12} total={48} hrefFor={(page) => `#courses-page-${page}`} />
-      }
+      footer={<Pagination page={2} pageSize={shown.length} total={48} hrefFor={() => "#admin"} />}
     >
       <Table aria-label={label}>
         <THead>
           <Tr>
-            {courseColumns.map((column, index) => (
-              <Th
-                key={column.label}
-                numeric={column.numeric}
-                sort={index === 2 ? "desc" : undefined}
-              >
+            {courseColumns.map((column) => (
+              <Th key={column.label} numeric={column.numeric}>
                 {column.label}
               </Th>
             ))}
@@ -76,10 +70,10 @@ export function CourseTable({
               </Td>
               <Td>
                 <RowActions
-                  primary={{ label: "แก้ไข", href: "#course-edit" }}
+                  primary={{ label: "แก้ไข", href: "/admin/content/courses" }}
                   more={[
-                    { label: "ดูตัวอย่าง", href: "#course-preview" },
-                    { label: "ทำสำเนา", href: "#course-copy" },
+                    { label: "ดูตัวอย่าง", href: "/admin" },
+                    { label: "ทำสำเนา", href: "/admin/users" },
                   ]}
                   rowLabel={course.title}
                 />

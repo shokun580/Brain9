@@ -46,8 +46,7 @@ export function AdminEditorGrid() {
 
       <Example
         title="Editor grid"
-        importLine="ไม่มีคอมโพเนนต์ให้นำเข้า: ใช้ div กับโทเคนตามภาพ แล้วใส่ใน PatternEditor ของทีม content"
-        note="ภาพนิ่งจาก div เครื่องมือ ไม่ใช่ของเล่น: ช่องไฟ 8 พิกเซล ขอบ line-strong 1 พิกเซล มุม 10 พิกเซล พื้น surface-subtle เลขช่อง 1 ถึง 9 อยู่มุมซ้ายบน ช่องที่เลือกเป็น primary พร้อมเลขลำดับ ขั้นสองนิ้วใช้ attention-soft ขอบหนา 2 พิกเซล และสองช่องใช้เลขลำดับเดียวกัน"
+        note="ไม่มีคอมโพเนนต์ให้นำเข้า ใช้ div กับโทเคนตามภาพ แล้วใส่ใน PatternEditor ของทีม content ภาพนิ่งจาก div เครื่องมือ ไม่ใช่ของเล่น: ช่องไฟ 8 พิกเซล ขอบ line-strong 1 พิกเซล มุม 10 พิกเซล พื้น surface-subtle เลขช่อง 1 ถึง 9 อยู่มุมซ้ายบน ช่องที่เลือกเป็น primary พร้อมเลขลำดับ ขั้นสองนิ้วใช้ attention-soft ขอบหนา 2 พิกเซล และสองช่องใช้เลขลำดับเดียวกัน"
       >
         <AdminScope>
           <div className="flex flex-wrap items-start gap-6">

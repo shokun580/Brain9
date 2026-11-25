@@ -1,5 +1,5 @@
 import { Play, RotateCcw } from "lucide-react";
-import { Button, ElderHeader } from "@/shared/ui";
+import { Button, DisplaySettings, ElderHeader } from "@/shared/ui";
 import { ElderScope, SubHeading } from "../chrome";
 import { Example } from "../Example";
 
@@ -12,19 +12,11 @@ export function ElderActions() {
 
       <Example
         title="ElderHeader"
-        importLine='import { ElderHeader } from "@/shared/ui";'
-        note="ใช้ title อย่างเดียว หรือ greeting กับ name คู่กัน ตัวหัวข้อคือ h1 ของหน้า มีปุ่มย้อนกลับ (backHref) และปุ่มรูปแคปซูลได้หนึ่งปุ่ม (action)"
+        importLine='import { DisplaySettings, ElderHeader } from "@/shared/ui";'
+        note="ใช้ title อย่างเดียว หรือ greeting กับ name คู่กัน ตัวหัวข้อคือ h1 ของหน้า มีปุ่มย้อนกลับ (backHref) และปุ่มรูปแคปซูลได้หนึ่งปุ่ม (action) ซึ่งคือ DisplaySettings ปุ่มตั้งขนาดตัวอักษรและสีตัดกันสูง กดแล้วทุกตัวอย่างฝั่งผู้สูงอายุในหน้านี้เปลี่ยนตามจริง และจำค่าไว้ในเบราว์เซอร์นี้"
       >
         <ElderScope>
-          <ElderHeader
-            title="คอร์สของฉัน"
-            backHref="#elder-header"
-            action={
-              <Button variant="quiet" size="sm" className="rounded-full">
-                ก ขนาดตัวอักษร
-              </Button>
-            }
-          />
+          <ElderHeader title="คอร์สของฉัน" backHref="#elder" action={<DisplaySettings />} />
           <div className="mt-6">
             <ElderHeader greeting="สวัสดีตอนเช้า" name="คุณตัวอย่าง" />
           </div>
@@ -52,15 +44,15 @@ export function ElderActions() {
         note="ไอคอนต้องมีคำกำกับเสมอ ฝั่งผู้สูงอายุไม่ใช้ปุ่มที่มีแต่ไอคอน ขนาด sm ใช้ในที่แคบ เช่น ปุ่มใน ElderHeader"
       >
         <ElderScope>
-          <div className="flex flex-col gap-3">
-            <Button size="sm" variant="secondary" className="self-start">
+          <div className="flex flex-col items-start gap-3">
+            <Button size="sm" variant="secondary">
               ปุ่มขนาดเล็ก (sm)
             </Button>
-            <Button className="self-start">
+            <Button>
               <Play {...icon} />
               เริ่มฝึก
             </Button>
-            <Button variant="secondary" className="self-start">
+            <Button variant="secondary">
               <RotateCcw {...icon} />
               เล่นอีกครั้ง
             </Button>
@@ -77,10 +69,10 @@ export function ElderActions() {
         <ElderScope>
           <div className="flex flex-wrap items-center gap-3">
             <Button disabled>ปิดใช้งาน</Button>
-            <Button href="#elder-header" variant="secondary">
+            <Button href="#elder" variant="secondary">
               ลิงก์ไปด้านบน
             </Button>
-            <Button href="#elder-header" variant="secondary" disabled>
+            <Button href="#elder" variant="secondary" disabled>
               ลิงก์ที่ปิดอยู่
             </Button>
           </div>
