@@ -220,6 +220,19 @@ Create a GitHub Project (board layout) named "Brain9", add the columns from
 Adding a variable: add it to `src/shared/lib/env.ts`, `.env.example`, this table, and to
 Vercel for both environments — in the same PR that first reads it.
 
+## Deploying by hand
+
+Normally nobody does: the workflows deploy. If the lead ever has to deploy from a laptop,
+two things go wrong easily:
+
+- **Name the target.** `vercel deploy --prebuilt` without `--target=preview` made the very
+  first deployment of this project a production one. Use `--target=preview` for staging
+  and `--prod` for production, and check `vercel inspect <url>` before aliasing a domain.
+- **No `.env*` files in the project folder while building.** The build output references
+  files named `.env*` that sit in the folder (seen with `.env.example` and with a renamed
+  backup of `.env.local`), so treat any such file as something that may be uploaded with
+  the deployment. Move `.env.local` out of the folder first; the workflows never have one.
+
 ## Rollback
 
 - **App:** Vercel dashboard → Deployments → previous production deployment → _Promote_.
