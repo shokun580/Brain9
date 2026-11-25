@@ -260,3 +260,15 @@ describe("design tokens", () => {
     });
   });
 });
+
+describe("brand icon", () => {
+  const token = (name: string) =>
+    new RegExp(`${name}:\\s*(#[0-9a-f]{6})`).exec(css)?.[1] ?? "missing";
+
+  it("is the same drawing with the literal colours of the primary tokens", () => {
+    const icon = readFileSync(join(process.cwd(), "src/app/icon.svg"), "utf8").toLowerCase();
+    expect(icon).toContain(`fill="${token("--b9-primary")}"`);
+    expect(icon).toContain(`fill="${token("--b9-on-primary")}"`);
+    expect(icon.match(/<rect/g)).toHaveLength(10);
+  });
+});

@@ -4,6 +4,7 @@ import { ChevronsLeft, CircleHelp, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useState, useSyncExternalStore, ViewTransition, type ReactNode } from "react";
+import { BrandMark } from "./BrandMark";
 import { cn } from "@/shared/lib/cn";
 import { NAV_TYPES, panelEnter } from "@/shared/lib/motion";
 import { findActiveNav, sectionHref, type AdminNavSection } from "./admin-nav";
@@ -249,12 +250,8 @@ export function AdminShell({
   const toggle = () => setChosen(!open);
 
   const railHead = (
-    <span
-      aria-hidden="true"
-      title={`${brand} ${roleLabel}`}
-      className="mb-2 grid size-9 shrink-0 place-items-center rounded-control bg-primary text-lead text-on-primary"
-    >
-      9
+    <span aria-hidden="true" title={`${brand} ${roleLabel}`} className="mb-2 shrink-0">
+      <BrandMark className="size-9" />
     </span>
   );
   const railFoot = (

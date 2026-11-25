@@ -189,6 +189,12 @@ describe("AdminShell", () => {
     expect(out).toContain("view-transition-name:admin-topbar");
   });
 
+  it("shows the brand mark in the rail head", () => {
+    const out = shell();
+    expect(out).toContain("<svg");
+    expect(out).toContain('viewBox="0 0 64 64"');
+  });
+
   it("renders the default footer, the environment label and the slots", () => {
     const out = shell({
       user: <span>คุณตัวอย่าง</span>,

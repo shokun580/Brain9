@@ -30,6 +30,7 @@ export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { SaveBar, type SaveBarProps } from "./SaveBar";
 export { SegmentedControl, type SegmentedControlProps } from "./SegmentedControl";
 export { StatTile, type StatTileProps } from "./StatTile";
+export { BrandMark, type BrandMarkProps } from "./BrandMark";
 export { AdminShell, type AdminShellProps } from "./AdminShell";
 
 // admin shell (Task 19)
