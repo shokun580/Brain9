@@ -108,6 +108,15 @@ describe("design tokens", () => {
     }
   });
 
+  it("keeps text on danger readable, including high contrast", () => {
+    const high = block('html[data-contrast="high"] [data-ui="elder"]');
+    expect(root).toContain("--b9-on-danger: #ffffff;");
+    expect(high).toContain("--b9-on-danger: #000000;");
+    expect(block("@theme inline")).toContain("--color-on-danger: var(--b9-on-danger);");
+    expect(contrastRatio("#000000", "#FF8A7E")).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio("#FFFFFF", "#B42318")).toBeGreaterThanOrEqual(4.5);
+  });
+
   it("references only var(--b9-*) inside @theme inline colours", () => {
     const theme = block("@theme inline");
     expect(theme).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);

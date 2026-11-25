@@ -21,7 +21,7 @@ export function NumberField({
     <FieldShell label={label} hint={hint} errors={errors} wiring={wiring}>
       <div
         className={cn(
-          "flex min-h-control w-full items-center gap-3 rounded-field border-[length:var(--b9-border)] bg-surface px-4",
+          "flex min-h-control w-full has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus items-center gap-3 rounded-field border-[length:var(--b9-border)] bg-surface px-4",
           wiring.hasError ? "border-danger" : "border-line-strong",
         )}
       >

@@ -9,7 +9,7 @@ const variants: Record<Variant, string> = {
   secondary:
     "bg-surface border-[length:var(--b9-border)] border-line-strong text-fg active:bg-surface-muted",
   quiet: "bg-transparent text-fg-2 active:bg-surface-muted",
-  danger: "bg-danger text-white active:opacity-90",
+  danger: "bg-danger text-on-danger active:opacity-90",
 };
 
 type Own = {

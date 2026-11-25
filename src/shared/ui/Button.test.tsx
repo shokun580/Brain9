@@ -16,6 +16,11 @@ describe("Button", () => {
     expect(html(<Button variant="quiet">x</Button>)).toContain("text-fg-2");
     expect(html(<Button variant="danger">ลบ</Button>)).toContain("bg-danger");
   });
+  it("keeps danger text readable in every scope", () => {
+    const out = html(<Button variant="danger">x</Button>);
+    expect(out).toContain("text-on-danger");
+    expect(out).not.toContain("text-white");
+  });
   it("uses control sizes and text sizes", () => {
     const def = html(<Button>x</Button>);
     expect(def).toContain("min-h-control");

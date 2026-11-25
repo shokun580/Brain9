@@ -24,6 +24,7 @@
   --b9-primary-tint: #bde2dd;
   --b9-primary-bright: #4fd1c5;
   --b9-on-primary: #ffffff;
+  --b9-on-danger: #ffffff;
   --b9-success: #1e7a3c;
   --b9-success-soft: #e4f3e8;
   --b9-danger: #b42318;
@@ -106,6 +107,7 @@ html[data-contrast="high"] [data-ui="elder"] {
   --b9-primary: #5eead4;
   --b9-primary-press: #2dd4bf;
   --b9-on-primary: #000000;
+  --b9-on-danger: #000000;
   --b9-primary-soft: #0b2e2a;
   --b9-primary-tint: #145c55;
   --b9-success: #5be38a;
@@ -138,6 +140,7 @@ html[data-contrast="high"] [data-ui="elder"] {
   --color-primary-tint: var(--b9-primary-tint);
   --color-primary-bright: var(--b9-primary-bright);
   --color-on-primary: var(--b9-on-primary);
+  --color-on-danger: var(--b9-on-danger);
   --color-success: var(--b9-success);
   --color-success-soft: var(--b9-success-soft);
   --color-danger: var(--b9-danger);
