@@ -80,6 +80,28 @@ describe("DataTable", () => {
     expect(body).toContain("border-line");
     expect(body).toContain("var(--b9-border)");
   });
+  it("tints a hovered body row but not the header row", () => {
+    const body = html(
+      <table>
+        <TBody>
+          <Tr>
+            <Td>ก</Td>
+          </Tr>
+        </TBody>
+      </table>,
+    );
+    expect(body).toContain("hover:bg-surface-subtle");
+    const head = html(
+      <table>
+        <THead>
+          <Tr>
+            <Th>ชื่อ</Th>
+          </Tr>
+        </THead>
+      </table>,
+    );
+    expect(head).not.toContain("hover:bg-surface-subtle");
+  });
   it("Th defaults to scope col and maps sort to aria-sort", () => {
     expect(html(<Th>ชื่อ</Th>)).toContain('scope="col"');
     expect(html(<Th scope="row">ชื่อ</Th>)).toContain('scope="row"');
@@ -92,8 +114,11 @@ describe("DataTable", () => {
     expect(html(<Th numeric>จำนวน</Th>)).toContain("text-right tabular-nums");
     expect(html(<Td numeric>3</Td>)).toContain("tabular-nums");
     expect(html(<Td numeric>3</Td>)).toContain("text-right");
-    expect(html(<Td primary>ก</Td>)).toContain("font-bold");
-    expect(html(<Td>ก</Td>)).not.toContain("font-bold");
+    expect(html(<Th>ชื่อ</Th>)).not.toContain("font-bold");
+    expect(html(<Td primary>ก</Td>)).not.toContain("font-bold");
+    expect(html(<Td primary>ก</Td>)).toContain("text-fg");
+    expect(html(<Td primary>ก</Td>)).not.toContain("text-fg-2");
+    expect(html(<Td>ก</Td>)).toContain("text-fg-2");
     expect(html(<Td muted>ก</Td>)).toContain("text-fg-muted");
   });
 });

@@ -28,7 +28,8 @@ export function THead({ className, ...props }: HTMLAttributes<HTMLTableSectionEl
 }
 
 export function TBody({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
-  return <tbody className={cn(className)} {...props} />;
+  // The hover tint lives here so the header row (inside THead) never gets it.
+  return <tbody className={cn("[&>tr]:hover:bg-surface-subtle", className)} {...props} />;
 }
 
 export function Tr({ className, ...props }: HTMLAttributes<HTMLTableRowElement>) {
@@ -52,7 +53,7 @@ export function Th({ numeric, sort, className, scope = "col", ...props }: ThProp
     <th
       scope={scope}
       aria-sort={sort ? ariaSort[sort] : undefined}
-      className={cn("px-4 py-2.5 font-bold", numeric && "text-right tabular-nums", className)}
+      className={cn("px-4 py-2.5", numeric && "text-right tabular-nums", className)}
       {...props}
     />
   );
@@ -69,9 +70,8 @@ export function Td({ numeric, primary, muted, className, ...props }: TdProps) {
     <td
       className={cn(
         "px-4 py-3 align-middle",
-        muted ? "text-fg-muted" : "text-fg",
+        muted ? "text-fg-muted" : primary ? "text-fg" : "text-fg-2",
         numeric && "text-right tabular-nums",
-        primary && "font-bold",
         className,
       )}
       {...props}

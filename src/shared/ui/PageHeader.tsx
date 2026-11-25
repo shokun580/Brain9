@@ -22,7 +22,7 @@ export function PageHeader({ title, description, action, breadcrumbs }: PageHead
                 <Fragment key={`${index}-${crumb.label}`}>
                   <li>
                     {last ? (
-                      <span className="font-bold text-fg-2" aria-current="page">
+                      <span className="text-fg" aria-current="page">
                         {crumb.label}
                       </span>
                     ) : crumb.href ? (

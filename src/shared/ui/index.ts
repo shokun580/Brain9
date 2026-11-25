@@ -41,6 +41,8 @@ export {
 // admin shell (Task 19)
 
 // admin layout (Tasks 20, 21)
+export { AdminSection, type AdminSectionProps } from "./AdminSection";
+export { TableCard, type TableCardProps } from "./TableCard";
 
 // skeleton (Task 22)
 

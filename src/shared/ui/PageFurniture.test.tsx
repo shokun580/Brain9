@@ -20,7 +20,8 @@ describe("PageHeader", () => {
   });
   it("links earlier crumbs and marks the last as the current page", () => {
     expect(out).toMatch(/<a [^>]*href="\/admin\/users"[^>]*>ผู้ใช้และศูนย์<\/a>/);
-    expect(out).toMatch(/<span[^>]*font-bold[^>]*aria-current="page"[^>]*>ผู้ใช้งาน<\/span>/);
+    expect(out).toMatch(/<span[^>]*text-fg[^>]*aria-current="page"[^>]*>ผู้ใช้งาน<\/span>/);
+    expect(out).not.toMatch(/<span[^>]*font-bold[^>]*aria-current="page"/);
     expect(out).toMatch(/aria-hidden="true"[^>]*>\//);
   });
   it("keeps the action from squeezing the title", () => {
