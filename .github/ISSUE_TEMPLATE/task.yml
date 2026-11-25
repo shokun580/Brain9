@@ -1,0 +1,39 @@
+name: Task
+description: A unit of work inside one lane
+title: "<lane>: <what should exist when this is done>"
+labels: ["type:feature"]
+body:
+  - type: dropdown
+    id: lane
+    attributes:
+      label: Lane
+      options: [identity, booking, content, engine, analytics, infra]
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What the user or another module will be able to do. Link the use case in the report if there is one.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Checkable statements. An AI assistant will be given this list.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Out of scope
+      description: What this task must NOT include.
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Depends on
+      description: Other issues or contracts from other lanes.

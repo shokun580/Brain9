@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [staging, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  target-guard:
+    name: target-guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only staging or hotfix/* may be merged into main
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Bootstrap: until the staging branch exists, the first infrastructure PR has to
+          # go straight into main. The rule switches itself on once staging is created.
+          if ! gh api "repos/$REPO/branches/staging" >/dev/null 2>&1; then
+            echo "No staging branch yet - bootstrap PR allowed: $HEAD_REF -> main"
+            exit 0
+          fi
+          case "$HEAD_REF" in
+            staging|hotfix/*) echo "OK: $HEAD_REF -> main" ;;
+            *)
+              echo "::error::Pull requests into main must come from 'staging' or 'hotfix/*'. Retarget this PR to 'staging'."
+              exit 1
+              ;;
+          esac
+
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    env:
+      # Placeholder so modules that read env at import time load during the build.
+      # Nothing connects to it: pages only touch the database at request time.
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      APP_ENV: local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Format
+        run: pnpm format:check
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test
+      - name: Build
+        run: pnpm build
+
+  migrations:
+    name: migrations
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: brain9
+          POSTGRES_PASSWORD: brain9
+          POSTGRES_DB: brain9_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U brain9 -d brain9_ci"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://brain9:brain9@localhost:5432/brain9_ci?schema=public
+      APP_ENV: local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate schema
+        run: pnpm exec prisma validate
+      - name: Apply every migration to an empty database
+        run: pnpm db:deploy
+      - name: Schema and migrations must match
+        run: pnpm db:drift
+      - name: Seed must run (twice, to prove it is idempotent)
+        run: pnpm db:seed && pnpm db:seed

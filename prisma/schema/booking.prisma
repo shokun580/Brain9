@@ -1,0 +1,140 @@
+// OWNER: booking module (Chanon, @chanon-max).
+// Weekly schedule templates -> concrete time slots -> seat bookings.
+// A booking reserves a SEAT in a slot (capacity = usable devices), not a specific device.
+
+enum SlotStatus {
+  OPEN
+  CLOSED
+}
+
+enum BookingStatus {
+  BOOKED /// Reserved, not yet arrived.
+  CHECKED_IN /// Logged in on a center device during the slot.
+  COMPLETED /// Slot finished after check-in.
+  CANCELLED
+  NO_SHOW /// Slot finished without a check-in.
+}
+
+enum BookingSource {
+  SELF /// Booked by the user (at home or on a center device).
+  ADMIN /// Booked by an Admin on the user's behalf.
+  WALK_IN /// Created by an Admin on the spot for a free seat.
+}
+
+/// Recurring weekly opening hours for one center. Concrete `TimeSlot` rows are generated
+/// from the active templates for the coming weeks; closures come from `ScheduleException`.
+model ScheduleTemplate {
+  id            String    @id @default(uuid(7)) @db.Uuid
+  centerId      String    @map("center_id") @db.Uuid
+  /// 0 = Sunday … 6 = Saturday (JavaScript Date#getDay convention).
+  dayOfWeek     Int       @map("day_of_week") @db.SmallInt
+  /// Minutes after local midnight in the center's time zone (540 = 09:00).
+  startMinute   Int       @map("start_minute") @db.SmallInt
+  endMinute     Int       @map("end_minute") @db.SmallInt
+  capacity      Int       @db.SmallInt
+  isActive      Boolean   @default(true) @map("is_active")
+  effectiveFrom DateTime  @map("effective_from") @db.Date
+  effectiveTo   DateTime? @map("effective_to") @db.Date
+  createdById   String    @map("created_by_id") @db.Uuid
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  center    Center     @relation(fields: [centerId], references: [id], onDelete: Restrict)
+  createdBy User       @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  timeSlots TimeSlot[]
+
+  @@unique([centerId, dayOfWeek, startMinute, effectiveFrom])
+  @@index([centerId, isActive])
+  @@map("schedule_templates")
+}
+
+/// A special closure (holiday, event) for a whole day or part of a day.
+/// When startMinute/endMinute are NULL the whole day is affected.
+model ScheduleException {
+  id               String   @id @default(uuid(7)) @db.Uuid
+  centerId         String   @map("center_id") @db.Uuid
+  date             DateTime @db.Date
+  startMinute      Int?     @map("start_minute") @db.SmallInt
+  endMinute        Int?     @map("end_minute") @db.SmallInt
+  /// true = no service. false + capacityOverride = service with a different capacity.
+  isClosed         Boolean  @default(true) @map("is_closed")
+  capacityOverride Int?     @map("capacity_override") @db.SmallInt
+  reason           String?  @db.VarChar(300)
+  createdById      String   @map("created_by_id") @db.Uuid
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  center    Center @relation(fields: [centerId], references: [id], onDelete: Restrict)
+  createdBy User   @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@index([centerId, date])
+  @@map("schedule_exceptions")
+}
+
+/// One bookable period at one center on one date.
+/// `bookedCount` is maintained inside the booking transaction:
+///   UPDATE time_slots SET booked_count = booked_count + 1
+///   WHERE id = $1 AND status = 'OPEN' AND booked_count < capacity
+/// and is additionally guarded by a CHECK constraint (see migration SQL).
+model TimeSlot {
+  id           String     @id @default(uuid(7)) @db.Uuid
+  centerId     String     @map("center_id") @db.Uuid
+  templateId   String?    @map("template_id") @db.Uuid
+  /// Local calendar date at the center.
+  date         DateTime   @db.Date
+  startAt      DateTime   @map("start_at") @db.Timestamptz(3)
+  endAt        DateTime   @map("end_at") @db.Timestamptz(3)
+  capacity     Int        @db.SmallInt
+  bookedCount  Int        @default(0) @map("booked_count") @db.SmallInt
+  status       SlotStatus @default(OPEN)
+  closedReason String?    @map("closed_reason") @db.VarChar(300)
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  center   Center            @relation(fields: [centerId], references: [id], onDelete: Restrict)
+  template ScheduleTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  bookings Booking[]
+
+  @@unique([centerId, startAt])
+  @@index([centerId, date])
+  @@index([startAt])
+  @@map("time_slots")
+}
+
+/// Double-booking is prevented in the database, not only in code. Two partial unique
+/// indexes are created in the migration SQL (Prisma cannot express them):
+///   - one ACTIVE booking per (slot, user)
+///   - one ACTIVE booking per (user, slot_date)   -> "one slot per day" rule
+/// ACTIVE = status IN ('BOOKED', 'CHECKED_IN', 'COMPLETED').
+model Booking {
+  id                String        @id @default(uuid(7)) @db.Uuid
+  slotId            String        @map("slot_id") @db.Uuid
+  userId            String        @map("user_id") @db.Uuid
+  /// Denormalised from the slot so the per-day uniqueness and admin day lists are cheap.
+  centerId          String        @map("center_id") @db.Uuid
+  slotDate          DateTime      @map("slot_date") @db.Date
+  status            BookingStatus @default(BOOKED)
+  source            BookingSource @default(SELF)
+  createdById       String        @map("created_by_id") @db.Uuid
+  checkedInAt       DateTime?     @map("checked_in_at") @db.Timestamptz(3)
+  checkedInDeviceId String?       @map("checked_in_device_id") @db.Uuid
+  cancelledAt       DateTime?     @map("cancelled_at") @db.Timestamptz(3)
+  cancelledById     String?       @map("cancelled_by_id") @db.Uuid
+  cancelReason      String?       @map("cancel_reason") @db.VarChar(300)
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  slot            TimeSlot      @relation(fields: [slotId], references: [id], onDelete: Restrict)
+  user            User          @relation("BookingUser", fields: [userId], references: [id], onDelete: Restrict)
+  center          Center        @relation(fields: [centerId], references: [id], onDelete: Restrict)
+  createdBy       User          @relation("BookingCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  cancelledBy     User?         @relation("BookingCancelledBy", fields: [cancelledById], references: [id], onDelete: SetNull)
+  checkedInDevice CenterDevice? @relation(fields: [checkedInDeviceId], references: [id], onDelete: SetNull)
+
+  authSessions     AuthSession[]
+  trainingSessions TrainingSession[]
+
+  @@index([slotId, status])
+  @@index([userId, slotDate])
+  @@index([centerId, slotDate, status])
+  @@map("bookings")
+}

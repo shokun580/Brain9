@@ -1,0 +1,52 @@
+# Who must approve changes to which paths. The LAST matching line wins.
+# Lanes and rationale: docs/ownership.md
+#
+# The team lead (@shokun580) co-owns every lane so that a pull request inside your own
+# lane always has someone who can approve it.
+
+# ---- default: infra / hot files (team lead) ----
+*                                     @shokun580
+
+# ---- identity + centers (Chanon) ----
+/src/modules/identity/                @chanon-max @shokun580
+/prisma/schema/identity.prisma        @chanon-max @shokun580
+/prisma/schema/centers.prisma         @chanon-max @shokun580
+/src/app/(auth)/                      @chanon-max @shokun580
+/src/app/(elder)/profile/             @chanon-max @shokun580
+/src/app/admin/users/                 @chanon-max @shokun580
+/src/app/admin/centers/               @chanon-max @shokun580
+/src/app/admin/devices/               @chanon-max @shokun580
+/src/app/admin/privacy/               @chanon-max @shokun580
+/src/app/api/identity/                @chanon-max @shokun580
+
+# ---- booking (Chanon) ----
+/src/modules/booking/                 @chanon-max @shokun580
+/prisma/schema/booking.prisma         @chanon-max @shokun580
+/src/app/(elder)/booking/             @chanon-max @shokun580
+/src/app/admin/schedule/              @chanon-max @shokun580
+/src/app/admin/bookings/              @chanon-max @shokun580
+/src/app/api/booking/                 @chanon-max @shokun580
+
+# ---- content (Apinan) ----
+/src/modules/content/                 @shokun580
+/prisma/schema/content.prisma         @shokun580
+/src/app/admin/content/               @shokun580
+/src/app/api/content/                 @shokun580
+/docs/contracts/pattern-format.md     @shokun580 @Pxrch @ptxsm
+
+# ---- engine (Supanat) ----
+/src/modules/engine/                  @Pxrch @shokun580
+/prisma/schema/engine.prisma          @Pxrch @ptxsm @shokun580
+/src/app/(elder)/courses/             @Pxrch @shokun580
+/src/app/(elder)/play/                @Pxrch @shokun580
+/src/app/api/engine/                  @Pxrch @shokun580
+
+# ---- analytics (Saruta) ----
+/src/modules/analytics/               @ptxsm @shokun580
+/prisma/schema/analytics.prisma       @ptxsm @shokun580
+/src/app/(elder)/results/             @ptxsm @shokun580
+/src/app/admin/analytics/             @ptxsm @shokun580
+/src/app/api/analytics/               @ptxsm @shokun580
+
+# ---- every migration is reviewed by the lead ----
+/prisma/migrations/                   @shokun580

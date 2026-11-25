@@ -1,0 +1,17 @@
+// OWNER: infra (team lead). Do not edit without lead approval.
+// Generator + datasource live here; every other file in this folder holds one module's models.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Where a login / training run happened. Shared by identity (auth sessions) and engine.
+enum UsageContext {
+  HOME
+  CENTER
+}
