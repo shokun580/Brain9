@@ -1,6 +1,9 @@
 // OWNER: engine module (Supanat, @Pxrch).
 // What actually happened when a user played: session -> item result -> each attempt.
 // `ItemResult` is the hand-off table to analytics. Rows are immutable once completed.
+// Soft delete only (AGENTS.md §5). `item_results` and `item_attempts` are append-only
+// ledgers with no `deleted_at`: they are hidden through their session, so readers that
+// must ignore a removed session join `training_sessions` and filter `deleted_at IS NULL`.
 
 enum TrainingMode {
   TRAINING /// Hints + next-cell highlight, unlimited retries (errorless learning).
@@ -46,6 +49,7 @@ model TrainingSession {
   itemsTotal           Int                   @default(0) @map("items_total") @db.SmallInt
   startedAt            DateTime              @default(now()) @map("started_at") @db.Timestamptz(3)
   finishedAt           DateTime?             @map("finished_at") @db.Timestamptz(3)
+  deletedAt            DateTime?             @map("deleted_at") @db.Timestamptz(3)
 
   user        User          @relation(fields: [userId], references: [id], onDelete: Restrict)
   course      Course        @relation(fields: [courseId], references: [id], onDelete: Restrict)
@@ -91,7 +95,7 @@ model ItemResult {
   startedAt         DateTime  @map("started_at") @db.Timestamptz(3)
   completedAt       DateTime? @map("completed_at") @db.Timestamptz(3)
 
-  session TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  session TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Restrict)
   user    User            @relation(fields: [userId], references: [id], onDelete: Restrict)
   pattern Pattern         @relation(fields: [patternId], references: [id], onDelete: Restrict)
 
@@ -122,7 +126,7 @@ model ItemAttempt {
   interTapIntervalsMs Int[]    @map("inter_tap_intervals_ms")
   createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  itemResult ItemResult @relation(fields: [itemResultId], references: [id], onDelete: Cascade)
+  itemResult ItemResult @relation(fields: [itemResultId], references: [id], onDelete: Restrict)
 
   @@unique([itemResultId, attemptNo])
   @@map("item_attempts")

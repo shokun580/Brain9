@@ -1,6 +1,7 @@
 // OWNER: booking module (Chanon, @chanon-max).
 // Weekly schedule templates -> concrete time slots -> seat bookings.
 // A booking reserves a SEAT in a slot (capacity = usable devices), not a specific device.
+// Soft delete only (AGENTS.md §5).
 
 enum SlotStatus {
   OPEN
@@ -23,6 +24,9 @@ enum BookingSource {
 
 /// Recurring weekly opening hours for one center. Concrete `TimeSlot` rows are generated
 /// from the active templates for the coming weeks; closures come from `ScheduleException`.
+/// (center, day, start, effectiveFrom) is unique among templates that are not soft-deleted:
+/// partial unique index `schedule_templates_center_day_start_effective_live_key` in the
+/// migration SQL.
 model ScheduleTemplate {
   id            String    @id @default(uuid(7)) @db.Uuid
   centerId      String    @map("center_id") @db.Uuid
@@ -38,12 +42,12 @@ model ScheduleTemplate {
   createdById   String    @map("created_by_id") @db.Uuid
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz(3)
 
   center    Center     @relation(fields: [centerId], references: [id], onDelete: Restrict)
   createdBy User       @relation(fields: [createdById], references: [id], onDelete: Restrict)
   timeSlots TimeSlot[]
 
-  @@unique([centerId, dayOfWeek, startMinute, effectiveFrom])
   @@index([centerId, isActive])
   @@map("schedule_templates")
 }
@@ -51,17 +55,18 @@ model ScheduleTemplate {
 /// A special closure (holiday, event) for a whole day or part of a day.
 /// When startMinute/endMinute are NULL the whole day is affected.
 model ScheduleException {
-  id               String   @id @default(uuid(7)) @db.Uuid
-  centerId         String   @map("center_id") @db.Uuid
-  date             DateTime @db.Date
-  startMinute      Int?     @map("start_minute") @db.SmallInt
-  endMinute        Int?     @map("end_minute") @db.SmallInt
+  id               String    @id @default(uuid(7)) @db.Uuid
+  centerId         String    @map("center_id") @db.Uuid
+  date             DateTime  @db.Date
+  startMinute      Int?      @map("start_minute") @db.SmallInt
+  endMinute        Int?      @map("end_minute") @db.SmallInt
   /// true = no service. false + capacityOverride = service with a different capacity.
-  isClosed         Boolean  @default(true) @map("is_closed")
-  capacityOverride Int?     @map("capacity_override") @db.SmallInt
-  reason           String?  @db.VarChar(300)
-  createdById      String   @map("created_by_id") @db.Uuid
-  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  isClosed         Boolean   @default(true) @map("is_closed")
+  capacityOverride Int?      @map("capacity_override") @db.SmallInt
+  reason           String?   @db.VarChar(300)
+  createdById      String    @map("created_by_id") @db.Uuid
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  deletedAt        DateTime? @map("deleted_at") @db.Timestamptz(3)
 
   center    Center @relation(fields: [centerId], references: [id], onDelete: Restrict)
   createdBy User   @relation(fields: [createdById], references: [id], onDelete: Restrict)
@@ -75,6 +80,8 @@ model ScheduleException {
 ///   UPDATE time_slots SET booked_count = booked_count + 1
 ///   WHERE id = $1 AND status = 'OPEN' AND booked_count < capacity
 /// and is additionally guarded by a CHECK constraint (see migration SQL).
+/// (center, startAt) is unique among slots that are not soft-deleted: partial unique index
+/// `time_slots_center_id_start_at_live_key` in the migration SQL.
 model TimeSlot {
   id           String     @id @default(uuid(7)) @db.Uuid
   centerId     String     @map("center_id") @db.Uuid
@@ -89,12 +96,12 @@ model TimeSlot {
   closedReason String?    @map("closed_reason") @db.VarChar(300)
   createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt    DateTime?  @map("deleted_at") @db.Timestamptz(3)
 
   center   Center            @relation(fields: [centerId], references: [id], onDelete: Restrict)
   template ScheduleTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
   bookings Booking[]
 
-  @@unique([centerId, startAt])
   @@index([centerId, date])
   @@index([startAt])
   @@map("time_slots")
@@ -104,7 +111,9 @@ model TimeSlot {
 /// indexes are created in the migration SQL (Prisma cannot express them):
 ///   - one ACTIVE booking per (slot, user)
 ///   - one ACTIVE booking per (user, slot_date)   -> "one slot per day" rule
-/// ACTIVE = status IN ('BOOKED', 'CHECKED_IN', 'COMPLETED').
+/// ACTIVE = status IN ('BOOKED', 'CHECKED_IN', 'COMPLETED') AND deleted_at IS NULL.
+/// A user gives up a seat by CANCELLING (status); soft delete is for removing a booking
+/// that should never have existed. Both must give the seat back (`bookedCount - 1`).
 model Booking {
   id                String        @id @default(uuid(7)) @db.Uuid
   slotId            String        @map("slot_id") @db.Uuid
@@ -122,6 +131,7 @@ model Booking {
   cancelReason      String?       @map("cancel_reason") @db.VarChar(300)
   createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt         DateTime?     @map("deleted_at") @db.Timestamptz(3)
 
   slot            TimeSlot      @relation(fields: [slotId], references: [id], onDelete: Restrict)
   user            User          @relation("BookingUser", fields: [userId], references: [id], onDelete: Restrict)
