@@ -1,6 +1,5 @@
-import { Suspense } from "react";
-import { CourseList, CreateCourseForm } from "@/modules/content/ui";
-import { AdminSection, PageHeader, TableCard } from "@/shared/ui";
+import { CourseList, CourseListSkeleton, CreateCourseForm } from "@/modules/content/ui";
+import { AdminSection, PageHeader, Reveal, TableCard } from "@/shared/ui";
 
 export const metadata = { title: "คอร์สและแบบฝึก" };
 
@@ -8,7 +7,7 @@ export const metadata = { title: "คอร์สและแบบฝึก" };
  * Reference page for the project. A route file stays thin:
  *   - no database or session access here
  *   - compose components exported from a module's `ui` entry point
- *   - wrap every component that reads data in <Suspense> with a fallback
+ *   - wrap every component that reads data in <Suspense> (here <Reveal>) with a fallback
  */
 export default function AdminCoursesPage() {
   return (
@@ -20,11 +19,11 @@ export default function AdminCoursesPage() {
       />
 
       <AdminSection title="คอร์สทั้งหมด">
-        <TableCard>
-          <Suspense fallback={<p className="p-4 text-body text-fg-2">กำลังโหลดรายการคอร์ส…</p>}>
+        <Reveal fallback={<CourseListSkeleton />}>
+          <TableCard>
             <CourseList />
-          </Suspense>
-        </TableCard>
+          </TableCard>
+        </Reveal>
       </AdminSection>
 
       <AdminSection title="สร้างคอร์สใหม่">

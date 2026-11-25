@@ -1,6 +1,6 @@
 import { CalendarDays, ChartNoAxesColumn, House, LayoutGrid } from "lucide-react";
 import { Suspense } from "react";
-import { TabBar, type TabBarItem } from "@/shared/ui";
+import { TabBar, TabBarView, type TabBarItem } from "@/shared/ui";
 
 // Shell for every elderly-facing screen. OWNER: infra (team lead).
 // Keep it free of data access: anything that reads the session belongs in a component
@@ -20,7 +20,7 @@ export default function ElderLayout({ children }: LayoutProps<"/">) {
       <div className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col bg-surface">
         <main className="flex-1 p-5">{children}</main>
         {/* usePathname may suspend on routes with unresolved params under Cache Components. */}
-        <Suspense fallback={null}>
+        <Suspense fallback={<TabBarView items={tabs} pathname={null} hideOn={["/play"]} />}>
           <TabBar items={tabs} hideOn={["/play"]} />
         </Suspense>
       </div>

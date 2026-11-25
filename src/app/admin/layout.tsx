@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { getCurrentUser, requireAdmin } from "@/modules/identity";
 import { env } from "@/shared/lib/env";
-import { AdminShell } from "@/shared/ui";
+import { AdminPageSkeleton, AdminShell, SkeletonLine, SkeletonRegion } from "@/shared/ui";
 import { adminNav } from "./nav";
 
 // Shell for the admin area. OWNER: infra (team lead).
@@ -32,6 +32,22 @@ async function AdminUser() {
   );
 }
 
+/**
+ * Sized like the name (text-small) and the role line (text-micro) of `AdminUser`. The shell
+ * mounts the user slot outside the page area, so this is its own status region: it is
+ * announced next to the gate's skeleton, but each says a different thing (user, page).
+ */
+function AdminUserSkeleton() {
+  return (
+    <SkeletonRegion label="กำลังโหลดชื่อผู้ใช้">
+      <div className="w-32 leading-tight">
+        <SkeletonLine text="small" width="full" />
+        <SkeletonLine text="micro" width="md" />
+      </div>
+    </SkeletonRegion>
+  );
+}
+
 /** Names a non-production deployment in the footer; production shows nothing. */
 function environmentLabel(): string | undefined {
   const appEnv = env().APP_ENV;
@@ -46,12 +62,12 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
       nav={adminNav}
       environmentLabel={environmentLabel()}
       user={
-        <Suspense fallback={null}>
+        <Suspense fallback={<AdminUserSkeleton />}>
           <AdminUser />
         </Suspense>
       }
     >
-      <Suspense fallback={<p className="text-body text-fg-2">กำลังตรวจสอบสิทธิ์…</p>}>
+      <Suspense fallback={<AdminPageSkeleton />}>
         <AdminGate>{children}</AdminGate>
       </Suspense>
     </AdminShell>

@@ -1,6 +1,7 @@
 import { EmptyState, StatusDot, Table, TBody, Td, Th, THead, Tr } from "@/shared/ui";
 import { requireAdmin } from "@/modules/identity";
 import { listCoursesForAdmin } from "../server/course-queries";
+import { courseColumns } from "./course-columns";
 import { courseStatusDisplay } from "./course-status";
 
 /**
@@ -19,10 +20,11 @@ export async function CourseList() {
     <Table aria-label="รายการคอร์ส">
       <THead>
         <Tr>
-          <Th>คอร์ส</Th>
-          <Th>ความยาก</Th>
-          <Th numeric>แบบฝึก</Th>
-          <Th>สถานะ</Th>
+          {courseColumns.map((column) => (
+            <Th key={column.label} numeric={column.numeric}>
+              {column.label}
+            </Th>
+          ))}
         </Tr>
       </THead>
       <TBody>
