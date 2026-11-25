@@ -1,0 +1,101 @@
+import { describe, expect, it } from "vitest";
+import { html } from "../../../test/render";
+import { Badge } from "./Badge";
+import { ElderHeader } from "./ElderHeader";
+import { ListRow } from "./ListRow";
+import { Section } from "./Section";
+
+describe("ElderHeader", () => {
+  it("shows a back link with its text label", () => {
+    const out = html(<ElderHeader title="คอร์ส" backHref="/home" />);
+    expect(out).toContain("ย้อนกลับ");
+    expect(out).toMatch(/<a[^>]*href="\/home"/);
+    expect(out).toContain("<svg");
+    expect(out).toMatch(/<h1[^>]*>คอร์ส<\/h1>/);
+  });
+  it("renders the title as the page h1", () => {
+    expect(html(<ElderHeader title="คอร์ส" />)).toMatch(/<h1[^>]*>คอร์ส<\/h1>/);
+  });
+  it("renders greeting and name, with the name as h1", () => {
+    const out = html(<ElderHeader greeting="สวัสดีตอนเช้า" name="คุณตัวอย่าง" />);
+    expect(out).toContain("สวัสดีตอนเช้า");
+    expect(out).toMatch(/<h1[^>]*>คุณตัวอย่าง<\/h1>/);
+  });
+  it("renders the action slot and no back link by default", () => {
+    const out = html(<ElderHeader title="t" action={<button>ก</button>} />);
+    expect(out).toContain("<button>ก</button>");
+    expect(out).not.toContain("ย้อนกลับ");
+  });
+});
+
+describe("Section", () => {
+  it("draws a thin top line that thickens in high contrast", () => {
+    const out = html(<Section title="สัปดาห์นี้">x</Section>);
+    expect(out).toContain("border-t");
+    expect(out).toContain("border-t-[length:var(--b9-border)]");
+    expect(out).toContain("border-line");
+    expect(out).toContain("สัปดาห์นี้");
+  });
+  it("has no line when first", () => {
+    expect(
+      html(
+        <Section first title="t">
+          x
+        </Section>,
+      ),
+    ).not.toContain("border-t");
+  });
+  it("renders eyebrow, title and action", () => {
+    const out = html(
+      <Section eyebrow="วันนี้" title="หัวข้อ" action={<a href="/x">ดูทั้งหมด</a>}>
+        เนื้อหา
+      </Section>,
+    );
+    expect(out).toContain("วันนี้");
+    expect(out).toMatch(/<h2[^>]*>หัวข้อ<\/h2>/);
+    expect(out).toContain("ดูทั้งหมด");
+    expect(out).toContain("เนื้อหา");
+  });
+});
+
+describe("ListRow", () => {
+  const out = html(
+    <ListRow href="/results" title="ผลลัพธ์ของฉัน" subtitle="ดูพัฒนาการ" badge={<Badge>ใหม่</Badge>} />,
+  );
+  it("is a link with title, subtitle and badge", () => {
+    expect(out).toMatch(/<a[^>]*href="\/results"/);
+    expect(out).toContain("ผลลัพธ์ของฉัน");
+    expect(out).toContain("ดูพัฒนาการ");
+    expect(out).toContain("ใหม่");
+  });
+  it("has a chevron, a large target and a line that thickens", () => {
+    expect(out).toContain("<svg");
+    expect(out).toContain("min-h-control");
+    expect(out).toContain("border-b-[length:var(--b9-border)]");
+    expect(out).toContain("border-line");
+  });
+});
+
+describe("Badge", () => {
+  it("always shows an icon for success and danger", () => {
+    expect(html(<Badge tone="success">ทำครบแล้ว</Badge>)).toContain("<svg");
+    expect(html(<Badge tone="danger">ผิด</Badge>)).toContain("<svg");
+  });
+  it("has no icon for the other tones", () => {
+    for (const tone of ["neutral", "primary", "attention"] as const) {
+      expect(html(<Badge tone={tone}>x</Badge>)).not.toContain("<svg");
+    }
+    expect(html(<Badge>ยังไม่เริ่ม</Badge>)).not.toContain("<svg");
+  });
+  it("is a pill with a border that only shows in high contrast", () => {
+    const out = html(<Badge>x</Badge>);
+    expect(out).toContain("rounded-full");
+    expect(out).toContain("border-edge");
+  });
+  it("keeps text on soft backgrounds readable", () => {
+    const out = html(<Badge tone="primary">x</Badge>);
+    expect(out).toContain("bg-primary-soft");
+    expect(out).toContain("text-primary-press");
+    expect(out).not.toMatch(/text-primary(?!-)/);
+  });
+});
