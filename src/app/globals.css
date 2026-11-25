@@ -20,7 +20,7 @@
   --b9-line-strong: #c3cdd3;
   --b9-primary: #0b7a75;
   --b9-primary-press: #08625e;
-  --b9-primary-soft: #e3f2f0;
+  --b9-primary-soft: #e3f2f0; /* text on it is primary-press, never primary (4.49:1) */
   --b9-primary-tint: #bde2dd;
   --b9-primary-bright: #4fd1c5;
   --b9-on-primary: #ffffff;
@@ -33,6 +33,7 @@
   --b9-attention-soft: #fff1dc;
   --b9-ink: #122029;
   --b9-focus: #0b7a75;
+  --b9-edge: transparent;
 
   /* Chart colours are read as CSS variables by analytics, never as hex. */
   --chart-1: var(--b9-primary);
@@ -48,7 +49,9 @@
   color-scheme: light;
 }
 
-/* Elderly side: large type, large targets. */
+/* Elderly side: large type, large targets. Also the default for unscoped content (error
+   and not-found pages, portals), so every size utility resolves outside a data-ui root. */
+:root,
 [data-ui="elder"] {
   --b9-text-title: calc(35px * var(--b9-scale));
   --b9-text-heading: calc(27px * var(--b9-scale));
@@ -62,6 +65,13 @@
   --b9-radius-field: 14px;
   --b9-radius-panel: 26px;
   --b9-radius-dialog: 26px;
+  /* Icon sizes ignore --b9-scale: the text-size setting scales text only. */
+  --b9-icon: 24px;
+  --b9-icon-sm: 22px;
+}
+
+/* font-size stays off :root so the root font size remains 16px. */
+[data-ui="elder"] {
   font-size: var(--b9-text-body);
   line-height: 1.6;
 }
@@ -80,6 +90,8 @@
   --b9-radius-field: 8px;
   --b9-radius-panel: 10px;
   --b9-radius-dialog: 12px;
+  --b9-icon: 18px;
+  --b9-icon-sm: 16px;
   --b9-scale: 1;
   font-size: var(--b9-text-body);
   line-height: 1.5;
@@ -117,6 +129,7 @@ html[data-contrast="high"] [data-ui="elder"] {
   --b9-attention: #ffd36e;
   --b9-attention-soft: #2b2000;
   --b9-focus: #ffffff;
+  --b9-edge: #ffffff;
   --b9-border: 2px;
   --b9-shadow-cell: none;
   --b9-shadow-cell-lit: none;
@@ -149,6 +162,7 @@ html[data-contrast="high"] [data-ui="elder"] {
   --color-attention-soft: var(--b9-attention-soft);
   --color-ink: var(--b9-ink);
   --color-focus: var(--b9-focus);
+  --color-edge: var(--b9-edge);
 
   --text-title: var(--b9-text-title);
   --text-title--line-height: 1.3;
@@ -165,6 +179,8 @@ html[data-contrast="high"] [data-ui="elder"] {
 
   --spacing-control: var(--b9-control-h);
   --spacing-control-sm: var(--b9-control-h-sm);
+  --spacing-icon: var(--b9-icon);
+  --spacing-icon-sm: var(--b9-icon-sm);
 
   --radius-control: var(--b9-radius-control);
   --radius-field: var(--b9-radius-field);

@@ -21,8 +21,13 @@ rules exactly. If a request conflicts with them, say so instead of complying.
 - Prisma **7.10** with PostgreSQL: client generated to `src/generated/prisma`; import the
   shared client as `db` from `@/shared/lib/db`; never `new PrismaClient()`; never import
   from `@prisma/client`.
-- Zod **4**, Tailwind CSS **4** (design tokens as utilities: `bg-primary`, `text-text-2`,
-  `rounded-card`, `bg-surface`, `text-danger`, `border-border-strong` …), Vitest.
+- Zod **4**, Tailwind CSS **4** (tokens in `globals.css` become utilities: colours `bg-page`,
+  `bg-surface`, `text-fg`, `text-fg-2`, `text-fg-muted`, `bg-primary`, `text-primary-press`,
+  `bg-primary-soft`, `text-danger`, `border-line`, `border-line-strong`, `border-edge`; type
+  `text-title|heading|lead|body|small|micro`; sizes `min-h-control`, `min-h-control-sm`,
+  `size-icon`, `size-icon-sm`; radii `rounded-control|field|panel|dialog`). Sizes come from the
+  scope on the layout root, `data-ui="elder" | "admin"`; never hard-code colours or sizes.
+  Vitest.
 
 ## Lanes — work in exactly one
 
@@ -129,7 +134,7 @@ Identity API available to every lane (`@/modules/identity`):
 `ActionResult<T> = { ok: true, data: T } | { ok: false, code, message, fieldErrors? }`
 with codes `VALIDATION | UNAUTHENTICATED | FORBIDDEN | NOT_FOUND | CONFLICT | INTERNAL`.
 
-Shared UI (`@/shared/ui`): `Button`, `Card`, `TextField`, `ComingSoon`.
+Shared UI (`@/shared/ui`): `Button`, `Checkbox`, `ComingSoon`, `ConfirmDialog`, `EmptyState`, `Notice`, `NumberField`, `Select`, `TextField`, `Textarea`, `Toast`.
 
 ## Non-negotiable rules
 

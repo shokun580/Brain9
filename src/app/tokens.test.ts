@@ -3,6 +3,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { contrastRatio } from "@/shared/lib/contrast";
 
+// Prettier puts each selector of the combined default block on its own line.
+const BASE = ':root,\n[data-ui="elder"]';
+
 // Prettier lower-cases hex colours, so compare case-insensitively.
 const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8").toLowerCase();
 
@@ -76,12 +79,53 @@ describe("design tokens", () => {
   });
 
   it("defines the elder and admin scopes", () => {
-    const elder = block('[data-ui="elder"]');
+    const elder = block(BASE);
     expect(elder).toContain("--b9-text-title: calc(35px * var(--b9-scale));");
     expect(elder).toContain("--b9-control-h: 64px;");
     const admin = block('[data-ui="admin"]');
     expect(admin).toContain("--b9-text-body: 14.5px;");
     expect(admin).toContain("--b9-control-h: 36px;");
+  });
+
+  it("gives unscoped pages the elder sizes without touching the root font size", () => {
+    const base = block(BASE);
+    expect(base).toContain("--b9-text-body: calc(20px * var(--b9-scale));");
+    expect(base).toContain("--b9-control-h: 64px;");
+    expect(base).toContain("--b9-radius-control: 18px;");
+    const code = css.replace(/\/\*[\s\S]*?\*\//g, "");
+    for (const m of code.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      const selector = (m[1] ?? "").trim();
+      if (/^(:root|html)(\s*,.*)?$/.test(selector) && !selector.includes("[data-ui")) {
+        expect(m[2], selector).not.toMatch(/font-size/);
+      }
+    }
+    expect(css).toMatch(/\n\[data-ui="elder"\] \{\s*font-size: var\(--b9-text-body\);/);
+  });
+
+  it("documents why primary on primary-soft is forbidden", () => {
+    // Text on primary-soft is primary-press (asserted above); plain primary misses AA.
+    expect(
+      contrastRatio(ROOT["--b9-primary"] as string, ROOT["--b9-primary-soft"] as string),
+    ).toBeLessThan(4.5);
+  });
+
+  it("defines the edge token, visible only in high contrast", () => {
+    const high = block('html[data-contrast="high"] [data-ui="elder"]');
+    expect(root).toContain("--b9-edge: transparent;");
+    expect(high).toContain("--b9-edge: #ffffff;");
+    expect(block("@theme inline")).toContain("--color-edge: var(--b9-edge);");
+  });
+
+  it("defines icon sizes per scope and maps them to size utilities", () => {
+    const base = block(BASE);
+    expect(base).toContain("--b9-icon: 24px;");
+    expect(base).toContain("--b9-icon-sm: 22px;");
+    const admin = block('[data-ui="admin"]');
+    expect(admin).toContain("--b9-icon: 18px;");
+    expect(admin).toContain("--b9-icon-sm: 16px;");
+    const theme = block("@theme inline");
+    expect(theme).toContain("--spacing-icon: var(--b9-icon);");
+    expect(theme).toContain("--spacing-icon-sm: var(--b9-icon-sm);");
   });
 
   it("applies data-contrast and data-size only inside the elder scope", () => {

@@ -21,7 +21,11 @@ export function Notice({ tone, title, children }: NoticeProps) {
       role={tone === "danger" ? "alert" : "status"}
       className={cn("flex items-start gap-3 rounded-panel px-4 py-3 text-fg", box)}
     >
-      <Icon aria-hidden="true" className={cn("mt-0.5 size-6 shrink-0", icon)} />
+      <Icon
+        aria-hidden="true"
+        strokeWidth={1.9}
+        className={cn("mt-0.5 size-icon shrink-0", icon)}
+      />
       <div className="text-small">
         {title ? <p className="text-body font-bold">{title}</p> : null}
         <div>{children}</div>

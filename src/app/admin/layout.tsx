@@ -35,7 +35,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-control px-3 py-2 font-bold text-primary hover:bg-primary-soft"
+              className="rounded-control px-3 py-2 font-bold text-primary-press hover:bg-primary-soft"
             >
               {item.label}
             </Link>

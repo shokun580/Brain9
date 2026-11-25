@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from "react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, Ref } from "react";
 import { cn } from "@/shared/lib/cn";
 
 type Variant = "primary" | "secondary" | "quiet" | "danger";
@@ -19,6 +19,8 @@ type Own = {
   /** Square button with no visible text; requires aria-label. */
   iconOnly?: boolean;
   href?: string;
+  /** Forwarded to the `<button>` element only (React 19 passes `ref` as a prop). */
+  ref?: Ref<HTMLButtonElement>;
 };
 
 export type ButtonProps = Own &
@@ -34,6 +36,7 @@ export function Button({
   fullWidth,
   iconOnly,
   className,
+  ref,
   ...props
 }: ButtonProps) {
   const classes = cn(
@@ -51,5 +54,5 @@ export function Button({
     return <Link href={href} className={classes} {...anchor} />;
   }
   const { type = "button", ...button } = props as ButtonHTMLAttributes<HTMLButtonElement>;
-  return <button type={type} className={classes} {...button} />;
+  return <button ref={ref} type={type} className={classes} {...button} />;
 }

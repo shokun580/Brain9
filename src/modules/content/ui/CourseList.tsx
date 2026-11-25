@@ -27,7 +27,7 @@ export async function CourseList() {
           <div className="rounded-panel border border-line bg-surface p-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="text-heading font-bold">{course.title}</h3>
-              <span className="rounded-full bg-primary-soft px-3 py-1 text-small font-bold text-primary">
+              <span className="rounded-full bg-primary-soft px-3 py-1 text-small font-bold text-primary-press">
                 {statusLabel[course.status]}
               </span>
             </div>
