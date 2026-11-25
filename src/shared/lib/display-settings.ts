@@ -36,6 +36,29 @@ export function applyDisplayPrefs(prefs: DisplayPrefs, root: { dataset: DOMStrin
   else delete root.dataset.contrast;
 }
 
+/** Reads the saved prefs; the defaults when storage is missing or throws. */
+export function loadDisplayPrefs(storage: Pick<Storage, "getItem"> | undefined): DisplayPrefs {
+  try {
+    return parseDisplayPrefs(storage ? storage.getItem(DISPLAY_PREFS_KEY) : null);
+  } catch {
+    return { ...DEFAULT_DISPLAY_PREFS };
+  }
+}
+
+/** Saves the prefs. Returns false (never throws) when storage is missing or blocked. */
+export function saveDisplayPrefs(
+  storage: Pick<Storage, "setItem"> | undefined,
+  prefs: DisplayPrefs,
+): boolean {
+  if (!storage) return false;
+  try {
+    storage.setItem(DISPLAY_PREFS_KEY, serializeDisplayPrefs(prefs));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** The prefs currently applied to `<html>`, which stay true even when storage is unavailable. */
 export function readAppliedDisplayPrefs(root: { dataset: DOMStringMap }): DisplayPrefs {
   return parseDisplayPrefs(

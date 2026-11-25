@@ -4,6 +4,8 @@ import {
   DEFAULT_DISPLAY_PREFS,
   DISPLAY_PREFS_KEY,
   DISPLAY_PREFS_SCRIPT,
+  loadDisplayPrefs,
+  saveDisplayPrefs,
   parseDisplayPrefs,
   readAppliedDisplayPrefs,
   serializeDisplayPrefs,
@@ -130,5 +132,53 @@ describe("readAppliedDisplayPrefs", () => {
       contrast: "high",
     });
     expect(readAppliedDisplayPrefs({ dataset: { size: "9", contrast: "x" } })).toEqual(defaults);
+  });
+});
+
+describe("loadDisplayPrefs", () => {
+  it("returns the defaults without storage or when reading throws", () => {
+    expect(loadDisplayPrefs(undefined)).toEqual(defaults);
+    expect(
+      loadDisplayPrefs({
+        getItem() {
+          throw new Error("blocked");
+        },
+      }),
+    ).toEqual(defaults);
+  });
+  it("reads a stored value under the shared key", () => {
+    const storage = {
+      getItem: (key: string) => (key === DISPLAY_PREFS_KEY ? '{"size":3,"contrast":"high"}' : null),
+    };
+    expect(loadDisplayPrefs(storage)).toEqual({ size: 3, contrast: "high" });
+  });
+});
+
+describe("saveDisplayPrefs", () => {
+  it("writes the serialized value and returns true", () => {
+    const written: Record<string, string> = {};
+    const ok = saveDisplayPrefs(
+      {
+        setItem: (key, value) => {
+          written[key] = value;
+        },
+      },
+      { size: 2, contrast: "high" },
+    );
+    expect(ok).toBe(true);
+    expect(written[DISPLAY_PREFS_KEY]).toBe(serializeDisplayPrefs({ size: 2, contrast: "high" }));
+  });
+  it("returns false without throwing when storage is missing or blocked", () => {
+    expect(saveDisplayPrefs(undefined, { size: 2, contrast: "high" })).toBe(false);
+    expect(
+      saveDisplayPrefs(
+        {
+          setItem() {
+            throw new Error("quota");
+          },
+        },
+        { size: 2, contrast: "high" },
+      ),
+    ).toBe(false);
   });
 });

@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import {
   applyDisplayPrefs,
   DISPLAY_PREFS_KEY,
+  loadDisplayPrefs,
+  parseDisplayPrefs,
   readAppliedDisplayPrefs,
-  serializeDisplayPrefs,
+  saveDisplayPrefs,
   type DisplayPrefs,
 } from "@/shared/lib/display-settings";
 import { Button } from "./Button";
@@ -26,6 +28,15 @@ function toSize(value: string): DisplayPrefs["size"] {
   return value === "2" ? 2 : value === "3" ? 3 : 1;
 }
 
+/** `window.localStorage` itself can throw (SecurityError in some private modes). */
+function getStorage(): Storage | undefined {
+  try {
+    return window.localStorage;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * Text size and high contrast. A change applies at once and is remembered in localStorage;
  * when storage is blocked the choice still holds for the current page.
@@ -39,6 +50,14 @@ export function DisplaySettings({ triggerLabel = "ก ขนาดตัวอ�
   // Remounts the (uncontrolled) size list each time the dialog opens, so it shows what is applied.
   const [session, setSession] = useState(0);
 
+  // Strict Mode's dev remount resets <html> to the attributes React manages, clearing what the
+  // inline script set. Re-apply the stored prefs before paint (no-op in production).
+  // When storage is unreadable there is nothing stored to restore, so leave <html> alone.
+  useLayoutEffect(() => {
+    const storage = getStorage();
+    if (storage) applyDisplayPrefs(loadDisplayPrefs(storage), document.documentElement);
+  }, []);
+
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
@@ -50,7 +69,15 @@ export function DisplaySettings({ triggerLabel = "ก ขนาดตัวอ�
   }, [open]);
 
   function openDialog() {
-    setPrefs(readAppliedDisplayPrefs(document.documentElement));
+    // Seed from storage so a stored field is never lost; the applied state covers blocked storage.
+    let seed = readAppliedDisplayPrefs(document.documentElement);
+    try {
+      const raw = getStorage()?.getItem(DISPLAY_PREFS_KEY);
+      if (raw != null) seed = parseDisplayPrefs(raw);
+    } catch {
+      // Unreadable storage: keep what is applied on <html>.
+    }
+    setPrefs(seed);
     setSession((n) => n + 1);
     setOpen(true);
   }
@@ -58,11 +85,8 @@ export function DisplaySettings({ triggerLabel = "ก ขนาดตัวอ�
   function change(next: DisplayPrefs) {
     setPrefs(next);
     applyDisplayPrefs(next, document.documentElement);
-    try {
-      localStorage.setItem(DISPLAY_PREFS_KEY, serializeDisplayPrefs(next));
-    } catch {
-      // Storage can be blocked (private mode, policy): the setting still applies to this page.
-    }
+    // Storage can be blocked (private mode, policy): the setting still applies to this page.
+    saveDisplayPrefs(getStorage(), next);
   }
 
   const high = prefs.contrast === "high";
