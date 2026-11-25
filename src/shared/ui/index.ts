@@ -5,6 +5,7 @@ export { ChoiceList, type ChoiceListProps } from "./ChoiceList";
 export { Checkbox, type CheckboxProps } from "./Checkbox";
 export { ComingSoon } from "./ComingSoon";
 export { ConfirmDialog, type ConfirmDialogProps } from "./ConfirmDialog";
+export { DisplaySettings, type DisplaySettingsProps } from "./DisplaySettings";
 export { ElderHeader, type ElderHeaderProps } from "./ElderHeader";
 export { EmptyState, type EmptyStateProps } from "./EmptyState";
 export { ListRow, type ListRowProps } from "./ListRow";

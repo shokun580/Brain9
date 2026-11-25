@@ -119,3 +119,23 @@ describe("PinPad", () => {
     expect(pad(0)).toContain('<span aria-hidden="true"></span>');
   });
 });
+
+describe("ChoiceList onValueChange", () => {
+  const options = [
+    { value: "a", title: "ตัวเลือก ก" },
+    { value: "b", title: "ตัวเลือก ข" },
+  ];
+  it("accepts the prop and leaves the markup unchanged", () => {
+    const without = html(<ChoiceList name="x" legend="เลือก" options={options} defaultValue="a" />);
+    const withProp = html(
+      <ChoiceList
+        name="x"
+        legend="เลือก"
+        options={options}
+        defaultValue="a"
+        onValueChange={() => {}}
+      />,
+    );
+    expect(withProp).toBe(without);
+  });
+});

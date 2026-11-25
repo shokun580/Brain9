@@ -12,13 +12,21 @@ export type ChoiceListProps = {
     badge?: ReactNode;
     disabled?: boolean;
   }[];
+  /** Called with the option's value when the user picks it. */
+  onValueChange?: (value: string) => void;
 };
 
 /**
  * Large single-choice list on native radios (no JavaScript). The radio is visually hidden but
  * still focusable; the label shows the focus ring and the checked state (tint plus a ✓ mark).
  */
-export function ChoiceList({ name, legend, defaultValue, options }: ChoiceListProps) {
+export function ChoiceList({
+  name,
+  legend,
+  defaultValue,
+  options,
+  onValueChange,
+}: ChoiceListProps) {
   return (
     <fieldset className="m-0 min-w-0 border-0 p-0">
       <legend className="mb-3 p-0 text-title font-bold text-fg">{legend}</legend>
@@ -34,6 +42,7 @@ export function ChoiceList({ name, legend, defaultValue, options }: ChoiceListPr
               value={option.value}
               defaultChecked={option.value === defaultValue}
               disabled={option.disabled}
+              onChange={onValueChange ? () => onValueChange(option.value) : undefined}
               className="sr-only"
             />
             <span
