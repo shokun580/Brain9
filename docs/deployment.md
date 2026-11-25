@@ -87,7 +87,7 @@ is finished does not produce failed runs.
 | Field              | Value                                                         |
 | ------------------ | ------------------------------------------------------------- |
 | Ruleset name       | `protect-main-and-staging`                                    |
-| Enforcement status | **Active**                                                    |
+| Enforcement status | **Disabled** while bootstrapping, **Active** after step 5     |
 | Bypass list        | **Repository admin**, allowed for pull requests only          |
 | Target branches    | _Include default branch_, plus _Include by pattern_ `staging` |
 
@@ -98,30 +98,47 @@ Rules to enable:
 - **Require a pull request before merging** — required approvals `1`, dismiss stale
   approvals, require review from Code Owners, require conversation resolution; allowed
   merge methods: merge and squash
-- **Require status checks to pass** — require branches to be up to date; checks
-  `target-guard`, `check`, `migrations`
+- **Require status checks to pass** — checks `target-guard`, `check`, `migrations`
+  (source: GitHub Actions); tick **Do not require status checks on creation**
 
-Leave everything else off. In particular **Restrict updates** would block every merge,
-**Restrict creations** would stop the `staging` branch from being created, and **Require
-linear history** would reject the release pull request, which uses a merge commit.
+Leave everything else off. The ones that look tempting but break this workflow:
+
+| Setting                                             | Why it stays off                                                                                                                                                                  |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Restrict updates                                    | Blocks every merge                                                                                                                                                                |
+| Restrict creations                                  | Stops the `staging` branch from being created                                                                                                                                     |
+| Require linear history                              | Rejects the release pull request, which uses a merge commit                                                                                                                       |
+| Require branches to be up to date before merging    | The release merge commit exists only on `main`, so every later `staging` → `main` pull request would be "out of date" and could only be updated by pushing to protected `staging` |
+| Require approval of the most recent reviewable push | When a reviewer pushes a small fix to someone's pull request, neither the reviewer nor the author can approve it, and a four-person team runs out of approvers                    |
 
 The admin bypass exists because the lead cannot approve their own pull requests; use it
 only for that.
 
+Optional, for stricter `staging`: a second ruleset `staging-up-to-date` targeting only
+`staging` with a single rule — _Require status checks to pass_ with the same three checks
+and _Require branches to be up to date_ ticked. Rulesets add up, so `staging` then needs
+an up-to-date branch while `main` does not.
+
 ### 5. Staging branch, labels, environments
 
-Merge the infrastructure pull request into `main` **first** — the `target-guard` check
-starts rejecting pull requests into `main` from other branches as soon as `staging`
-exists. Then:
+Do these in order:
 
-```bash
-./scripts/setup-github.sh
-```
+1. Merge the infrastructure pull request into `main`. The `target-guard` check starts
+   rejecting pull requests into `main` from other branches as soon as `staging` exists,
+   so `staging` must not exist yet.
+2. Run the setup script:
 
-The script (read it first) sets the merge options, creates the `staging` branch from
-`main`, the labels, and the `staging` and `production` environments (production requires
-your approval). It does not touch branch rules; it only reports whether an active ruleset
-exists.
+   ```bash
+   ./scripts/setup-github.sh
+   ```
+
+   It (read it first) sets the merge options, creates the `staging` branch from `main`,
+   the labels, and the `staging` and `production` environments (production requires your
+   approval). It does not touch branch rules; it only reports whether an active ruleset
+   exists.
+
+3. Switch the ruleset from step 4 to **Active**. Doing this after `staging` exists avoids
+   the pull-request rule getting in the way of creating the branch.
 
 ### 6. Project board
 
