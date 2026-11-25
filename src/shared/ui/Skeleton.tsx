@@ -9,6 +9,7 @@ export type SkeletonRegionProps = { label: string; children: ReactNode };
 
 /**
  * A loading area. Screen readers hear the label once; the grey shapes are decorative.
+ * Exactly one status region per loading area: composites placed inside must be `bare`.
  * Skeletons never contain a link, button or input, so nothing in them can take focus.
  */
 export function SkeletonRegion({ label, children }: SkeletonRegionProps) {
@@ -22,6 +23,7 @@ export function SkeletonRegion({ label, children }: SkeletonRegionProps) {
 
 const lineWidth = { sm: "w-1/4", md: "w-1/2", lg: "w-3/4", full: "w-full" } as const;
 const lineText = {
+  micro: "text-micro",
   body: "text-body",
   small: "text-small",
   heading: "text-heading",
@@ -71,7 +73,7 @@ function TableShape({ columns, rows, lines }: TableShapeProps) {
         <Tr>
           {columns.map((column, index) => (
             <Th key={index} numeric={column.numeric}>
-              {column.label ?? <SkeletonLine text="small" width="sm" />}
+              {column.label ?? <SkeletonLine text="micro" width="sm" />}
             </Th>
           ))}
         </Tr>
@@ -94,26 +96,40 @@ function TableShape({ columns, rows, lines }: TableShapeProps) {
   );
 }
 
-export type TableSkeletonProps = {
-  label: string;
+/** Either a region of its own (with a label), or `bare`: only the shape, for use inside one. */
+export type RegionOption = { bare: true; label?: never } | { bare?: false; label: string };
+
+function Shape({ bare, label, children }: { bare?: boolean; label?: string; children: ReactNode }) {
+  if (bare || label === undefined) return children;
+  return <SkeletonRegion label={label}>{children}</SkeletonRegion>;
+}
+
+export type TableSkeletonProps = RegionOption & {
   columns: { label: string; numeric?: boolean }[];
   rows?: number;
   lines?: 1 | 2;
 };
 
-/** A table that is loading: the real header labels, grey bars in the body. */
-export function TableSkeleton({ label, columns, rows = 3, lines = 1 }: TableSkeletonProps) {
+/**
+ * A table that is loading: the real header labels, grey bars in the body. One status region
+ * per loading area: alone it makes its own (`label`); inside a `SkeletonRegion` pass `bare`.
+ */
+export function TableSkeleton({ bare, label, columns, rows = 3, lines = 1 }: TableSkeletonProps) {
   return (
-    <SkeletonRegion label={label}>
+    <Shape bare={bare} label={label}>
       <TableShape columns={columns} rows={rows} lines={lines} />
-    </SkeletonRegion>
+    </Shape>
   );
 }
 
-/** Same box as `ListRow`: min height, gap and padding come from the same classes. */
-export function ListRowSkeleton({ label, rows = 3 }: { label: string; rows?: number }) {
+/**
+ * Same box as `ListRow`: min height, gap and padding come from the same classes. One status
+ * region per loading area: alone it makes its own (`label`); inside a `SkeletonRegion` pass
+ * `bare`.
+ */
+export function ListRowSkeleton({ bare, label, rows = 3 }: RegionOption & { rows?: number }) {
   return (
-    <SkeletonRegion label={label}>
+    <Shape bare={bare} label={label}>
       {Array.from({ length: rows }, (_, row) => (
         <div
           key={row}
@@ -127,14 +143,17 @@ export function ListRowSkeleton({ label, rows = 3 }: { label: string; rows?: num
           <SkeletonBlock shape="icon" />
         </div>
       ))}
-    </SkeletonRegion>
+    </Shape>
   );
 }
 
-/** Same box as `StatTile`: icon tile, label, big figure. */
-export function StatTileSkeleton({ label, count = 4 }: { label: string; count?: number }) {
+/**
+ * Same box as `StatTile`: icon tile, label, big figure. One status region per loading area:
+ * alone it makes its own (`label`); inside a `SkeletonRegion` pass `bare`.
+ */
+export function StatTileSkeleton({ bare, label, count = 4 }: RegionOption & { count?: number }) {
   return (
-    <SkeletonRegion label={label}>
+    <Shape bare={bare} label={label}>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3">
         {Array.from({ length: count }, (_, tile) => (
           <div
@@ -149,7 +168,7 @@ export function StatTileSkeleton({ label, count = 4 }: { label: string; count?: 
           </div>
         ))}
       </div>
-    </SkeletonRegion>
+    </Shape>
   );
 }
 

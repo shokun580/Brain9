@@ -119,6 +119,39 @@ describe("AdminPageSkeleton", () => {
   });
 });
 
+describe("bare composites", () => {
+  const bare = [
+    html(<TableSkeleton bare columns={columns} />),
+    html(<ListRowSkeleton bare />),
+    html(<StatTileSkeleton bare />),
+  ];
+  it.each(bare.map((markup, i) => [i, markup] as const))("shape %i has no region", (_i, markup) => {
+    expect(markup).not.toContain('role="status"');
+    expect(markup).not.toContain("sr-only");
+    expect(markup).toContain("animate-skeleton");
+  });
+  it("lets one region hold several shapes", () => {
+    const out = html(
+      <SkeletonRegion label="กำลังโหลดหน้านี้">
+        <StatTileSkeleton bare />
+        <TableSkeleton bare columns={columns} />
+      </SkeletonRegion>,
+    );
+    expect(count(out, 'role="status"')).toBe(1);
+    expect(out).toContain("<table");
+    expect(out).toContain("size-11");
+  });
+});
+
+describe("SkeletonLine micro", () => {
+  it("puts the micro text size on the same element as the line height", () => {
+    const out = html(<SkeletonLine text="micro" />);
+    expect(classOf(out, "span").split(" ")).toEqual(
+      expect.arrayContaining(["h-[1lh]", "text-micro"]),
+    );
+  });
+});
+
 describe("no skeleton is interactive", () => {
   const all = [
     html(
