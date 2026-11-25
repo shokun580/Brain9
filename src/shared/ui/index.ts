@@ -31,3 +31,9 @@ export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { SaveBar, type SaveBarProps } from "./SaveBar";
 export { SegmentedControl, type SegmentedControlProps } from "./SegmentedControl";
 export { StatTile, type StatTileProps } from "./StatTile";
+export {
+  AdminShell,
+  type AdminNavGroup,
+  type AdminNavItem,
+  type AdminShellProps,
+} from "./AdminShell";
