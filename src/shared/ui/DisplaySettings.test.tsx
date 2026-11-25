@@ -17,3 +17,12 @@ describe("DisplaySettings", () => {
     expect(out).toContain("<h2");
   });
 });
+
+describe("DisplaySettings dialog sizing", () => {
+  it("caps the dialog to the viewport and scrolls inside", () => {
+    const out = html(<DisplaySettings />);
+    expect(out).toMatch(/<dialog[^>]*max-h-\[calc\(100dvh-2rem\)\]/);
+    expect(out).toMatch(/<dialog[^>]*overflow-y-auto/);
+    expect(out).toMatch(/<h2[^>]*text-heading/);
+  });
+});

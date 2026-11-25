@@ -16,8 +16,10 @@ export type ElderHeaderProps = {
 export function ElderHeader({ title, greeting, name, backHref, action }: ElderHeaderProps) {
   const heading = title ?? name;
   return (
-    <header className="flex min-h-control items-center justify-between gap-3">
-      <div className="min-w-0">
+    <header className="flex min-h-control flex-wrap items-center justify-between gap-x-3 gap-y-2">
+      {/* The text keeps a readable minimum width: when the action does not fit beside it, the
+          action wraps onto its own line instead of squeezing the words. */}
+      <div className="min-w-0 flex-1 basis-40">
         {backHref ? (
           <Link
             href={backHref}

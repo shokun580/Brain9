@@ -21,6 +21,12 @@ describe("ElderHeader", () => {
     expect(out).toContain("สวัสดีตอนเช้า");
     expect(out).toMatch(/<h1[^>]*>คุณตัวอย่าง<\/h1>/);
   });
+  it("lets the action wrap below the text instead of squeezing it", () => {
+    const out = html(<ElderHeader greeting="สวัสดีตอนเช้า" name="คุณตัวอย่าง" action={<i />} />);
+    expect(out).toMatch(/<header[^>]*class="[^"]*\bflex-wrap\b/);
+    expect(out).toMatch(/<div class="[^"]*\bflex-1\b[^"]*\bbasis-40\b/);
+    expect(out).toMatch(/<div class="shrink-0"><i><\/i><\/div>/);
+  });
   it("renders the action slot and no back link by default", () => {
     const out = html(<ElderHeader title="t" action={<button>ก</button>} />);
     expect(out).toContain("<button>ก</button>");

@@ -46,6 +46,8 @@ describe("ChoiceList", () => {
     );
     expect(c).toContain("<fieldset");
     expect(c).toContain("<legend");
+    expect(c).toMatch(/<legend[^>]*text-lead/);
+    expect(c).not.toMatch(/<legend[^>]*text-title/);
     expect(inputOf(c, "train")).toContain("checked");
     expect(inputOf(c, "test")).not.toContain("checked");
   });

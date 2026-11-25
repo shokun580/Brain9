@@ -29,7 +29,7 @@ export function ChoiceList({
 }: ChoiceListProps) {
   return (
     <fieldset className="m-0 min-w-0 border-0 p-0">
-      <legend className="mb-3 p-0 text-title font-bold text-fg">{legend}</legend>
+      <legend className="mb-3 p-0 text-lead font-bold text-fg">{legend}</legend>
       <div className="flex flex-col gap-3">
         {options.map((option) => (
           <label

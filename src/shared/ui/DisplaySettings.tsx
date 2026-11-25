@@ -103,7 +103,7 @@ export function DisplaySettings({ triggerLabel = "ก ขนาดตัวอ�
           event.preventDefault();
           setOpen(false);
         }}
-        className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-dialog border-[length:var(--b9-border)] border-edge bg-surface p-6 text-fg shadow-overlay backdrop:bg-black/50"
+        className="m-auto max-h-[calc(100dvh-2rem)] w-[min(32rem,calc(100%-2rem))] overflow-y-auto rounded-dialog border-[length:var(--b9-border)] border-edge bg-surface p-6 text-fg shadow-overlay backdrop:bg-black/50"
       >
         <h2 id={titleId} className="text-heading font-bold">
           ตั้งค่าการแสดงผล

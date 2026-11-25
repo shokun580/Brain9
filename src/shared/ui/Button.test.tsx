@@ -100,3 +100,20 @@ describe("Button as a disabled link", () => {
     expect(out).not.toMatch(/ disabled[ =>]/);
   });
 });
+
+describe("Button props that style it never reach the DOM", () => {
+  const leaks = /fullwidth|icononly|variant=|size=/i;
+  const own = { fullWidth: true, iconOnly: true, variant: "secondary", size: "sm" } as const;
+
+  it("on a button", () => {
+    expect(html(<Button {...own} aria-label="เมนู" />)).not.toMatch(leaks);
+  });
+  it("on a link", () => {
+    expect(html(<Button {...own} href="/home" aria-label="เมนู" />)).not.toMatch(leaks);
+  });
+  it("on a disabled link", () => {
+    expect(
+      html(<Button {...own} href="/home" aria-disabled="true" aria-label="เมนู" />),
+    ).not.toMatch(leaks);
+  });
+});
