@@ -19,7 +19,7 @@ export function THead({ className, ...props }: HTMLAttributes<HTMLTableSectionEl
   return (
     <thead
       className={cn(
-        "bg-surface-subtle text-micro font-bold text-fg-muted border-b-[length:var(--b9-border)] border-line",
+        "bg-surface-subtle text-micro text-fg-muted border-b-[length:var(--b9-border)] border-line",
         className,
       )}
       {...props}

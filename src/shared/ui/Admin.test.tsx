@@ -67,7 +67,8 @@ describe("DataTable", () => {
       </table>,
     );
     expect(head).toContain("bg-surface-subtle");
-    expect(head).toContain("text-micro font-bold text-fg-muted");
+    expect(head).toContain("text-micro text-fg-muted");
+    expect(head).not.toContain("font-bold");
     const body = html(
       <table>
         <TBody>
