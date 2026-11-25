@@ -151,15 +151,15 @@ Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.ti
 
 ### Tables
 
-| Component            | Use it for                             | Scope | Key props                                    |
-| -------------------- | -------------------------------------- | ----- | -------------------------------------------- |
-| `TableCard`          | the one box around a table             | admin | `toolbar` (filters), `footer` (`Pagination`) |
-| `Table`              | the table (scrolls sideways when wide) | admin | `aria-label`                                 |
-| `THead` `TBody` `Tr` | table structure                        | admin | plain                                        |
-| `Th`                 | header cell                            | admin | `numeric`, `sort` (`asc` `desc` `none`)      |
-| `Td`                 | body cell                              | admin | `numeric`, `primary`, `muted`                |
-| `Pagination`         | row count and page links               | admin | `page`, `pageSize`, `total`, `hrefFor`       |
-| `RowActions`         | end-of-row control                     | admin | `primary: {label,href}`, `more`, `rowLabel`  |
+| Component            | Use it for                             | Scope | Key props                                                                |
+| -------------------- | -------------------------------------- | ----- | ------------------------------------------------------------------------ |
+| `TableCard`          | the one box around a table             | admin | `toolbar` (filters, `Tabs`, `SegmentedControl`), `footer` (`Pagination`) |
+| `Table`              | the table (scrolls sideways when wide) | admin | `aria-label`                                                             |
+| `THead` `TBody` `Tr` | table structure                        | admin | plain                                                                    |
+| `Th`                 | header cell                            | admin | `numeric`, `sort` (`asc` `desc` `none`)                                  |
+| `Td`                 | body cell                              | admin | `numeric`, `primary`, `muted`                                            |
+| `Pagination`         | row count and page links               | admin | `page`, `pageSize`, `total`, `hrefFor`                                   |
+| `RowActions`         | end-of-row control                     | admin | `primary: {label,href}`, `more`, `rowLabel`                              |
 
 ### Loading
 
@@ -179,6 +179,17 @@ Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.ti
 | Component   | Use it for                 | Scope | Key props                   |
 | ----------- | -------------------------- | ----- | --------------------------- |
 | `BrandMark` | the logo, and nothing else | both  | `className` (size), `label` |
+
+### Server and client components
+
+A page and a module's data components are Server Components. These shared components are
+client components (`"use client"`): `AdminShell`, `ConfirmDialog`, `DisplaySettings`,
+`PinPad`, `TabBar` and `TabBarView`. A Server Component may render a client component, but
+may not pass it a function (a Server Action is the one exception). `ChoiceList` and `SegmentedControl` also take a function prop
+(`onValueChange`), so use that prop only inside your own `"use client"` component; without
+it both work as plain native radios. Everything else in the catalogue works in either kind.
+Anything that needs state, an `onClick` or a Server Action call (a dialog's `open`, a toast)
+goes in a small `"use client"` component in your lane's `ui/` (recipes in section 6).
 
 ### Notes on the easy-to-misuse ones
 
@@ -222,7 +233,9 @@ read inside a component wrapped in `Reveal` / `Suspense`.
 ### Admin list page
 
 The reference is `src/app/admin/content/courses/page.tsx` with
-`src/modules/content/ui/{CourseList,CourseListSkeleton,course-columns}`.
+`src/modules/content/ui/{CourseList,CourseListSkeleton,course-columns}`. Placeholders such
+as `<lane>`, `Thing` and `listThingsForAdmin` stand for your own module's names. `TableCard`
+sits in the **page**, around the list; the skeleton brings its own `TableCard`.
 
 ```tsx
 // src/app/admin/<area>/<thing>/page.tsx — thin: no data access here
@@ -241,7 +254,9 @@ export default function AdminThingsPage() {
       />
       <AdminSection title="รายการทั้งหมด">
         <Reveal fallback={<ThingListSkeleton />}>
-          <ThingList />
+          <TableCard>
+            <ThingList />
+          </TableCard>
         </Reveal>
       </AdminSection>
     </>
@@ -256,7 +271,9 @@ export const thingColumns: { label: string; numeric?: boolean }[] = [
   { label: "จำนวน", numeric: true },
   { label: "สถานะ" },
 ];
+```
 
+```tsx
 // src/modules/<lane>/ui/ThingListSkeleton.tsx
 import { TableCard, TableSkeleton } from "@/shared/ui";
 import { thingColumns } from "./thing-columns";
@@ -268,51 +285,146 @@ export function ThingListSkeleton() {
     </TableCard>
   );
 }
+```
 
+```tsx
 // src/modules/<lane>/ui/ThingList.tsx — async Server Component: authorize, then read
 import { requireAdmin } from "@/modules/identity";
-import { EmptyState, StatusDot, Table, TableCard, TBody, Td, Th, THead, Tr } from "@/shared/ui";
+import { EmptyState, StatusDot, Table, TBody, Td, Th, THead, Tr } from "@/shared/ui";
+import { listThingsForAdmin } from "../server/thing-queries"; // your own query
 import { thingColumns } from "./thing-columns";
 
 export async function ThingList() {
   await requireAdmin();
-  const things = await listThingsForAdmin(); // your own query, in server/
+  const things = await listThingsForAdmin();
+
+  if (things.length === 0) {
+    return <EmptyState title="ยังไม่มีรายการ" description="เริ่มเพิ่มรายการแรกได้เลย" />;
+  }
+
   return (
-    <TableCard>
-      {things.length === 0 ? (
-        <EmptyState title="ยังไม่มีรายการ" description="เริ่มเพิ่มรายการแรกได้เลย" />
-      ) : (
-        <Table aria-label="รายการตัวอย่าง">
-          <THead>
-            <Tr>
-              {thingColumns.map((c) => (
-                <Th key={c.label} numeric={c.numeric}>
-                  {c.label}
-                </Th>
-              ))}
-            </Tr>
-          </THead>
-          <TBody>
-            {things.map((t) => (
-              <Tr key={t.id}>
-                <Td primary>{t.name}</Td>
-                <Td numeric>{t.count}</Td>
-                <Td>
-                  <StatusDot tone="ok">เปิดใช้งาน</StatusDot>
-                </Td>
-              </Tr>
-            ))}
-          </TBody>
-        </Table>
-      )}
-    </TableCard>
+    <Table aria-label="รายการตัวอย่าง">
+      <THead>
+        <Tr>
+          {thingColumns.map((column) => (
+            <Th key={column.label} numeric={column.numeric}>
+              {column.label}
+            </Th>
+          ))}
+        </Tr>
+      </THead>
+      <TBody>
+        {things.map((thing) => (
+          <Tr key={thing.id}>
+            <Td primary>{thing.name}</Td>
+            <Td numeric>{thing.count}</Td>
+            <Td>
+              <StatusDot tone="ok">เปิดใช้งาน</StatusDot>
+            </Td>
+          </Tr>
+        ))}
+      </TBody>
+    </Table>
   );
 }
 ```
 
-With paging, read `page` from `searchParams` (a Promise) in a small async component inside
-`Reveal`, then count, then `pageRange(rawPage, pageSize, total)`, and pass `r.page`.
-Rows with actions end with `<Td><RowActions primary={{ label: "แก้ไข", href }} rowLabel={t.name} /></Td>`.
+A row with actions ends with a cell holding `RowActions` (props `primary`, `more`,
+`rowLabel`), and a matching column label in `thingColumns`:
+
+```tsx
+<Td>
+  <RowActions
+    primary={{ label: "แก้ไข", href: `/admin/things/${thing.id}` }}
+    rowLabel={thing.name}
+  />
+</Td>
+```
+
+**With filters or paging**, the list component owns the whole card, because only it knows
+the total. Then the page has no `TableCard` and does not wrap the list in one; the skeleton
+still brings its own. `TableCard`'s `toolbar` prop takes filters (a `Select`, a `TextField`
+in a GET form, a `SegmentedControl` or `Tabs`); its `footer` prop takes `Pagination`.
+
+```tsx
+// page: pass the searchParams promise down; read it inside Reveal, never in the page
+import { ThingPagedList, ThingListSkeleton } from "@/modules/<lane>/ui";
+import { AdminSection, PageHeader, Reveal } from "@/shared/ui";
+
+export default function AdminThingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  return (
+    <>
+      <PageHeader title="รายการตัวอย่าง" />
+      <AdminSection title="รายการทั้งหมด">
+        <Reveal fallback={<ThingListSkeleton />}>
+          <ThingPagedList searchParams={searchParams} />
+        </Reveal>
+      </AdminSection>
+    </>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/ThingPagedList.tsx — count first, then pageRange, query with its result
+import { requireAdmin } from "@/modules/identity";
+import { pageRange } from "@/shared/lib/pagination";
+import { Pagination, Table, TableCard, TBody, Td, Th, THead, Tr } from "@/shared/ui";
+import { countThings, listThingsPage } from "../server/thing-queries"; // your own queries
+import { thingColumns } from "./thing-columns";
+
+const PAGE_SIZE = 20;
+
+export async function ThingPagedList({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  await requireAdmin();
+  const { page } = await searchParams;
+  const total = await countThings();
+  const r = pageRange(Number(page), PAGE_SIZE, total);
+  const things = await listThingsPage({ skip: r.from === 0 ? 0 : r.from - 1, take: PAGE_SIZE });
+
+  return (
+    <TableCard
+      footer={
+        <Pagination
+          page={r.page}
+          pageSize={PAGE_SIZE}
+          total={total}
+          hrefFor={(n) => `?page=${n}`}
+        />
+      }
+    >
+      <Table aria-label="รายการตัวอย่าง">
+        <THead>
+          <Tr>
+            {thingColumns.map((column) => (
+              <Th key={column.label} numeric={column.numeric}>
+                {column.label}
+              </Th>
+            ))}
+          </Tr>
+        </THead>
+        <TBody>
+          {things.map((thing) => (
+            <Tr key={thing.id}>
+              <Td primary>{thing.name}</Td>
+              <Td numeric>{thing.count}</Td>
+              <Td>เปิดใช้งาน</Td>
+            </Tr>
+          ))}
+        </TBody>
+      </Table>
+    </TableCard>
+  );
+}
+```
 
 ### Admin form page
 
@@ -342,9 +454,10 @@ export default function NewThingPage() {
 ```tsx
 // src/modules/<lane>/ui/ThingForm.tsx
 "use client";
+
 import { useActionState } from "react";
 import { Button, Notice, TextField } from "@/shared/ui";
-import { createThingAction, type CreateThingState } from "../server/thing-actions";
+import { createThingAction, type CreateThingState } from "../server/thing-actions"; // your own action
 
 export function ThingForm() {
   const [state, formAction, pending] = useActionState<CreateThingState, FormData>(
@@ -352,6 +465,7 @@ export function ThingForm() {
     null,
   );
   const fieldErrors = state && !state.ok ? state.fieldErrors : undefined;
+
   return (
     <form action={formAction} className="flex max-w-[35rem] flex-col gap-5">
       <TextField label="ชื่อรายการ" name="name" required maxLength={200} errors={fieldErrors?.name} />
@@ -375,34 +489,50 @@ buttons as children (secondary "ยกเลิก", then the one primary "บ�
 ### Admin overview with figures
 
 ```tsx
-import { Users } from "lucide-react";
-import { AdminSection, PageHeader, Reveal, StatTile, StatTileSkeleton } from "@/shared/ui";
-// OverviewStats lives in your module: async, authorizes, reads, renders the tiles.
+// page: thin
+import { OverviewStats } from "@/modules/<lane>/ui";
+import { AdminSection, PageHeader, Reveal, StatTileSkeleton } from "@/shared/ui";
 
 export default function AdminOverviewPage() {
   return (
     <>
       <PageHeader title="ภาพรวม" description="สรุปของวันนี้" />
       <AdminSection title="สรุปวันนี้">
-        <Reveal fallback={<StatTileSkeleton label="กำลังโหลดตัวเลขสรุป" count={3} />}>
+        <Reveal fallback={<StatTileSkeleton label="กำลังโหลดตัวเลขสรุป" count={1} />}>
           <OverviewStats />
         </Reveal>
       </AdminSection>
     </>
   );
 }
-
-// inside OverviewStats, after the reads:
-<div className="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3">
-  <StatTile
-    icon={<Users aria-hidden="true" strokeWidth={1.9} className="size-icon" />}
-    label="ผู้ใช้ที่ฝึกวันนี้"
-    value="12"
-    unit="คน"
-    delta={{ text: "เพิ่มขึ้น 2 คนจากเมื่อวาน", tone: "up" }}
-  />
-</div>;
 ```
+
+```tsx
+// src/modules/<lane>/ui/OverviewStats.tsx — async Server Component: authorize, read, render
+import { Users } from "lucide-react";
+import { requireAdmin } from "@/modules/identity";
+import { StatTile } from "@/shared/ui";
+import { countActiveToday } from "../server/overview-queries"; // your own query
+
+export async function OverviewStats() {
+  await requireAdmin();
+  const active = await countActiveToday();
+
+  return (
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3">
+      <StatTile
+        icon={<Users aria-hidden="true" strokeWidth={1.9} className="size-icon" />}
+        label="ผู้ใช้ที่ฝึกวันนี้"
+        value={String(active)}
+        unit="คน"
+        delta={{ text: "เพิ่มขึ้น 2 คนจากเมื่อวาน", tone: "up" }}
+      />
+    </div>
+  );
+}
+```
+
+Match the skeleton's `count` to the number of tiles.
 
 ### Elderly step screen
 
@@ -448,7 +578,7 @@ export function ExampleStep() {
           defaultValue="training"
           options={[
             { value: "training", title: "ฝึกเบา ๆ", description: "มีคำใบ้ ลองได้ไม่จำกัด" },
-            { value: "test", title: "ทดสอบ", description: "ไม่มีคำใบ้", disabled: true },
+            { value: "test", title: "ทดสอบ", description: "ไม่มีคำใบ้ มีจำนวนครั้งจำกัด" },
           ]}
         />
       </Section>
@@ -466,14 +596,51 @@ export function ExampleStep() {
 
 Copy `src/app/(elder)/home/page.tsx`: `ElderHeader`, then `Section first` (with a title), then
 `Section`s of `ListRow`s. A row is one link with an icon (labelled by its title), optional
-`subtitle` and `badge`. A list that reads data wraps in `Reveal` with `ListRowSkeleton`:
+`subtitle` and `badge`. A list that reads data wraps in `Reveal` with `ListRowSkeleton`.
 
 ```tsx
-<Section first title="แบบฝึกของฉัน">
-  <Reveal fallback={<ListRowSkeleton label="กำลังโหลดรายการ" />}>
-    <MyExerciseRows /> {/* async component rendering <ListRow … /> items */}
-  </Reveal>
-</Section>
+// page: thin
+import { MyExerciseRows } from "@/modules/<lane>/ui";
+import { ElderHeader, ListRowSkeleton, Reveal, Section } from "@/shared/ui";
+
+export default function Page() {
+  return (
+    <>
+      <ElderHeader title="แบบฝึกของฉัน" />
+      <Section first title="แบบฝึกทั้งหมด">
+        <Reveal fallback={<ListRowSkeleton label="กำลังโหลดรายการ" />}>
+          <MyExerciseRows />
+        </Reveal>
+      </Section>
+    </>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/MyExerciseRows.tsx — async Server Component
+import { Play } from "lucide-react";
+import { ListRow } from "@/shared/ui";
+import { listMyExercises } from "../server/exercise-queries"; // your own query (authorizes inside)
+
+export async function MyExerciseRows() {
+  const exercises = await listMyExercises();
+  return (
+    <>
+      {exercises.map((exercise) => (
+        <ListRow
+          key={exercise.id}
+          href={`/courses/${exercise.id}`}
+          icon={
+            <Play aria-hidden="true" strokeWidth={1.9} className="size-icon text-primary-press" />
+          }
+          title={exercise.title}
+          subtitle="ประมาณ 5 นาที"
+        />
+      ))}
+    </>
+  );
+}
 ```
 
 ## 6. How to…
@@ -499,6 +666,97 @@ description that says what to do next ("ยังไม่มีคอร์ส"
 `errors` on the fields. A failed read: `Notice tone="danger"` with a calm next step
 ("ลองโหลดหน้านี้อีกครั้งนะ"). After an action: `Toast`. Never show a stack trace, a code
 or a secret.
+
+**Confirm an irreversible action.** `ConfirmDialog` is a client component that takes
+function props, so a small `"use client"` wrapper in your lane's `ui/` holds `open` and
+calls your Server Action; a Server Component renders the wrapper with plain props. The
+dialog's children say what will happen, and `confirmLabel` names the action.
+
+```tsx
+// src/modules/<lane>/ui/ArchiveThingButton.tsx
+"use client";
+
+import { useState, useTransition } from "react";
+import { Button, ConfirmDialog, Notice } from "@/shared/ui";
+import { archiveThingAction } from "../server/thing-actions"; // your own action: returns an ActionResult
+
+export function ArchiveThingButton({ thingId, thingName }: { thingId: string; thingName: string }) {
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function confirm() {
+    startTransition(async () => {
+      const result = await archiveThingAction(thingId);
+      setOpen(false);
+      setError(result.ok ? null : result.message);
+    });
+  }
+
+  return (
+    <>
+      <Button variant="secondary" disabled={pending} onClick={() => setOpen(true)}>
+        เก็บเข้าคลัง
+      </Button>
+      {error ? <Notice tone="danger">{error}</Notice> : null}
+      <ConfirmDialog
+        open={open}
+        title={`เก็บ “${thingName}” เข้าคลัง`}
+        confirmLabel="เก็บเข้าคลัง"
+        tone="danger"
+        onConfirm={confirm}
+        onCancel={() => setOpen(false)}
+      >
+        <ul className="list-disc pl-5">
+          <li>รายการนี้จะไม่แสดงในรายการหลักอีก</li>
+          <li>ข้อมูลเดิมยังอยู่ และผู้ดูแลระบบขอคืนได้</li>
+        </ul>
+      </ConfirmDialog>
+    </>
+  );
+}
+```
+
+**Show a toast after an action.** `Toast` only draws the message (`message`, and `tone`
+`success` or `danger`); your client component decides when it appears, for example from the
+state of `useActionState`. Keep the toast in the same client component as the form.
+
+```tsx
+// src/modules/<lane>/ui/RenameThingForm.tsx
+"use client";
+
+import { useActionState } from "react";
+import { Button, TextField, Toast } from "@/shared/ui";
+import { renameThingAction, type RenameThingState } from "../server/thing-actions"; // your own action
+
+export function RenameThingForm({ currentName }: { currentName: string }) {
+  const [state, formAction, pending] = useActionState<RenameThingState, FormData>(
+    renameThingAction,
+    null,
+  );
+  const fieldErrors = state && !state.ok ? state.fieldErrors : undefined;
+
+  return (
+    <form action={formAction} className="flex max-w-[35rem] flex-col gap-5">
+      <TextField
+        label="ชื่อรายการ"
+        name="name"
+        defaultValue={currentName}
+        errors={fieldErrors?.name}
+      />
+      <div>
+        <Button type="submit" disabled={pending}>
+          บันทึก
+        </Button>
+      </div>
+      {state?.ok ? <Toast message="บันทึกเรียบร้อยแล้ว" /> : null}
+      {state && !state.ok && !state.fieldErrors ? (
+        <Toast tone="danger" message={state.message} />
+      ) : null}
+    </form>
+  );
+}
+```
 
 ## 7. The 3x3 board
 

@@ -21,17 +21,24 @@ rules exactly. If a request conflicts with them, say so instead of complying.
 - Prisma **7.10** with PostgreSQL: client generated to `src/generated/prisma`; import the
   shared client as `db` from `@/shared/lib/db`; never `new PrismaClient()`; never import
   from `@prisma/client`.
-- Zod **4**, Tailwind CSS **4** (tokens in `globals.css` become utilities: colours `bg-page`,
-  `bg-surface`, `bg-surface-subtle`, `bg-surface-muted`, `text-fg`, `text-fg-2`,
-  `text-fg-muted`, `border-line`, `border-line-strong`, `border-edge`, `bg-primary`,
-  `text-on-primary`, `bg-primary-soft` (text on it is `text-primary-press`), `bg-success`,
-  `bg-success-soft`, `text-success`, `bg-danger` (text on it is `text-on-danger`),
-  `bg-danger-soft`, `text-danger`, `bg-attention-soft`, `text-attention`, `bg-ink`; type
-  `text-title|heading|lead|body|small|micro`; sizes `min-h-control`, `min-h-control-sm`,
-  `size-icon`, `size-icon-sm`; radii `rounded-control|field|panel|dialog`; a border that must
-  thicken in high contrast is `border-[length:var(--b9-border)]`; chart colours are the CSS
-  variables `--chart-1` to `--chart-4`). Sizes come from the scope on the layout root,
-  `data-ui="elder" | "admin"`; never hard-code colours or sizes. Vitest.
+- Zod **4**, Tailwind CSS **4** (tokens in `globals.css` become utilities):
+  - colours: `bg-page`, `bg-surface`, `bg-surface-subtle`, `bg-surface-muted`, `text-fg`,
+    `text-fg-2`, `text-fg-muted`, `border-line`, `border-line-strong`, `border-edge`,
+    `bg-primary`, `text-on-primary`, `bg-primary-soft` (text on it is `text-primary-press`,
+    never `text-primary`), `bg-primary-tint`, `bg-primary-bright`, `bg-success`,
+    `bg-success-soft`, `text-success`, `bg-danger` (text on it is `text-on-danger`),
+    `bg-danger-soft`, `text-danger`, `bg-attention`, `bg-attention-soft`, `text-attention`,
+    `bg-ink` (text on it `text-on-ink`, `text-on-ink-2`, `text-on-ink-muted`), `bg-skeleton`
+  - type `text-title|heading|lead|body|small|micro`
+  - sizes `h-control`, `min-h-control`, `h-control-sm`, `min-h-control-sm`, `size-icon`,
+    `size-icon-sm`, `max-w-admin` (the shell sets it; do not repeat it)
+  - radii `rounded-control|field|panel|dialog`; shadows `shadow-cell`, `shadow-cell-lit`,
+    `shadow-overlay`
+  - a border that must thicken in high contrast is `border-[length:var(--b9-border)]`
+  - chart colours are the CSS variables `--chart-1` to `--chart-4`
+
+  Sizes come from the scope on the layout root, `data-ui="elder" | "admin"`; never
+  hard-code colours or sizes. Vitest.
 
 ## Lanes — work in exactly one
 
@@ -179,19 +186,74 @@ Identity API available to every lane (`@/modules/identity`):
 `ActionResult<T> = { ok: true, data: T } | { ok: false, code, message, fieldErrors? }`
 with codes `VALIDATION | UNAUTHENTICATED | FORBIDDEN | NOT_FOUND | CONFLICT | INTERNAL`.
 
-Shared UI (`@/shared/ui`) — the only components you may use:
+Shared UI (`@/shared/ui`) — the only components you may use. Key props are listed; `…`
+means the usual HTML props of that element. Import everything from `@/shared/ui`.
 
-- Forms: `Button`, `TextField`, `Textarea`, `NumberField`, `Select`, `Checkbox`, `ChoiceList`,
-  `SegmentedControl`, `PinPad`, `DisplaySettings`
-- Feedback: `Notice`, `Toast`, `ConfirmDialog`, `ResultBanner`, `Badge`, `EmptyState`,
-  `ComingSoon`, `Meter`
-- Elderly layout: `ElderHeader`, `StepProgress`, `Section`, `ListRow`, `TabBar`, `TabBarView`
-- Admin layout: `AdminShell`, `PageHeader`, `AdminSection`, `SaveBar`, `StatTile`, `Tabs`,
-  `Tag`, `StatusDot`
-- Tables: `TableCard`, `Table`, `THead`, `TBody`, `Tr`, `Th`, `Td`, `Pagination`, `RowActions`
-- Loading: `Reveal`, `SkeletonRegion`, `SkeletonLine`, `SkeletonBlock`, `TableSkeleton`,
-  `ListRowSkeleton`, `StatTileSkeleton`, `AdminPageSkeleton`
-- Brand: `BrandMark`
+Forms
+
+- `Button` — `variant` (`primary|secondary|quiet|danger`), `size` (`default|sm`), `fullWidth`, `iconOnly` (needs `aria-label`), `href`, …
+- `TextField`, `Textarea` — `label`, `name`, `hint`, `errors`, …
+- `NumberField` — `label`, `name`, `unit`, `hint`, `errors`, …
+- `Select` — `label`, `name`, `options: {value,label}[]`, `hint`, `errors`, …
+- `Checkbox` — `label`, `name`, `hint`, `errors`, …
+- `ChoiceList` — elder; `name`, `legend`, `options: {value,title,description?,badge?,disabled?}[]` (a disabled option explains itself in `description`), `defaultValue`, `hint`, `errors`, `required`, `onValueChange`
+- `SegmentedControl` — admin; `name`, `legend`, `defaultValue`, `options: {value,label,icon?}[]`, `onValueChange`
+- `PinPad` — elder, client; `length` (4|6), `filled`, `onDigit`, `onDelete`, `disabled`
+- `DisplaySettings` — elder, client; `triggerLabel`; put it in `ElderHeader`'s `action`
+
+Feedback
+
+- `Notice` — `tone` (`primary|success|danger|attention`), `title?`, children
+- `Toast` — `message`, `tone` (`success|danger`); the caller decides when to show it
+- `ConfirmDialog` — client; `open`, `title`, children (what will happen), `confirmLabel`, `cancelLabel?`, `tone` (`primary|danger`), `onConfirm`, `onCancel`
+- `ResultBanner` — elder; `tone` (`success|danger`), `title`, `detail?`, `headingLevel?`
+- `Badge` — elder; `tone` (`neutral|primary|success|danger|attention`), children
+- `EmptyState` — `title`, `description?`, `action?`, `headingLevel?`
+- `ComingSoon` — `title`, `owner`
+- `Meter` — elder; `label`, `value`, `max`, `valueText`, `segments?`
+
+Elderly layout
+
+- `ElderHeader` — `title` or `greeting` + `name`, `backHref?`, `action?`
+- `StepProgress` — `current`, `total`
+- `Section` — `eyebrow?`, `title?`, `action?`, `first?`, children
+- `ListRow` — `href`, `title`, `subtitle?`, `icon?`, `badge?`
+- `TabBar`, `TabBarView` — the `(elder)` layout only (infra)
+
+Admin layout
+
+- `PageHeader` — `title`, `description?`, `breadcrumbs?: {label,href?}[]`, `action?` (the one primary action)
+- `AdminSection` — `title`, `count?`, `description?`, `action?`, children
+- `SaveBar` — `dirty`, children (the buttons)
+- `StatTile` — `icon`, `label`, `value`, `unit?`, `delta?: {text, tone: up|flat|warn}`
+- `Tabs` — `items: {href,label,count?,active?}[]`, `label?`
+- `Tag` — `tone` (`neutral|attention|primary`), `icon?`, children (a property of a row)
+- `StatusDot` — `tone` (`ok|draft|off|danger`), children (a row's status)
+- `AdminShell` — the admin layout only (infra)
+
+Tables (admin)
+
+- `TableCard` — `toolbar?` (filters, `Tabs`, `SegmentedControl`), `footer?` (`Pagination`), children
+- `Table` (`aria-label`), `THead`, `TBody`, `Tr`, `Th` (`numeric?`, `sort?`), `Td` (`numeric?`, `primary?`, `muted?`)
+- `Pagination` — `page`, `pageSize`, `total`, `hrefFor(page)`; first `r = pageRange(rawPage, pageSize, total)` from `@/shared/lib/pagination`, query with `r`, pass `r.page`
+- `RowActions` — `primary: {label,href}`, `more?: {label,href}[]`, `rowLabel`
+
+Loading
+
+- `Reveal` — `fallback`, children (a `Suspense` whose skeleton fades into the content)
+- `SkeletonRegion` — `label`, children (one per loading area)
+- `SkeletonLine` — `width` (`sm|md|lg|full`), `text`; `SkeletonBlock` — `shape` (`icon|icon-tile|control|control-sm`)
+- `TableSkeleton` — `columns: {label,numeric?}[]`, `rows?`, `lines?`, and `label` (alone) or `bare` (inside a region)
+- `ListRowSkeleton`, `StatTileSkeleton` — `rows?` / `count?`, and `label` or `bare`
+- `AdminPageSkeleton` — no props (the admin layout uses it)
+
+Brand
+
+- `BrandMark` — `className?` (size), `label?`
+
+Client components (`"use client"`): `ConfirmDialog`, `PinPad`, `DisplaySettings`, `TabBar`,
+`AdminShell`. A Server Component must not pass them function props: put `open`, handlers and
+Server Action calls in a small `"use client"` component of your own module's `ui/`.
 
 ## Design rules (the design is closed)
 
