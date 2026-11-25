@@ -18,5 +18,6 @@ export { Section, type SectionProps } from "./Section";
 export { Select, type SelectProps } from "./Select";
 export { StepProgress, stepLabel, type StepProgressProps } from "./StepProgress";
 export { TextField, type TextFieldProps } from "./TextField";
+export { TabBar, type TabBarItem, type TabBarProps } from "./TabBar";
 export { Textarea, type TextareaProps } from "./Textarea";
 export { Toast, type ToastProps } from "./Toast";
