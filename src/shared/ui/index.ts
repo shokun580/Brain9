@@ -43,6 +43,7 @@ export {
 // admin layout (Tasks 20, 21)
 export { AdminSection, type AdminSectionProps } from "./AdminSection";
 export { TableCard, type TableCardProps } from "./TableCard";
+export { RowActions, type RowAction, type RowActionsProps } from "./RowActions";
 
 // skeleton (Task 22)
 
