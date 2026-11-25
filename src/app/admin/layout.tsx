@@ -24,7 +24,7 @@ async function AdminUser() {
   if (!user || user.role !== "ADMIN") return null;
   return (
     <div className="min-w-0 leading-tight">
-      <p className="truncate text-small font-bold">
+      <p className="truncate text-small">
         {user.firstName} {user.lastName}
       </p>
       <p className="text-micro text-fg-muted">ผู้ดูแลระบบ</p>

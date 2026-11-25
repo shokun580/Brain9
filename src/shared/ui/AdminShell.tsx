@@ -332,7 +332,7 @@ export function AdminShell({
           </div>
         </header>
         <main id="main" tabIndex={-1} className="min-w-0 flex-1 bg-surface p-6 outline-none">
-          <div className="mx-auto max-w-admin">{children}</div>
+          <div className="max-w-admin">{children}</div>
         </main>
         <footer className="border-t border-line bg-surface px-6 py-2.5 text-micro text-fg-muted">
           {footer}

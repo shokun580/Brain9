@@ -212,6 +212,14 @@ describe("AdminShell", () => {
   });
 });
 
+describe("AdminShell content column", () => {
+  it("is at most max-w-admin wide and left aligned", () => {
+    const out = shell();
+    expect(out).toContain('class="max-w-admin"');
+    expect(out).not.toContain("mx-auto");
+  });
+});
+
 describe("collapseLabel", () => {
   it("names the action the rail-foot button performs in each state", () => {
     expect(collapseLabel(true)).toBe("ย่อเมนู");
