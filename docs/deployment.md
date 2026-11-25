@@ -29,41 +29,84 @@ read them with `vercel pull`; they are not duplicated in GitHub.
 Run these on your own machine. Never paste tokens or connection strings into chat, issues
 or commits.
 
-### 1. Neon
-
-1. Create a Neon project `brain9` (region: Singapore, PostgreSQL 17).
-2. Rename the default branch to `production`.
-3. Create branch `staging` from `production`.
-4. Create one branch per developer from `staging`: `dev/apinan`, `dev/chanon`,
-   `dev/supanat`, `dev/saruta` (the free plan allows 10 branches).
-5. For `production` and `staging`, copy both connection strings: **pooled** (host contains
-   `-pooler`) and **direct**.
-6. Send each developer the pooled string of their own `dev/*` branch privately.
-
-### 2. Vercel
+### 1. Vercel project
 
 ```bash
 vercel login
 cd Brain9
-vercel link            # create a new project named "brain9"; do NOT connect a Git repository
+vercel project add brain9
+vercel link --yes --project brain9     # do NOT connect a Git repository
 ```
 
-In the Vercel dashboard → project → **Settings → Environment Variables**:
+Framework (Next.js), function region (`sin1`) and Node version (24.x) are pinned in
+`vercel.json` and `package.json`, so the project's dashboard defaults do not matter.
 
-| Variable       | Production                | Preview                |
-| -------------- | ------------------------- | ---------------------- |
-| `DATABASE_URL` | Neon `production`, pooled | Neon `staging`, pooled |
-| `DIRECT_URL`   | Neon `production`, direct | Neon `staging`, direct |
-| `APP_ENV`      | `production`              | `staging`              |
+In the dashboard → **Settings → Deployment Protection → Vercel Authentication: off**
+(otherwise the staging URL asks teammates to log in to Vercel and the health check fails).
 
-Also in the dashboard:
+### 2. Neon database (through Vercel)
 
-- **Settings → Deployment Protection → Vercel Authentication: off** (otherwise the staging
-  URL asks teammates to log in to Vercel and the health check fails).
-- **Settings → Domains**: note the production domain (`brain9.vercel.app` or similar) and
-  choose a staging alias, for example `brain9-staging.vercel.app`.
+The lead's Neon organisation is managed by Vercel, so databases are created from Vercel,
+not in the Neon console (the console answers "organization is managed by Vercel").
 
-### 3. GitHub secrets and variables
+1. Vercel dashboard → project `brain9` → **Storage** → **Create Database** → **Neon**.
+   Region: Singapore. Plan: Free. Name: `brain9`.
+2. When asked which environments to connect, tick **Production only**. Leave Preview and
+   Development unticked and the prefix empty. Vercel now manages `DATABASE_URL` (pooled)
+   and `DATABASE_URL_UNPOOLED` (direct) for production.
+3. **Open in Neon** → **Branches**. The default branch (`main` or `production`) is the
+   production data. Create:
+   - `staging` from the default branch
+   - `dev/apinan`, `dev/chanon`, `dev/supanat`, `dev/saruta` from `staging`
+     (the free plan allows 10 branches)
+4. In Neon, **Connect** → branch `staging` → copy the **pooled** string (host contains
+   `-pooler`) and the **direct** string.
+5. Vercel → **Settings → Environment Variables**, add by hand:
+
+   | Variable                | Environment | Value                  |
+   | ----------------------- | ----------- | ---------------------- |
+   | `DATABASE_URL`          | Preview     | Neon `staging`, pooled |
+   | `DATABASE_URL_UNPOOLED` | Preview     | Neon `staging`, direct |
+   | `APP_ENV`               | Preview     | `staging`              |
+   | `APP_ENV`               | Production  | `production`           |
+
+6. Send each developer the pooled string of their own `dev/*` branch privately.
+
+Result:
+
+| Variable                | Production                                               | Preview (staging)      |
+| ----------------------- | -------------------------------------------------------- | ---------------------- |
+| `DATABASE_URL`          | Neon default branch, pooled (managed by the integration) | Neon `staging`, pooled |
+| `DATABASE_URL_UNPOOLED` | Neon default branch, direct (managed by the integration) | Neon `staging`, direct |
+| `APP_ENV`               | `production`                                             | `staging`              |
+
+### 3. Domains
+
+`brain9.ast0miq.com` is attached to the project as the production domain
+(`vercel domains add brain9.ast0miq.com brain9`).
+
+| Environment | Domain                       | How it is routed                                                                                                                 |
+| ----------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Production  | `brain9.ast0miq.com`         | Project domain; every production deploy serves it                                                                                |
+| Staging     | `staging.brain9.ast0miq.com` | Not a project domain. The staging workflow points it at the newest staging deployment with `vercel alias set` (`STAGING_DOMAIN`) |
+
+The staging domain must **not** be added to the project: project domains follow
+production, so staging would start serving the production build.
+
+DNS records in Cloudflare (zone `ast0miq.com`):
+
+| Type  | Name             | Target                 | Proxy status          |
+| ----- | ---------------- | ---------------------- | --------------------- |
+| CNAME | `brain9`         | `cname.vercel-dns.com` | DNS only (grey cloud) |
+| CNAME | `staging.brain9` | `cname.vercel-dns.com` | DNS only (grey cloud) |
+
+Keep both records on **DNS only**. Vercel issues and renews the TLS certificates itself,
+and Cloudflare's free certificate does not cover a two-level name such as
+`staging.brain9.ast0miq.com`, so proxying that record breaks HTTPS.
+
+Check with `vercel domains verify brain9.ast0miq.com`.
+
+### 4. GitHub secrets and variables
 
 `vercel link` wrote `.vercel/project.json` (git-ignored) containing `orgId` and
 `projectId`. Create a Vercel token at <https://vercel.com/account/tokens>.
@@ -72,14 +115,14 @@ Also in the dashboard:
 gh secret set VERCEL_TOKEN          # paste the token when prompted
 gh secret set VERCEL_ORG_ID         # orgId from .vercel/project.json
 gh secret set VERCEL_PROJECT_ID     # projectId from .vercel/project.json
-gh variable set STAGING_DOMAIN --body "brain9-staging.vercel.app"
+gh variable set STAGING_DOMAIN --body "staging.brain9.ast0miq.com"
 gh variable set DEPLOY_ENABLED --body true      # do this last: it switches the deploy workflows on
 ```
 
 Until `DEPLOY_ENABLED` is `true` the deploy jobs are skipped, so merging before the setup
 is finished does not produce failed runs.
 
-### 4. Branch ruleset
+### 5. Branch ruleset
 
 `main` and `staging` are protected by one repository ruleset, created by hand at
 **Settings → Rules → Rulesets → New branch ruleset**:
@@ -87,7 +130,7 @@ is finished does not produce failed runs.
 | Field              | Value                                                         |
 | ------------------ | ------------------------------------------------------------- |
 | Ruleset name       | `protect-main-and-staging`                                    |
-| Enforcement status | **Disabled** while bootstrapping, **Active** after step 5     |
+| Enforcement status | **Disabled** while bootstrapping, **Active** after step 6     |
 | Bypass list        | **Repository admin**, allowed for pull requests only          |
 | Target branches    | _Include default branch_, plus _Include by pattern_ `staging` |
 
@@ -119,7 +162,7 @@ Optional, for stricter `staging`: a second ruleset `staging-up-to-date` targetin
 and _Require branches to be up to date_ ticked. Rulesets add up, so `staging` then needs
 an up-to-date branch while `main` does not.
 
-### 5. Staging branch, labels, environments
+### 6. Staging branch, labels, environments
 
 Do these in order:
 
@@ -137,17 +180,17 @@ Do these in order:
    approval). It does not touch branch rules; it only reports whether an active ruleset
    exists.
 
-3. Switch the ruleset from step 4 to **Active**. Doing this after `staging` exists avoids
+3. Switch the ruleset from step 5 to **Active**. Doing this after `staging` exists avoids
    the pull-request rule getting in the way of creating the branch.
 
-### 6. Project board
+### 7. Project board
 
 Create a GitHub Project (board layout) named "Brain9", add the columns from
 `docs/workflow.md`, and link the repository.
 
-### 7. First deploy
+### 8. First deploy
 
-1. Finish steps 1–5 above.
+1. Finish steps 1–6 above.
 2. Push any commit to `staging` (or re-run the _Deploy staging_ workflow).
 3. Open `https://<staging domain>/api/health` → `{"status":"ok","env":"staging",…}`.
 4. Seed staging once from your machine with the staging **direct** URL, without saving it
@@ -163,18 +206,36 @@ Create a GitHub Project (board layout) named "Brain9", add the columns from
 
 ## Environment variables
 
-| Variable                                             | Where                      | Purpose                                        |
-| ---------------------------------------------------- | -------------------------- | ---------------------------------------------- |
-| `DATABASE_URL`                                       | local `.env.local`, Vercel | Runtime connection (pooled on Neon)            |
-| `DIRECT_URL`                                         | Vercel, optional locally   | Non-pooled connection used by `prisma migrate` |
-| `APP_ENV`                                            | local, Vercel              | `local` / `staging` / `production`             |
-| `DEV_AUTH_ROLE`                                      | local only                 | Dev sign-in bypass; ignored elsewhere          |
-| `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | GitHub secrets             | Let Actions deploy                             |
-| `STAGING_DOMAIN`                                     | GitHub variable            | Stable alias for the latest staging deploy     |
-| `DEPLOY_ENABLED`                                     | GitHub variable            | `true` switches the deploy workflows on        |
+| Variable                                             | Where                      | Purpose                                                                                       |
+| ---------------------------------------------------- | -------------------------- | --------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                       | local `.env.local`, Vercel | Runtime connection (pooled on Neon)                                                           |
+| `DATABASE_URL_UNPOOLED`                              | Vercel                     | Non-pooled connection used by `prisma migrate` and the seed; provided by the Neon integration |
+| `DIRECT_URL`                                         | optional, anywhere         | Same purpose under our own name; wins over `DATABASE_URL_UNPOOLED` when both are set          |
+| `APP_ENV`                                            | local, Vercel              | `local` / `staging` / `production`                                                            |
+| `DEV_AUTH_ROLE`                                      | local only                 | Dev sign-in bypass; ignored elsewhere                                                         |
+| `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | GitHub secrets             | Let Actions deploy                                                                            |
+| `STAGING_DOMAIN`                                     | GitHub variable            | Stable alias for the latest staging deploy                                                    |
+| `DEPLOY_ENABLED`                                     | GitHub variable            | `true` switches the deploy workflows on                                                       |
 
 Adding a variable: add it to `src/shared/lib/env.ts`, `.env.example`, this table, and to
 Vercel for both environments — in the same PR that first reads it.
+
+## Deploying by hand
+
+Normally nobody does: the workflows deploy. If the lead ever has to deploy from a laptop,
+two things go wrong easily:
+
+- **Name the environment.** `vercel deploy --prebuilt` with no environment made the very
+  first deployment of this project a production one. Use `--environment=preview` for
+  staging (`--target=preview` on CLI versions before 66) and `--prod` for production, and
+  check `vercel inspect <url>` before aliasing a domain.
+- **Aliasing needs a user login.** `vercel alias set <url> <domain>` works when you are
+  logged in as yourself, but not with the team-scoped token GitHub uses ("User not
+  found"), which is why the staging workflow assigns the domain through the REST API.
+- **No `.env*` files in the project folder while building.** The build output references
+  files named `.env*` that sit in the folder (seen with `.env.example` and with a renamed
+  backup of `.env.local`), so treat any such file as something that may be uploaded with
+  the deployment. Move `.env.local` out of the folder first; the workflows never have one.
 
 ## Rollback
 
@@ -186,10 +247,10 @@ Vercel for both environments — in the same PR that first reads it.
 
 ## Troubleshooting
 
-| Symptom                                  | Likely cause                                                                |
-| ---------------------------------------- | --------------------------------------------------------------------------- |
-| Deploy job fails at `vercel pull`        | Missing or expired `VERCEL_TOKEN`, wrong org/project id                     |
-| Health check returns 401                 | Vercel Authentication still enabled                                         |
-| Health check returns 503                 | `DATABASE_URL` missing or wrong for that Vercel environment                 |
-| `migrate deploy` hangs or fails on Neon  | `DIRECT_URL` not set; the pooled URL was used for migrations                |
-| Staging shows "not signed in" everywhere | Expected until the identity lane ships login — the dev bypass is local-only |
+| Symptom                                  | Likely cause                                                                                        |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Deploy job fails at `vercel pull`        | Missing or expired `VERCEL_TOKEN`, wrong org/project id                                             |
+| Health check returns 401                 | Vercel Authentication still enabled                                                                 |
+| Health check returns 503                 | `DATABASE_URL` missing or wrong for that Vercel environment                                         |
+| `migrate deploy` hangs or fails on Neon  | `DATABASE_URL_UNPOOLED` missing for that Vercel environment; the pooled URL was used for migrations |
+| Staging shows "not signed in" everywhere | Expected until the identity lane ships login — the dev bypass is local-only                         |

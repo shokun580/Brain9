@@ -34,8 +34,9 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Pinned to a major version: CLI flags have changed between majors.
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: npm install --global vercel@66
 
       - name: Pull production settings and environment variables from Vercel
         run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"

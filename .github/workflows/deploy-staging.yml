@@ -36,14 +36,18 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Pinned to a major version: CLI flags have changed between majors.
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: npm install --global vercel@66
 
       - name: Pull staging settings and environment variables from Vercel
         run: vercel pull --yes --environment=preview --git-branch=staging --token="$VERCEL_TOKEN"
 
+      # Always name the target. Without it Vercel may treat a deployment as production
+      # (it does so for the first deployment of a project), which would put a staging
+      # build on the production domain.
       - name: Build
-        run: vercel build --token="$VERCEL_TOKEN"
+        run: vercel build --environment=preview --token="$VERCEL_TOKEN"
 
       - name: Apply database migrations (Neon branch "staging")
         env:
@@ -55,9 +59,23 @@ jobs:
         env:
           STAGING_DOMAIN: ${{ vars.STAGING_DOMAIN }}
         run: |
-          url="$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")"
+          url="$(vercel deploy --prebuilt --environment=preview --token="$VERCEL_TOKEN" | grep -Eo 'https://[A-Za-z0-9.-]+\.vercel\.app' | tail -1)"
+          test -n "$url"
           if [ -n "$STAGING_DOMAIN" ]; then
-            vercel alias set "$url" "$STAGING_DOMAIN" --token="$VERCEL_TOKEN"
+            # Point the stable staging domain at this deployment through the REST API.
+            # `vercel alias` cannot be used here: it has to load the user, and the token
+            # is scoped to the team only ("User not found").
+            api="https://api.vercel.com"
+            auth="Authorization: Bearer $VERCEL_TOKEN"
+            found="$(curl --fail-with-body -sS -H "$auth" \
+              "$api/v13/deployments/${url#https://}?teamId=$VERCEL_ORG_ID")" || { echo "$found"; exit 1; }
+            id="$(printf '%s' "$found" | jq -r '.id')"
+            test -n "$id" && test "$id" != "null"
+            curl --fail-with-body -sS -X POST -H "$auth" \
+              -H "Content-Type: application/json" \
+              -d "{\"alias\":\"$STAGING_DOMAIN\"}" \
+              "$api/v2/deployments/$id/aliases?teamId=$VERCEL_ORG_ID"
+            echo
             url="https://$STAGING_DOMAIN"
           fi
           echo "url=$url" >> "$GITHUB_OUTPUT"

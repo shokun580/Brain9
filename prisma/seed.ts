@@ -20,7 +20,8 @@ if (APP_ENV !== "local" && APP_ENV !== "staging") {
     `Refusing to seed: APP_ENV is "${APP_ENV}". Seeding is for local and staging only.`,
   );
 }
-const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
+const connectionString =
+  process.env.DIRECT_URL ?? process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is not set.");
 
 /** Demo credentials: fixed defaults on a developer machine, required secrets on staging. */
