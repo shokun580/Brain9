@@ -9,7 +9,6 @@ const lineSeed = localFont({
   src: [
     { path: "./fonts/LINESeedSansTH_Rg.ttf", weight: "400", style: "normal" },
     { path: "./fonts/LINESeedSansTH_Bd.ttf", weight: "700", style: "normal" },
-    { path: "./fonts/LINESeedSansTH_XBd.ttf", weight: "800", style: "normal" },
   ],
 });
 
@@ -21,7 +20,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#f7f4ee",
+  themeColor: "#FFFFFF",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

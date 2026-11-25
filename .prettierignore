@@ -5,3 +5,8 @@ src/generated
 prisma/migrations
 coverage
 next-env.d.ts
+
+# approved design mockups are generated reference pages
+docs/design-system/mockups/*.html
+.superpowers
+.claude

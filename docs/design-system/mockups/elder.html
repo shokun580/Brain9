@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brain9 mockups: elderly side</title>
+<style>
+  body{margin:0;padding:32px;background:#F5F7F8;color:#14202B;font-family:system-ui,sans-serif;--text-primary:#14202B}
+  body > h2{margin:0 0 6px;font-size:24px}
+  .subtitle{margin:0 0 24px;color:#5A6873}
+</style>
+</head>
+<body>
+<h2>Brain9 design system — หน้าจอจริงทั้งสองฝั่ง</h2>
+<p class="subtitle">ทุกหน้าใช้ค่าจากเอกสาร design system ตรงตามขนาดจริง: มือถือกว้าง 390px ตัวหนังสือ 20px · หน้าผู้ดูแลย่อเหลือ 80% (ตัวหนังสือ 16px) · ข้อมูลทั้งหมดเป็นข้อมูลสมมติ</p>
+
+<style>
+@font-face{font-family:"B9Seed";src:url("../../../src/app/fonts/LINESeedSansTH_Rg.ttf") format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:"B9Seed";src:url("../../../src/app/fonts/LINESeedSansTH_Bd.ttf") format("truetype");font-weight:700;font-display:swap}
+
+/* ===== tokens (spec §5) ===== */
+.ds{--bg:#F5F7F8;--surface:#FFFFFF;--surface-muted:#EEF2F4;--text:#14202B;--muted:#5A6873;--line:#E1E7EA;--line-strong:#C3CDD3;
+  --primary:#0B7A75;--primary-press:#08625E;--primary-soft:#E3F2F0;--primary-tint:#BDE2DD;--on-primary:#FFFFFF;
+  --success:#1E7A3C;--success-soft:#E4F3E8;--danger:#B42318;--danger-soft:#FDECEA;--attention:#9A5B00;--attention-soft:#FFF1DC;
+  --fs-title:35px;--fs-heading:27px;--fs-lead:22px;--fs-body:20px;--fs-small:17.5px;
+  --h-lg:64px;--h-md:48px;--h-sm:40px;--bw:1px;
+  font-family:"B9Seed",system-ui,sans-serif;color:var(--text);line-height:1.6}
+.ds .compact{--fs-title:28px;--fs-heading:21.6px;--fs-lead:17.6px;--fs-body:16px;--fs-small:14px}
+.ds .hc{--bg:#000;--surface:#000;--surface-muted:#1A1A1A;--text:#FFF;--muted:#E6E6E6;--line:#FFF;--line-strong:#FFF;
+  --primary:#5EEAD4;--primary-press:#2DD4BF;--primary-soft:#0B2E2A;--primary-tint:#145C55;--on-primary:#000;
+  --success:#5BE38A;--success-soft:#0B2A16;--danger:#FF8A7E;--danger-soft:#300E0A;--attention:#FFD36E;--attention-soft:#2B2000;--bw:2px}
+.ds *{box-sizing:border-box;font-family:inherit}
+.ds button{cursor:default;font:inherit}
+.ds .ic{flex:none}
+.ds .pri{color:var(--primary)} .ds .mut{color:var(--muted)}
+
+/* ===== page layout of this mockup sheet ===== */
+.ds .group-t{font-size:22px;font-weight:700;margin:8px 0 4px;color:var(--text-primary,#888)}
+.ds .group-d{opacity:.8;margin:0 0 18px;font-size:15px;color:var(--text-primary,#888)}
+.ds .phones{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:28px 22px;justify-items:center;margin-bottom:44px}
+.ds .admins{display:flex;flex-direction:column;gap:36px}
+.ds .shot{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.ds .shot.wide{align-items:stretch}
+.ds figcaption{font-size:15px;opacity:.85;text-align:center;color:var(--text-primary,#888)}
+
+/* ===== phone ===== */
+.ds .phone{width:390px;height:820px;border-radius:44px;border:1px solid #C3CDD3;background:var(--surface);overflow:hidden;box-shadow:0 18px 40px rgba(20,32,43,.14)}
+.ds .phone.hc{border-color:#000}
+.ds .scr{height:100%;display:flex;flex-direction:column;padding:26px 20px 0;font-size:var(--fs-body);background:var(--surface);color:var(--text)}
+
+/* ===== type ===== */
+.ds .t-title{font-size:var(--fs-title);font-weight:700;line-height:1.3}
+.ds .t-heading{font-size:var(--fs-heading);font-weight:700;line-height:1.3}
+.ds .t-lead{font-size:var(--fs-lead);font-weight:700;line-height:1.35}
+.ds .t-strong{font-weight:700}
+.ds .t-small{font-size:var(--fs-small);line-height:1.5}
+.ds .muted{color:var(--muted)}
+.ds .c-success{color:var(--success)} .ds .c-danger{color:var(--danger)} .ds .c-primary{color:var(--primary)} .ds .c-text{color:var(--text)}
+.ds .t-small .ic,.ds .badge .ic{vertical-align:-3px}
+.ds .eyebrow{font-size:var(--fs-small);font-weight:700;color:var(--primary)}
+.ds .link{color:var(--primary);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.ds .center{text-align:center}
+
+/* spacing helpers */
+.ds .mt-8{margin-top:8px}.ds .mt-16{margin-top:16px}.ds .mt-24{margin-top:24px}.ds .mt-32{margin-top:32px}.ds .mt-auto{margin-top:auto}
+.ds .mb-8{margin-bottom:8px}.ds .mb-12{margin-bottom:12px}.ds .mb-16{margin-bottom:16px}.ds .pb-24{padding-bottom:24px}
+.ds .row-between{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ds .hstack{display:flex;gap:10px;align-items:center}.ds .hstack.end{justify-content:flex-end}
+.ds .stack{display:flex;flex-direction:column;gap:10px}.ds .grow{flex:1}
+
+/* ===== header + sections (no cards) ===== */
+.ds .hbar{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:var(--h-md)}
+.ds .sec{padding-top:24px;margin-top:24px;border-top:var(--bw) solid var(--line)}
+.ds .sec.first{border-top:0;margin-top:20px;padding-top:0}
+.ds .sec.list{padding-top:0}
+.ds .days,.ds .levels{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px}
+.ds .levels{grid-template-columns:repeat(4,1fr)}
+.ds .days i,.ds .levels i{height:10px;border-radius:99px;background:var(--line)}
+.ds .days i.on,.ds .levels i.on{background:var(--primary)}
+.ds .hc .days i,.ds .hc .levels i{background:#333}
+
+/* ===== buttons ===== */
+.ds .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:var(--bw) solid transparent;font-weight:700;white-space:nowrap}
+.ds .btn.lg{min-height:var(--h-lg);border-radius:18px;font-size:var(--fs-lead);padding:0 24px}
+.ds .btn.md{min-height:var(--h-md);border-radius:14px;font-size:var(--fs-body);padding:0 18px}
+.ds .compact .btn.md{min-height:var(--h-sm);border-radius:10px;padding:0 16px}
+.ds .btn.full{width:100%}
+.ds .btn.primary{background:var(--primary);color:var(--on-primary)}
+.ds .btn.secondary{background:var(--surface);color:var(--text);border-color:var(--line-strong)}
+.ds .btn.danger{background:var(--danger);color:#fff}
+.ds .hc .btn.danger{color:#000}
+.ds .btn.ghost{background:transparent;color:var(--text);border-color:var(--line-strong);border-radius:999px;min-height:var(--h-md);padding:0 16px;font-size:var(--fs-small)}
+.ds .compact .btn.ghost{min-height:34px;padding:0 12px}
+
+/* ===== list rows ===== */
+.ds .lrow{display:flex;align-items:center;gap:16px;padding:18px 0;border-bottom:var(--bw) solid var(--line)}
+.ds .lrow.tall{padding:20px 0}
+.ds .lrow-t{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.ds .lrow-t .badge{margin-top:6px}
+
+/* ===== badges + notices ===== */
+.ds .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:999px;font-size:var(--fs-small);font-weight:700;line-height:1.4;border:var(--bw) solid transparent}
+.ds .compact .badge{padding:3px 10px}
+.ds .badge.neutral{background:var(--surface-muted);color:var(--muted)}
+.ds .badge.primary{background:var(--primary-soft);color:var(--primary)}
+.ds .badge.success{background:var(--success-soft);color:var(--success)}
+.ds .badge.danger{background:var(--danger-soft);color:var(--danger)}
+.ds .badge.attention{background:var(--attention-soft);color:var(--attention)}
+.ds .hc .badge{border-color:currentColor}
+.ds .notice{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px}
+.ds .notice.primary{background:var(--primary-soft);color:var(--text)} .ds .notice.primary .ic{color:var(--primary)}
+.ds .notice.attention{background:var(--attention-soft);color:var(--text)} .ds .notice.attention .ic{color:var(--attention)}
+.ds .notice.success{background:var(--success-soft);color:var(--text)} .ds .notice.success .ic{color:var(--success)}
+
+/* ===== steps, dots ===== */
+.ds .steps{display:flex;align-items:center;gap:6px;margin-top:20px}
+.ds .seg{height:8px;flex:1;max-width:56px;border-radius:99px;background:var(--line)}
+.ds .seg.on{background:var(--primary)}
+.ds .steps-t{margin-left:8px;font-size:var(--fs-small);font-weight:700;color:var(--muted)}
+.ds .dots{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.ds .dots i{width:30px;height:8px;border-radius:99px;background:var(--line)} .ds .dots i.on{background:var(--primary)}
+.ds .mode{font-size:var(--fs-small);font-weight:700;color:var(--primary)}
+
+/* ===== PIN ===== */
+.ds .pins{display:flex;gap:18px;justify-content:center;margin:28px 0}
+.ds .pins i{width:22px;height:22px;border-radius:50%;border:2px solid var(--line-strong)}
+.ds .pins i.f{background:var(--primary);border-color:var(--primary)}
+.ds .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ds .key{height:74px;border-radius:18px;background:var(--surface-muted);display:grid;place-items:center;font-size:30px;font-weight:700}
+.ds .key.blank{background:transparent}
+.ds .key.fn{font-size:var(--fs-small);display:flex;flex-direction:column;gap:0;line-height:1.2}
+
+/* ===== choices ===== */
+.ds .choices{display:flex;flex-direction:column;border-top:var(--bw) solid var(--line)}
+.ds .choice{display:flex;align-items:center;gap:16px;padding:18px 14px;border-bottom:var(--bw) solid var(--line);border-radius:0}
+.ds .choice.sel{background:var(--primary-soft);border-radius:14px;border-bottom-color:transparent}
+.ds .choice.disabled{opacity:.5}
+.ds .radio{width:28px;height:28px;border-radius:50%;border:2px solid var(--line-strong);display:grid;place-items:center;flex:none;color:var(--on-primary)}
+.ds .choice.sel .radio{background:var(--primary);border-color:var(--primary)}
+
+/* ===== board (spec §8) ===== */
+.ds .board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:14px;background:var(--primary-soft);border-radius:26px}
+.ds .cell{aspect-ratio:1;border-radius:20px;background:#fff;box-shadow:0 2px 6px rgba(20,32,43,.08);display:grid;place-items:center;font-size:30px;font-weight:700;color:#fff}
+.ds .cell.seen{background:var(--primary-tint)}
+.ds .cell.lit{background:var(--primary);box-shadow:0 6px 16px rgba(11,122,117,.35)}
+.ds .cell.done{background:var(--primary);color:var(--on-primary)}
+.ds .cell.ok{background:var(--success)}
+.ds .cell.bad{background:var(--danger)}
+.ds .cell.duo{background:#fff;color:var(--attention);box-shadow:inset 0 0 0 4px var(--attention)}
+.ds .board.ed{max-width:360px}
+.ds .board.ed .cell{font-size:28px}
+
+/* ===== result ===== */
+.ds .result{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
+.ds .r-badge{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin-bottom:6px}
+.ds .r-badge.success{background:var(--success-soft);color:var(--success)}
+.ds .r-badge.danger{background:var(--danger-soft);color:var(--danger)}
+
+/* ===== results charts ===== */
+.ds .stats2{display:grid;grid-template-columns:1fr 1fr}
+.ds .stats2 > div + div{border-left:var(--bw) solid var(--line);padding-left:18px}
+.ds .vbars{display:flex;align-items:flex-end;gap:12px;height:120px}
+.ds .vb{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;font-size:var(--fs-small);color:var(--muted)}
+.ds .vb-bar{width:100%;max-width:44px;background:var(--primary);border-radius:8px 8px 3px 3px}
+.ds .vbars.wide{height:220px}
+
+/* ===== tab bar ===== */
+.ds .tabbar{margin:auto -20px 0;display:grid;grid-template-columns:repeat(4,1fr);border-top:var(--bw) solid var(--line);padding:10px 6px 18px;background:var(--surface)}
+.ds .tab{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:15px;font-weight:700;color:var(--muted)}
+.ds .tab-ic{display:grid;place-items:center;width:64px;height:34px;border-radius:999px}
+.ds .tab.on{color:var(--primary)} .ds .tab.on .tab-ic{background:var(--primary-soft)}
+
+/* ===== admin ===== */
+.ds .admin{position:relative;width:100%;max-width:1240px;margin:0 auto;border:1px solid #C3CDD3;border-radius:14px;overflow:hidden;background:var(--surface);font-size:var(--fs-body);box-shadow:0 18px 40px rgba(20,32,43,.10)}
+.ds .anav{display:flex;align-items:center;gap:22px;padding:0 28px;height:60px;border-bottom:1px solid var(--line);font-size:15px}
+.ds .brand{color:var(--primary);font-size:19px;margin-right:6px}
+.ds .nl{color:var(--muted);font-weight:700;height:100%;display:flex;align-items:center}
+.ds .nl.on{color:var(--text);box-shadow:inset 0 -3px 0 var(--primary)}
+.ds .who{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.ds .apage{padding:28px 32px 36px;min-height:560px}
+.ds .phead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:20px}
+.ds .toolbar{display:flex;gap:12px;margin-bottom:12px}
+.ds .field{display:flex;align-items:center;gap:8px;min-height:var(--h-sm);padding:0 14px;border:1px solid var(--line-strong);border-radius:10px;color:var(--muted);background:var(--surface)}
+.ds .field.search{width:340px}
+.ds .field.sel{justify-content:space-between;color:var(--text);font-weight:700;min-width:180px}
+.ds .dt{width:100%;border-collapse:collapse}
+.ds .dt th{text-align:left;font-size:var(--fs-small);color:var(--muted);font-weight:700;padding:12px 10px;border-bottom:1px solid var(--line-strong);background:var(--surface-muted)}
+.ds .dt td{padding:14px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.ds .dt .r{text-align:right}
+.ds .dt .link,.ds .dt td.t-strong,.ds .dt .badge{white-space:nowrap}
+.ds .toast{position:absolute;right:28px;bottom:24px;display:flex;gap:8px;align-items:center;background:#14202B;color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;box-shadow:0 10px 28px rgba(20,32,43,.25)}
+.ds .toast .ic{color:#7FD99A}
+.ds .crumb{margin-bottom:6px}
+.ds .editor{display:grid;grid-template-columns:380px 1fr;gap:40px;margin-top:8px}
+.ds .eform{border-left:1px solid var(--line);padding-left:40px}
+.ds .slist{border-top:1px solid var(--line)}
+.ds .srow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.ds .snum{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+.ds .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ds .fl{display:flex;flex-direction:column;gap:6px}
+.ds .fl .field{color:var(--text)}
+.ds .kpis{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:28px}
+.ds .kpis > div{padding:20px 24px}
+.ds .kpis > div + div{border-left:1px solid var(--line)}
+.ds .kpis > div:first-child{padding-left:0}
+.ds .arow{display:grid;grid-template-columns:.8fr 1.5fr;gap:36px}
+.ds .follow{border-left:1px solid var(--line);padding-left:36px}
+.ds .scrim{position:absolute;inset:0;background:rgba(20,32,43,.45);display:grid;place-items:center}
+.ds .dialog{width:480px;background:var(--surface);border-radius:26px;padding:28px;box-shadow:0 24px 60px rgba(20,32,43,.30);display:flex;flex-direction:column;gap:8px}
+.ds .d-ic{width:52px;height:52px;border-radius:50%;background:var(--danger-soft);color:var(--danger);display:grid;place-items:center;margin-bottom:6px}
+</style>
+
+<div class="ds">
+  <div class="group-t">ฝั่งผู้สูงอายุ (มือถือ)</div>
+  <p class="group-d">เข้าสู่ระบบ → หน้าหลัก → คอร์ส → เลือกโหมด → เล่น → ผลถูก/ผิด → ผลลัพธ์ → จองคิว และหน้าหลักในโหมดตัดกันสูง</p>
+  <div class="phones"><figure class="shot"><div class="phone "><div class="scr">
+<header class="hbar"><button class="btn ghost"><svg class="ic " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg> ย้อนกลับ</button><button class="btn ghost">ก ขนาดตัวอักษร</button></header>
+<div class="steps"><div class="seg on"></div><div class="seg on"></div><span class="steps-t">ขั้นที่ 2 จาก 2</span></div>
+<div class="t-title mt-24">ใส่รหัส PIN</div>
+<div class="t-small muted">เบอร์ 081-xxx-5678 · <span class="link">เปลี่ยนเบอร์</span></div>
+<div class="pins"><i class="f"></i><i class="f"></i><i></i><i></i></div>
+<div class="keypad"><div class="key">1</div><div class="key">2</div><div class="key">3</div><div class="key">4</div><div class="key">5</div><div class="key">6</div><div class="key">7</div><div class="key">8</div><div class="key">9</div><div class="key blank"></div><div class="key">0</div><div class="key fn"><svg class="ic " width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11v12H9l-5-6z"/><path d="m12.5 10 4 4M16.5 10l-4 4"/></svg><span>ลบ</span></div></div>
+<div class="center t-small mt-auto pb-24"><span class="link">ลืมรหัส PIN</span></div>
+</div></div><figcaption>เข้าสู่ระบบ · ใส่ PIN</figcaption></figure><figure class="shot"><div class="phone "><div class="scr">
+<header class="hbar"><div><div class="t-small muted">สวัสดีตอนเช้า</div><div class="t-heading">คุณสมศรี</div></div><button class="btn ghost">ก ขนาดตัวอักษร</button></header>
+<section class="sec first">
+  <div class="eyebrow">แบบฝึกวันนี้</div>
+  <div class="t-title">จำลำดับ 3 ช่อง</div>
+  <div class="t-small muted mb-16">คอร์สเริ่มต้น · ประมาณ 5 นาที</div>
+  <button class="btn primary lg full"><svg class="ic " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg> เริ่มฝึก</button>
+</section>
+<section class="sec">
+  <div class="row-between"><span class="muted">สัปดาห์นี้</span><span class="t-strong">ฝึกแล้ว 3 จาก 5 วัน</span></div>
+  <div class="days"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+</section>
+<section class="sec list">
+  <div class="lrow"><svg class="ic pri" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19V10M12 19V5M19 19v-6"/></svg><div class="lrow-t"><div class="t-strong">ผลลัพธ์ของฉัน</div><div class="t-small muted">ครั้งล่าสุด ถูก 4 จาก 5 ข้อ</div></div><svg class="ic mut" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></div>
+  <div class="lrow"><svg class="ic pri" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 10.5h16M8.5 3.5v4M15.5 3.5v4"/></svg><div class="lrow-t"><div class="t-strong">นัดที่ศูนย์ชุมชน</div><div class="t-small muted">พฤหัสบดี 28 พ.ย. · 10:00 น.</div></div><svg class="ic mut" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></div>
+</section>
+<nav class="tabbar"><div class="tab on"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg></span><span>หน้าหลัก</span></div><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></span><span>คอร์ส</span></div><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19V10M12 19V5M19 19v-6"/></svg></span><span>ผลลัพธ์</span></div><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 10.5h16M8.5 3.5v4M15.5 3.5v4"/></svg></span><span>จองคิว</span></div></nav>
+</div></div><figcaption>หน้าหลัก</figcaption></figure><figure class="shot"><div class="phone "><div class="scr">
+<header class="hbar"><div class="t-heading">คอร์ส</div><button class="btn ghost">ก ขนาดตัวอักษร</button></header>
+<div class="notice primary mt-16"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 4.5 2.3 4.7 5.2.7-3.8 3.6.9 5.1L12 16.2l-4.6 2.4.9-5.1-3.8-3.6 5.2-.7z"/></svg><div><div class="t-strong">แนะนำสำหรับคุณ</div><div class="t-small">จำลำดับ 4 ช่อง · แบบฝึกที่ 3</div></div></div>
+<section class="sec list"><div class="lrow tall"><div class="lrow-t"><div class="t-strong">คอร์สเริ่มต้น</div><div class="t-small muted">ระดับ 1 · 3 แบบฝึก</div><span class="badge success"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg> ทำครบแล้ว</span></div><svg class="ic mut" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></div><div class="lrow tall"><div class="lrow-t"><div class="t-strong">จำลำดับ 4 ช่อง</div><div class="t-small muted">ระดับ 2 · 5 แบบฝึก</div><span class="badge primary">ทำแล้ว 2 จาก 5</span></div><svg class="ic mut" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></div><div class="lrow tall"><div class="lrow-t"><div class="t-strong">สองนิ้วพร้อมกัน</div><div class="t-small muted">ระดับ 3 · 4 แบบฝึก</div><span class="badge neutral">ยังไม่เริ่ม</span></div><svg class="ic mut" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></div></section>
+<nav class="tabbar"><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg></span><span>หน้าหลัก</span></div><div class="tab on"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></span><span>คอร์ส</span></div><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19V10M12 19V5M19 19v-6"/></svg></span><span>ผลลัพธ์</span></div><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 10.5h16M8.5 3.5v4M15.5 3.5v4"/></svg></span><span>จองคิว</span></div></nav>
+</div></div><figcaption>คอร์สทั้งหมด</figcaption></figure><figure class="shot"><div class="phone "><div class="scr">
+<header class="hbar"><button class="btn ghost"><svg class="ic " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg> ย้อนกลับ</button><button class="btn ghost">ก ขนาดตัวอักษร</button></header>
+<div class="eyebrow mt-24">จำลำดับ 4 ช่อง</div>
+<div class="t-title">แบบฝึกที่ 3</div>
+<div class="t-small muted">5 ข้อ · ระดับ 2</div>
+<div class="t-lead mt-32 mb-12">เลือกโหมด</div>
+<div class="choices">
+  <div class="choice"><span class="radio"></span><div><div class="t-strong">โหมดฝึก</div><div class="t-small muted">มีคำใบ้บอกช่องถัดไป ทำซ้ำได้ไม่จำกัด</div></div></div>
+  <div class="choice sel"><span class="radio"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><div><div class="t-strong">โหมดทดสอบ</div><div class="t-small muted">ไม่มีคำใบ้ ลองได้ข้อละ 3 ครั้ง ผลนี้ใช้วัดพัฒนาการ</div></div></div>
+</div>
+<div class="mt-auto pb-24"><button class="btn primary lg full">เริ่มโหมดทดสอบ</button></div>
+</div></div><figcaption>เลือกโหมด</figcaption></figure><figure class="shot"><div class="phone "><div class="scr">
+<header class="hbar"><button class="btn ghost">ออก</button><div class="t-strong">ข้อ 2 จาก 5</div><button class="btn ghost">ช่วยเหลือ</button></header>
+<div class="center mt-24">
+  <div class="t-heading">ดูลำดับให้จบ แล้วแตะตาม</div>
+  <div class="t-small muted">กำลังแสดงช่องที่ 2 จาก 4</div>
+  <div class="dots"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+</div>
+<div class="board mt-24"><div class="cell seen"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell lit"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+<div class="row-between mt-auto pb-24"><span class="mode">โหมดทดสอบ · ครั้งที่ 1 จาก 3</span></div>
+</div></div><figcaption>เล่น · ระบบกำลังแสดงลำดับ</figcaption></figure><figure class="shot"><div class="phone "><div class="scr">
+<header class="hbar"><button class="btn ghost">ออก</button><div class="t-strong">ข้อ 3 จาก 5</div><button class="btn ghost">ช่วยเหลือ</button></header>
+<div class="center mt-24">
+  <div class="t-heading">แตะตามลำดับได้เลย</div>
+  <div class="t-small muted">แตะไปแล้ว 1 จาก 3 จังหวะ</div>
+</div>
+<div class="notice attention mt-16"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12V6.5a1.5 1.5 0 0 1 3 0V11m0-1.5V5a1.5 1.5 0 0 1 3 0v6m0-3.5a1.5 1.5 0 0 1 3 0V14a6 6 0 0 1-6 6h-.6a5 5 0 0 1-4-2L5 15a1.5 1.5 0 0 1 2.3-1.9L8 14"/></svg><div class="t-small"><b>จังหวะต่อไปใช้สองนิ้ว</b> แตะสองช่องพร้อมกัน</div></div>
+<div class="board mt-16"><div class="cell"></div><div class="cell done">1</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+<div class="row-between mt-auto pb-24"><span class="mode">โหมดฝึก</span><button class="btn secondary md">ดูอีกครั้ง</button></div>
+</div></div><figcaption>เล่น · ถึงตาแตะ (มีจังหวะสองนิ้ว)</figcaption></figure><figure class="shot"><div class="phone "><div class="scr">
+<header class="hbar"><button class="btn ghost">ออก</button><div class="t-strong">ข้อ 2 จาก 5</div><button class="btn ghost">ช่วยเหลือ</button></header>
+<div class="result mt-24"><div class="r-badge success"><svg class="ic " width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div><div class="t-heading c-success">ถูกต้อง เก่งมาก</div><div class="t-small muted">แตะถูกครบ 4 จาก 4 ช่อง · 6.2 วินาที</div></div>
+<div class="board mt-24"><div class="cell ok">1</div><div class="cell"></div><div class="cell ok">4</div><div class="cell"></div><div class="cell ok">2</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell ok">3</div></div>
+<div class="mt-auto pb-24"><button class="btn primary lg full">ข้อต่อไป</button></div>
+</div></div><figcaption>ผล · ถูกต้อง</figcaption></figure><figure class="shot"><div class="phone "><div class="scr">
+<header class="hbar"><button class="btn ghost">ออก</button><div class="t-strong">ข้อ 2 จาก 5</div><button class="btn ghost">ช่วยเหลือ</button></header>
+<div class="result mt-24"><div class="r-badge danger"><svg class="ic " width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></div><div class="t-heading">ไม่เป็นไรนะ ลองอีกครั้ง</div><div class="t-small muted">ช่องที่ 3 ยังไม่ถูก · เหลืออีก 2 ครั้ง</div></div>
+<div class="board mt-24"><div class="cell ok">1</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell ok">2</div><div class="cell"></div><div class="cell bad"><svg class="ic " width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></div><div class="cell"></div><div class="cell"></div></div>
+<div class="mt-auto pb-24 stack"><button class="btn primary lg full">ลองอีกครั้ง</button><button class="btn secondary lg full">ข้ามข้อนี้</button></div>
+</div></div><figcaption>ผล · ยังไม่ถูก</figcaption></figure><figure class="shot"><div class="phone "><div class="scr">
+<header class="hbar"><div class="t-heading">ผลลัพธ์</div><button class="btn ghost">ก ขนาดตัวอักษร</button></header>
+<section class="sec first stats2">
+  <div><div class="t-small muted">ความแม่นยำ</div><div class="t-title">80%</div><div class="t-small c-success"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 14l5-5 5 5"/></svg> ดีขึ้น 10%</div></div>
+  <div><div class="t-small muted">เวลาเฉลี่ยต่อข้อ</div><div class="t-title">5.4<span class="t-lead"> วิ</span></div><div class="t-small muted">ใกล้เคียงเดิม</div></div>
+</section>
+<section class="sec">
+  <div class="row-between"><span class="t-strong">ระดับความสามารถ</span><span class="t-strong c-primary">ดี</span></div>
+  <div class="levels"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+  <div class="t-small muted mt-8">ระดับ 3 จาก 4 · คำนวณจากโหมดทดสอบ 5 ครั้งล่าสุด</div>
+</section>
+<section class="sec">
+  <div class="t-strong mb-12">5 ครั้งล่าสุด</div>
+  <div class="vbars"><div class="vb"><div class="vb-bar" style="height:55%"></div><span>55%</span></div><div class="vb"><div class="vb-bar" style="height:62%"></div><span>62%</span></div><div class="vb"><div class="vb-bar" style="height:60%"></div><span>60%</span></div><div class="vb"><div class="vb-bar" style="height:70%"></div><span>70%</span></div><div class="vb"><div class="vb-bar" style="height:80%"></div><span>80%</span></div></div>
+</section>
+<section class="sec"><div class="lrow"><svg class="ic pri" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 4.5 2.3 4.7 5.2.7-3.8 3.6.9 5.1L12 16.2l-4.6 2.4.9-5.1-3.8-3.6 5.2-.7z"/></svg><div class="lrow-t"><div class="t-strong">ลองต่อ: จำลำดับ 4 ช่อง</div><div class="t-small muted">ยากขึ้นอีกนิด เหมาะกับระดับตอนนี้</div></div><svg class="ic mut" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></div></section>
+<nav class="tabbar"><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg></span><span>หน้าหลัก</span></div><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></span><span>คอร์ส</span></div><div class="tab on"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19V10M12 19V5M19 19v-6"/></svg></span><span>ผลลัพธ์</span></div><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 10.5h16M8.5 3.5v4M15.5 3.5v4"/></svg></span><span>จองคิว</span></div></nav>
+</div></div><figcaption>ผลลัพธ์ของฉัน</figcaption></figure><figure class="shot"><div class="phone "><div class="scr">
+<header class="hbar"><button class="btn ghost"><svg class="ic " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg> ย้อนกลับ</button><button class="btn ghost">ก ขนาดตัวอักษร</button></header>
+<div class="steps"><div class="seg on"></div><div class="seg on"></div><div class="seg"></div><span class="steps-t">ขั้นที่ 2 จาก 3</span></div>
+<div class="t-title mt-24">เลือกช่วงเวลา</div>
+<div class="t-small muted"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg> ศูนย์ชุมชนตัวอย่าง · พฤหัสบดี 28 พ.ย.</div>
+<div class="choices mt-24"><div class="choice disabled"><span class="radio"></span><div class="grow t-strong">09:00 – 10:00 น.</div><span class="badge neutral">เต็ม</span></div><div class="choice sel"><span class="radio"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><div class="grow t-strong">10:00 – 11:00 น.</div><span class="badge primary">ว่าง 3 ที่</span></div><div class="choice "><span class="radio"></span><div class="grow t-strong">13:00 – 14:00 น.</div><span class="badge primary">ว่าง 5 ที่</span></div><div class="choice "><span class="radio"></span><div class="grow t-strong">14:00 – 15:00 น.</div><span class="badge attention">ว่าง 1 ที่</span></div></div>
+<div class="mt-auto pb-24"><button class="btn primary lg full">ถัดไป</button></div>
+</div></div><figcaption>จองคิว · เลือกช่วงเวลา</figcaption></figure><figure class="shot"><div class="phone hc"><div class="scr">
+<header class="hbar"><div><div class="t-small muted">สวัสดีตอนเช้า</div><div class="t-heading">คุณสมศรี</div></div><button class="btn ghost">ก ขนาดตัวอักษร</button></header>
+<section class="sec first">
+  <div class="eyebrow">แบบฝึกวันนี้</div>
+  <div class="t-title">จำลำดับ 3 ช่อง</div>
+  <div class="t-small muted mb-16">คอร์สเริ่มต้น · ประมาณ 5 นาที</div>
+  <button class="btn primary lg full"><svg class="ic " width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg> เริ่มฝึก</button>
+</section>
+<section class="sec">
+  <div class="row-between"><span class="muted">สัปดาห์นี้</span><span class="t-strong">ฝึกแล้ว 3 จาก 5 วัน</span></div>
+  <div class="days"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+</section>
+<section class="sec list">
+  <div class="lrow"><svg class="ic pri" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19V10M12 19V5M19 19v-6"/></svg><div class="lrow-t"><div class="t-strong">ผลลัพธ์ของฉัน</div><div class="t-small muted">ครั้งล่าสุด ถูก 4 จาก 5 ข้อ</div></div><svg class="ic mut" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></div>
+</section>
+<nav class="tabbar"><div class="tab on"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg></span><span>หน้าหลัก</span></div><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></span><span>คอร์ส</span></div><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19V10M12 19V5M19 19v-6"/></svg></span><span>ผลลัพธ์</span></div><div class="tab"><span class="tab-ic"><svg class="ic " width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 10.5h16M8.5 3.5v4M15.5 3.5v4"/></svg></span><span>จองคิว</span></div></nav>
+</div></div><figcaption>หน้าหลัก · โหมดตัดกันสูง</figcaption></figure></div>
+  <div class="group-t">ฝั่งผู้ดูแล (คอมพิวเตอร์)</div>
+  <p class="group-d">รายการคอร์ส · Pattern Editor · วิเคราะห์ผล · ผู้ใช้งานพร้อมหน้าต่างยืนยัน</p>
+  <div class="admins">
+<figure class="shot wide"><div class="admin compact">
+  <div class="anav"><b class="brand">Brain9</b><span class="nl">ภาพรวม</span><span class="nl">ผู้ใช้งาน</span><span class="nl">ศูนย์และเครื่อง</span><span class="nl">ตารางเวลา</span><span class="nl on">คอร์ส</span><span class="nl">วิเคราะห์ผล</span><span class="grow"></span><span class="who"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 19.5c1.2-3.3 3.9-5 7-5s5.8 1.7 7 5"/></svg> ผู้ดูแล ตัวอย่าง</span><button class="btn ghost sm">ออกจากระบบ</button></div>
+  <div class="apage">
+<div class="phead"><div><div class="t-title">คอร์สทั้งหมด</div><div class="t-small muted">4 คอร์ส · ผู้สูงอายุเห็นเฉพาะคอร์สที่เปิดใช้งาน</div></div><button class="btn primary md"><svg class="ic " width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> สร้างคอร์ส</button></div>
+<div class="toolbar"><div class="field search"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg> ค้นหาคอร์ส</div><div class="field sel">สถานะ: ทั้งหมด <svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></div></div>
+<table class="dt"><thead><tr><th>ชื่อคอร์ส</th><th>ระดับ</th><th>แบบฝึก</th><th>สถานะ</th><th>แก้ไขล่าสุด</th><th></th></tr></thead><tbody><tr><td class="t-strong">คอร์สเริ่มต้น</td><td>1</td><td>3</td><td><span class="badge success"><svg class="ic " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg> เปิดใช้งาน</span></td><td class="muted">วันนี้ 09:12</td><td class="r"><span class="link">แก้ไข</span></td></tr><tr><td class="t-strong">จำลำดับ 4 ช่อง</td><td>2</td><td>5</td><td><span class="badge success"><svg class="ic " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg> เปิดใช้งาน</span></td><td class="muted">เมื่อวาน</td><td class="r"><span class="link">แก้ไข</span></td></tr><tr><td class="t-strong">สองนิ้วพร้อมกัน</td><td>3</td><td>4</td><td><span class="badge attention">ฉบับร่าง</span></td><td class="muted">24 พ.ย.</td><td class="r"><span class="link">แก้ไข</span></td></tr><tr><td class="t-strong">จำลำดับยาว</td><td>4</td><td>4</td><td><span class="badge neutral">เก็บถาวร</span></td><td class="muted">2 พ.ย.</td><td class="r"><span class="link">แก้ไข</span></td></tr></tbody></table>
+<div class="toast"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg> บันทึกคอร์ส “คอร์สเริ่มต้น” แล้ว</div>
+</div>
+</div><figcaption>ผู้ดูแล · คอร์สทั้งหมด (พร้อม toast หลังบันทึก)</figcaption></figure>
+<figure class="shot wide"><div class="admin compact">
+  <div class="anav"><b class="brand">Brain9</b><span class="nl">ภาพรวม</span><span class="nl">ผู้ใช้งาน</span><span class="nl">ศูนย์และเครื่อง</span><span class="nl">ตารางเวลา</span><span class="nl on">คอร์ส</span><span class="nl">วิเคราะห์ผล</span><span class="grow"></span><span class="who"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 19.5c1.2-3.3 3.9-5 7-5s5.8 1.7 7 5"/></svg> ผู้ดูแล ตัวอย่าง</span><button class="btn ghost sm">ออกจากระบบ</button></div>
+  <div class="apage">
+<div class="crumb t-small muted">คอร์สเริ่มต้น / แบบฝึกที่ 1 / <span class="t-strong c-text">ข้อ 2</span></div>
+<div class="phead"><div class="t-title">แก้ไข Pattern ข้อ 2</div><div class="hstack"><button class="btn secondary md">ยกเลิก</button><button class="btn primary md">บันทึก</button></div></div>
+<div class="editor">
+  <div>
+    <div class="t-small muted mb-8">คลิกช่องตามลำดับ · กด Shift ค้างเพื่อเลือกสองช่องพร้อมกัน</div>
+    <div class="board ed"><div class="cell"></div><div class="cell done">1</div><div class="cell"></div><div class="cell"></div><div class="cell done">2</div><div class="cell"></div><div class="cell duo">3</div><div class="cell"></div><div class="cell duo">3</div></div>
+    <div class="hstack mt-16"><button class="btn secondary md"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg> ทดลองเล่น</button><button class="btn ghost md">ล้างทั้งหมด</button></div>
+  </div>
+  <div class="eform">
+    <div class="t-lead mb-8">ลำดับ (3 จังหวะ)</div>
+    <div class="slist"><div class="srow"><span class="snum">1</span><span class="grow">ช่อง 2</span><span class="link">ลบ</span></div><div class="srow"><span class="snum">2</span><span class="grow">ช่อง 5</span><span class="link">ลบ</span></div><div class="srow"><span class="snum">3</span><span class="grow">ช่อง 7 + ช่อง 9</span><span class="badge attention"><svg class="ic " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12V6.5a1.5 1.5 0 0 1 3 0V11m0-1.5V5a1.5 1.5 0 0 1 3 0v6m0-3.5a1.5 1.5 0 0 1 3 0V14a6 6 0 0 1-6 6h-.6a5 5 0 0 1-4-2L5 15a1.5 1.5 0 0 1 2.3-1.9L8 14"/></svg> สองนิ้ว</span><span class="link">ลบ</span></div></div>
+    <div class="t-lead mt-24 mb-8">จังหวะเวลา</div>
+    <div class="two">
+      <label class="fl"><span class="t-strong">แสดงแต่ละช่อง</span><div class="field">800 มิลลิวินาที</div><span class="t-small muted">ว่างไว้ = ใช้ค่าของแบบฝึก</span></label>
+      <label class="fl"><span class="t-strong">เว้นระหว่างช่อง</span><div class="field">300 มิลลิวินาที</div></label>
+    </div>
+    <div class="notice success mt-24"><svg class="ic " width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><div class="t-small">Pattern ถูกต้อง: มีอย่างน้อย 2 จังหวะ ไม่มีช่องซ้ำในจังหวะเดียว</div></div>
+  </div>
+</div>
+</div>
+</div><figcaption>ผู้ดูแล · Pattern Editor</figcaption></figure>
+<figure class="shot wide"><div class="admin compact">
+  <div class="anav"><b class="brand">Brain9</b><span class="nl">ภาพรวม</span><span class="nl">ผู้ใช้งาน</span><span class="nl">ศูนย์และเครื่อง</span><span class="nl">ตารางเวลา</span><span class="nl">คอร์ส</span><span class="nl on">วิเคราะห์ผล</span><span class="grow"></span><span class="who"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 19.5c1.2-3.3 3.9-5 7-5s5.8 1.7 7 5"/></svg> ผู้ดูแล ตัวอย่าง</span><button class="btn ghost sm">ออกจากระบบ</button></div>
+  <div class="apage">
+<div class="phead"><div><div class="t-title">ภาพรวมการฝึก</div><div class="t-small muted">ทุกศูนย์ · 8 สัปดาห์ล่าสุด · เฉพาะโหมดทดสอบ</div></div><div class="field sel">ทุกศูนย์ <svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></div></div>
+<div class="kpis">
+  <div><div class="t-small muted">ผู้ฝึกสัปดาห์นี้</div><div class="t-title">42<span class="t-lead"> คน</span></div><div class="t-small c-success"><svg class="ic " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 14l5-5 5 5"/></svg> เพิ่ม 6 คน</div></div>
+  <div><div class="t-small muted">ความแม่นยำเฉลี่ย</div><div class="t-title">78%</div><div class="t-small c-success"><svg class="ic " width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 14l5-5 5 5"/></svg> ดีขึ้น 2%</div></div>
+  <div><div class="t-small muted">เวลาตอบสนองเฉลี่ย</div><div class="t-title">5.8<span class="t-lead"> วิ</span></div><div class="t-small muted">ใกล้เคียงเดิม</div></div>
+  <div><div class="t-small muted">ควรติดตาม</div><div class="t-title c-danger">3<span class="t-lead"> คน</span></div><div class="t-small muted">ผลลดลงหรือหยุดฝึก</div></div>
+</div>
+<div class="arow">
+  <div class="chart"><div class="row-between mb-12"><span class="t-lead">ความแม่นยำเฉลี่ยรายสัปดาห์</span><span class="link t-small">ดูเป็นตาราง</span></div><div class="vbars wide"><div class="vb"><div class="vb-bar" style="height:62%"></div><span>ส.1</span></div><div class="vb"><div class="vb-bar" style="height:65%"></div><span>ส.2</span></div><div class="vb"><div class="vb-bar" style="height:64%"></div><span>ส.3</span></div><div class="vb"><div class="vb-bar" style="height:70%"></div><span>ส.4</span></div><div class="vb"><div class="vb-bar" style="height:71%"></div><span>ส.5</span></div><div class="vb"><div class="vb-bar" style="height:74%"></div><span>ส.6</span></div><div class="vb"><div class="vb-bar" style="height:76%"></div><span>ส.7</span></div><div class="vb"><div class="vb-bar" style="height:78%"></div><span>ส.8</span></div></div></div>
+  <div class="follow"><div class="t-lead mb-8">ผู้ใช้ที่ควรติดตาม</div>
+    <table class="dt"><thead><tr><th>ชื่อ</th><th>ฝึกที่</th><th>ความแม่นยำ</th><th>แนวโน้ม</th><th></th></tr></thead><tbody><tr><td class="t-strong">สมศรี ตัวอย่าง</td><td class="muted">ศูนย์ชุมชนตัวอย่าง</td><td>45%</td><td><span class="badge danger"><svg class="ic " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg> ลดลง 20%</span></td><td class="r"><span class="link">ดูรายละเอียด</span></td></tr><tr><td class="t-strong">ประยูร ตัวอย่าง</td><td class="muted">ฝึกที่บ้าน</td><td>52%</td><td><span class="badge danger"><svg class="ic " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg> ลดลง 12%</span></td><td class="r"><span class="link">ดูรายละเอียด</span></td></tr><tr><td class="t-strong">มาลี ตัวอย่าง</td><td class="muted">ศูนย์ชุมชนตัวอย่าง</td><td>—</td><td><span class="badge attention">ไม่ได้ฝึก 14 วัน</span></td><td class="r"><span class="link">ดูรายละเอียด</span></td></tr></tbody></table></div>
+</div>
+</div>
+</div><figcaption>ผู้ดูแล · วิเคราะห์ผล</figcaption></figure>
+<figure class="shot wide"><div class="admin compact">
+  <div class="anav"><b class="brand">Brain9</b><span class="nl">ภาพรวม</span><span class="nl on">ผู้ใช้งาน</span><span class="nl">ศูนย์และเครื่อง</span><span class="nl">ตารางเวลา</span><span class="nl">คอร์ส</span><span class="nl">วิเคราะห์ผล</span><span class="grow"></span><span class="who"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 19.5c1.2-3.3 3.9-5 7-5s5.8 1.7 7 5"/></svg> ผู้ดูแล ตัวอย่าง</span><button class="btn ghost sm">ออกจากระบบ</button></div>
+  <div class="apage">
+<div class="phead"><div><div class="t-title">ผู้ใช้งาน</div><div class="t-small muted">128 คน</div></div><button class="btn primary md"><svg class="ic " width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> เพิ่มผู้ใช้งาน</button></div>
+<div class="toolbar"><div class="field search"><svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg> ค้นหาชื่อหรือเบอร์โทร</div><div class="field sel">บทบาท: ทั้งหมด <svg class="ic " width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></div></div>
+<table class="dt"><thead><tr><th>ชื่อ</th><th>เบอร์โทร</th><th>บทบาท</th><th>สถานะ</th><th></th></tr></thead><tbody><tr><td class="t-strong">สมศรี ตัวอย่าง</td><td class="muted">081-xxx-5678</td><td>ผู้สูงอายุ</td><td><span class="badge success"><svg class="ic " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg> ใช้งานอยู่</span></td><td class="r"><span class="link">จัดการ</span></td></tr><tr><td class="t-strong">ประยูร ตัวอย่าง</td><td class="muted">089-xxx-1122</td><td>ผู้สูงอายุ</td><td><span class="badge success"><svg class="ic " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg> ใช้งานอยู่</span></td><td class="r"><span class="link">จัดการ</span></td></tr><tr><td class="t-strong">ผู้ดูแล ตัวอย่าง</td><td class="muted">080-xxx-0001</td><td>ผู้ดูแล</td><td><span class="badge success"><svg class="ic " width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg> ใช้งานอยู่</span></td><td class="r"><span class="link">จัดการ</span></td></tr><tr><td class="t-strong">มาลี ตัวอย่าง</td><td class="muted">086-xxx-4455</td><td>ผู้สูงอายุ</td><td><span class="badge neutral">ระงับ</span></td><td class="r"><span class="link">จัดการ</span></td></tr></tbody></table>
+</div><div class="scrim"><div class="dialog">
+  <div class="d-ic"><svg class="ic " width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 3 19.5h18z"/><path d="M12 10v4.5M12 17.3v.2"/></svg></div>
+  <div class="t-heading">ระงับบัญชีของคุณประยูร?</div>
+  <div class="muted">คุณประยูรจะเข้าสู่ระบบไม่ได้จนกว่าจะเปิดใช้งานอีกครั้ง นัดหมายที่จองไว้ 1 รายการจะถูกยกเลิก ข้อมูลการฝึกยังเก็บไว้ตามเดิม</div>
+  <div class="hstack end mt-24"><button class="btn secondary md">ยกเลิก</button><button class="btn danger md">ระงับบัญชี</button></div>
+</div></div>
+</div><figcaption>ผู้ดูแล · ผู้ใช้งาน + หน้าต่างยืนยันก่อนทำสิ่งที่ย้อนกลับยาก</figcaption></figure></div>
+</div>
+
+</body>
+</html>

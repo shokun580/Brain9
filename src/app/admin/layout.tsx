@@ -22,20 +22,20 @@ async function AdminGate({ children }: { children: React.ReactNode }) {
 
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="border-b border-border bg-surface">
+    <div data-ui="admin" className="flex min-h-dvh flex-1 flex-col bg-page text-fg">
+      <header className="border-b border-line bg-surface">
         <nav
           aria-label="เมนูผู้ดูแล"
           className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 p-3"
         >
-          <Link href="/admin" className="mr-4 text-xl font-extrabold">
+          <Link href="/admin" className="mr-4 text-heading font-bold">
             Brain9 Admin
           </Link>
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-card px-3 py-2 font-bold text-primary hover:bg-primary-soft"
+              className="rounded-control px-3 py-2 font-bold text-primary-press hover:bg-primary-soft"
             >
               {item.label}
             </Link>
@@ -43,7 +43,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
         </nav>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 p-5">
-        <Suspense fallback={<p className="text-text-2">กำลังตรวจสอบสิทธิ์…</p>}>
+        <Suspense fallback={<p className="text-body text-fg-2">กำลังตรวจสอบสิทธิ์…</p>}>
           <AdminGate>{children}</AdminGate>
         </Suspense>
       </main>

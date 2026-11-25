@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Card } from "@/shared/ui";
 
 // Temporary landing page that lists every area and its owner. The identity module will
 // replace it with the real entry flow (login / center-device mode).
@@ -14,24 +13,24 @@ const areas = [
 
 export default function HomePage() {
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-5">
-      <h1 className="text-3xl font-extrabold">Brain9</h1>
-      <p className="text-text-2">ระบบฝึกสมองสำหรับผู้สูงอายุ</p>
-      <ul className="flex flex-col gap-3">
-        {areas.map((area) => (
-          <li key={area.href}>
-            <Link
-              href={area.href}
-              className="block focus-visible:outline-4 focus-visible:outline-focus"
-            >
-              <Card className="flex min-h-16 items-center justify-between gap-3">
-                <span className="text-lg font-bold">{area.label}</span>
-                <span className="text-sm text-text-2">{area.owner}</span>
-              </Card>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </main>
+    <div data-ui="elder" className="min-h-dvh bg-page text-fg">
+      <main className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-5">
+        <h1 className="text-title font-bold">Brain9</h1>
+        <p className="text-lead text-fg-2">ระบบฝึกสมองสำหรับผู้สูงอายุ</p>
+        <ul className="flex flex-col">
+          {areas.map((area) => (
+            <li key={area.href} className="border-b border-line">
+              <Link
+                href={area.href}
+                className="flex min-h-control items-center justify-between gap-3 py-3 focus-visible:outline-4 focus-visible:outline-focus"
+              >
+                <span className="text-body font-bold">{area.label}</span>
+                <span className="text-small text-fg-2">{area.owner}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </main>
+    </div>
   );
 }
