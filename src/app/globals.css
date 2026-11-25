@@ -306,24 +306,33 @@ body {
   pointer-events: none;
 }
 
-/* Anchored chrome never animates: the rail, top bar and tab bar stay put. Each name is set
-   once per document (layout level) through style={{ viewTransitionName }}. */
-::view-transition-group(admin-nav),
+/* Anchored chrome never animates: the top bar and the elder tab bar stay put. Each name is set
+   once per document (layout level) through style={{ viewTransitionName }}. The admin menu is
+   deliberately not named: a named element is skipped by hit-testing for the whole transition,
+   so a second menu click would be lost. */
 ::view-transition-group(admin-topbar),
 ::view-transition-group(elder-tabbar) {
   animation: none;
   z-index: 100;
 }
 
-::view-transition-old(admin-nav),
 ::view-transition-old(admin-topbar),
 ::view-transition-old(elder-tabbar) {
   display: none;
 }
 
-::view-transition-new(admin-nav),
 ::view-transition-new(admin-topbar),
 ::view-transition-new(elder-tabbar) {
+  animation: none;
+}
+
+/* The unnamed chrome (menu, page frame) stays still: show only the new root snapshot, opaque
+   (old and new are blended with plus-lighter, so two opaque copies would brighten the page). */
+::view-transition-old(root) {
+  display: none;
+}
+
+::view-transition-new(root) {
   animation: none;
 }
 

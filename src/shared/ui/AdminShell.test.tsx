@@ -183,9 +183,9 @@ describe("AdminShell", () => {
     expect(foot).toContain('aria-label="ย่อเมนู"');
   });
 
-  it("names the shared elements for view transitions", () => {
+  it("names only the top bar for view transitions (a named menu cannot be clicked mid-transition)", () => {
     const out = shell();
-    expect(out).toContain("view-transition-name:admin-nav");
+    expect(out).not.toContain("view-transition-name:admin-nav");
     expect(out).toContain("view-transition-name:admin-topbar");
   });
 

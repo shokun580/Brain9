@@ -146,6 +146,7 @@ function PanelSection({
 }
 
 /**
+ * Exported for tests only (the shell is its one consumer).
  * The two menus: a rail of sections and, beside it, the pages of the selected section.
  * Pure (the pathname is a prop) so it renders in tests; the shell feeds it `usePathname()`.
  * With an unknown pathname the panel lists every section stacked, so no page is unreachable.
@@ -286,10 +287,7 @@ export function AdminShell({
         ข้ามไปยังเนื้อหา
       </a>
 
-      <div
-        style={{ viewTransitionName: "admin-nav" }}
-        className="sticky top-0 flex h-dvh shrink-0 text-on-ink-2 [--b9-focus:var(--b9-primary-bright)]"
-      >
+      <div className="sticky top-0 flex h-dvh shrink-0 text-on-ink-2 [--b9-focus:var(--b9-primary-bright)]">
         <Suspense
           fallback={
             <AdminNavView sections={nav} pathname={null} railHead={railHead} railFoot={railFoot} />

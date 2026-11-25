@@ -23,6 +23,9 @@ describe("AdminSection", () => {
     expect(out).toContain("รายชื่อตัวอย่าง");
     expect(out).toContain("เนื้อหา");
   });
+  it("separates the title from the count with a real space", () => {
+    expect(out).toMatch(/ผู้ใช้งาน(<!-- -->)? (<!-- -->)?<span[^>]*>12 รายการ/);
+  });
   it("links the heading id to aria-labelledby", () => {
     const labelled = /aria-labelledby="([^"]+)"/.exec(out)?.[1];
     expect(labelled).toBeTruthy();

@@ -17,7 +17,7 @@ export function AdminSection({ title, count, description, action, children }: Ad
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 border-b-[length:var(--b9-border)] border-line-strong pb-2">
         <div className="min-w-0 flex-1 basis-60">
           <h2 id={headingId} className="text-heading font-bold text-fg">
-            {title}
+            {title}{" "}
             {count ? (
               <span className="ml-2 text-body font-normal text-fg-muted">{count}</span>
             ) : null}

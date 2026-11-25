@@ -235,13 +235,19 @@ describe("design tokens", () => {
     });
 
     it("anchors the chrome so it never animates", () => {
-      for (const name of ["admin-nav", "admin-topbar", "elder-tabbar"]) {
+      for (const name of ["admin-topbar", "elder-tabbar"]) {
         const rule = (part: string, body: string) =>
           new RegExp(`::view-transition-${part}\\(${name}\\)[^{}]*\\{ ${body} \\}`);
         expect(flat, name).toMatch(rule("group", "animation: none; z-index: 100;"));
         expect(flat, name).toMatch(rule("old", "display: none;"));
         expect(flat, name).toMatch(rule("new", "animation: none;"));
       }
+    });
+
+    it("keeps the unnamed chrome still by neutralising the root snapshot, and names no menu", () => {
+      expect(flat).toContain("::view-transition-old(root) { display: none; }");
+      expect(flat).toContain("::view-transition-new(root) { animation: none; }");
+      expect(flat).not.toContain("admin-nav)");
     });
 
     it("removes view-transition motion under prefers-reduced-motion", () => {
