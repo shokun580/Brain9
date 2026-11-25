@@ -21,11 +21,11 @@ export function SegmentedControl({
   return (
     <fieldset className="m-0 min-w-0 border-0 p-0">
       <legend className="sr-only">{legend}</legend>
-      <div className="inline-flex max-w-full flex-wrap overflow-hidden rounded-control border-[length:var(--b9-border)] border-line-strong">
+      <div className="inline-flex max-w-full flex-wrap rounded-control border-[length:var(--b9-border)] border-line-strong">
         {options.map((option) => (
           <label
             key={option.value}
-            className="flex min-h-control cursor-pointer items-center gap-1.5 bg-surface text-fg px-4 text-body has-[:checked]:bg-ink has-[:checked]:font-bold has-[:checked]:text-white has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus"
+            className="relative flex min-h-control first:rounded-l-control last:rounded-r-control not-first:border-l-[length:var(--b9-border)] not-first:border-line-strong cursor-pointer items-center gap-1.5 bg-surface text-fg px-4 text-body has-[:checked]:bg-ink has-[:checked]:font-bold has-[:checked]:text-white has-[:focus-visible]:z-10 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus"
           >
             <input
               type="radio"

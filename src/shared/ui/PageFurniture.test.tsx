@@ -102,6 +102,18 @@ describe("SegmentedControl", () => {
     expect(out).toContain("border-line-strong");
     expect(out).toContain("rounded-control");
   });
+  it("does not clip the focus ring of any segment", () => {
+    const wrapper = out.match(/<div class="([^"]*)"/)?.[1] ?? "";
+    expect(wrapper).not.toContain("overflow-hidden");
+    const labels = (out.match(/<label class="[^"]*"/g) ?? []).map((l) => l);
+    expect(labels).toHaveLength(2);
+    for (const label of labels) {
+      expect(label).toMatch(/\brelative\b/);
+      expect(label).toContain("has-[:focus-visible]:z-10");
+      expect(label).toContain("first:rounded-l-control");
+      expect(label).toContain("last:rounded-r-control");
+    }
+  });
   it("hides option icons from assistive technology", () => {
     expect(out).toMatch(/aria-hidden="true"[^>]*><b data-i="1"/);
   });
