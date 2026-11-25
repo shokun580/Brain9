@@ -50,8 +50,20 @@ export function Button({
   );
 
   if ("href" in props && props.href !== undefined) {
-    const { href, ...anchor } = props as AnchorHTMLAttributes<HTMLAnchorElement> & { href: string };
-    return <Link href={href} className={classes} {...anchor} />;
+    const { href, ...anchor } = props as AnchorHTMLAttributes<HTMLAnchorElement> & {
+      href: string;
+      disabled?: boolean;
+    };
+    const { disabled, ...anchorProps } = anchor;
+    // A disabled link must not navigate: drop the href and the link behaviour, keep the look.
+    if (disabled || anchor["aria-disabled"] === true || anchor["aria-disabled"] === "true") {
+      return (
+        <span role="link" aria-disabled="true" className={classes}>
+          {anchor.children}
+        </span>
+      );
+    }
+    return <Link href={href} className={classes} {...anchorProps} />;
   }
   const { type = "button", ...button } = props as ButtonHTMLAttributes<HTMLButtonElement>;
   return <button ref={ref} type={type} className={classes} {...button} />;

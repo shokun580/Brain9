@@ -48,3 +48,25 @@ describe("Button", () => {
     ).toContain("aspect-square");
   });
 });
+
+describe("Button as a disabled link", () => {
+  it("renders no href when aria-disabled", () => {
+    const out = html(
+      <Button href="/home" aria-disabled="true">
+        ไป
+      </Button>,
+    );
+    expect(out).not.toContain("href=");
+    expect(out).toContain('aria-disabled="true"');
+    expect(out).toContain("min-h-control");
+  });
+  it("renders no href when disabled", () => {
+    const out = html(
+      <Button href="/home" disabled>
+        ไป
+      </Button>,
+    );
+    expect(out).not.toContain("href=");
+    expect(out).toContain('aria-disabled="true"');
+  });
+});

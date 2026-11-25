@@ -4,8 +4,17 @@ import { controlClass, fieldWiring, FieldShell, type FieldBase } from "./Field";
 export type TextareaProps = FieldBase & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 /** Labelled multi-line input. */
-export function Textarea({ label, name, errors, hint, className, id, ...props }: TextareaProps) {
-  const wiring = fieldWiring(name, id, hint, errors);
+export function Textarea({
+  label,
+  name,
+  errors,
+  hint,
+  className,
+  id,
+  "aria-describedby": describedBy,
+  ...props
+}: TextareaProps) {
+  const wiring = fieldWiring(name, id, hint, errors, describedBy);
   return (
     <FieldShell label={label} hint={hint} errors={errors} wiring={wiring}>
       <textarea

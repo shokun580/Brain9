@@ -4,8 +4,17 @@ import { controlClass, fieldWiring, FieldShell, type FieldBase } from "./Field";
 export type TextFieldProps = FieldBase & InputHTMLAttributes<HTMLInputElement>;
 
 /** Labelled single-line input. */
-export function TextField({ label, name, errors, hint, className, id, ...props }: TextFieldProps) {
-  const wiring = fieldWiring(name, id, hint, errors);
+export function TextField({
+  label,
+  name,
+  errors,
+  hint,
+  className,
+  id,
+  "aria-describedby": describedBy,
+  ...props
+}: TextFieldProps) {
+  const wiring = fieldWiring(name, id, hint, errors, describedBy);
   return (
     <FieldShell label={label} hint={hint} errors={errors} wiring={wiring}>
       <input

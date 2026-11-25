@@ -132,3 +132,21 @@ describe("ComingSoon", () => {
     expect(out).toContain("content");
   });
 });
+
+describe("ComingSoon heading", () => {
+  it("announces the title once, as the h1", () => {
+    const out = html(<ComingSoon title="ผลลัพธ์" owner="analytics" />);
+    expect(out.match(/ผลลัพธ์/g)).toHaveLength(1);
+    expect(out).toMatch(/<h1[^>]*>ผลลัพธ์<\/h1>/);
+    expect(out).not.toContain("sr-only");
+  });
+});
+
+describe("EmptyState heading level", () => {
+  it("is not a heading by default", () => {
+    expect(html(<EmptyState title="ว่าง" />)).not.toMatch(/<h\d/);
+  });
+  it("renders the requested heading level", () => {
+    expect(html(<EmptyState title="ว่าง" headingLevel={2} />)).toMatch(/<h2[^>]*>ว่าง<\/h2>/);
+  });
+});
