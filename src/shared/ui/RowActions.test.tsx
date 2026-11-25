@@ -37,6 +37,37 @@ describe("RowActions", () => {
     expect(out).toContain("min-h-control-sm");
   });
 
+  it("does not bold the primary link", () => {
+    const out = html(<RowActions primary={primary} rowLabel="ผู้ใช้ตัวอย่าง 01" />);
+    expect(/<a [^>]*class="[^"]*font-bold/.test(out)).toBe(false);
+  });
+
+  it("shows the row label as the first non-interactive line that labels the list", () => {
+    const out = html(<RowActions primary={primary} more={more} rowLabel="ผู้ใช้ตัวอย่าง 01" />);
+    const popover = /<div id="[^"]+" popover="auto".*<\/div>/.exec(out)?.[0] ?? "";
+    expect(popover).toContain("ผู้ใช้ตัวอย่าง 01");
+    const labelId = /aria-labelledby="([^"]+)"/.exec(popover)?.[1];
+    expect(labelId).toBeTruthy();
+    const label = new RegExp(`<p id="${labelId}"[^>]*>ผู้ใช้ตัวอย่าง 01</p>`).exec(popover);
+    expect(label).not.toBeNull();
+    expect(label?.[0]).toContain("text-micro");
+    expect(label?.[0]).toContain("text-fg-muted");
+    expect(label?.[0]).not.toContain("tabindex");
+    // the label comes before the first link, and the list is no longer labelled by aria-label
+    expect(popover.indexOf("<p ")).toBeLessThan(popover.indexOf("<a "));
+    expect(/<ul[^>]*aria-label=/.test(popover)).toBe(false);
+    expect(out).not.toContain("role=");
+  });
+
+  it("flips above the button near the viewport bottom and shares one anchor name", () => {
+    const out = html(<RowActions primary={primary} more={more} rowLabel="ผู้ใช้ตัวอย่าง 01" />);
+    expect(out).toContain("supports-[position-area:bottom]:[position-try-fallbacks:flip-block]");
+    expect(out).toContain("supports-[position-area:bottom]:my-1");
+    const name = /anchor-name:(--[\w-]+)/.exec(out)?.[1];
+    expect(name).toBeTruthy();
+    expect(out).toContain(`position-anchor:${name}`);
+  });
+
   it("uses a custom more label", () => {
     const out = html(
       <RowActions primary={primary} more={more} moreLabel="อื่นๆ" rowLabel="แถวตัวอย่าง" />,

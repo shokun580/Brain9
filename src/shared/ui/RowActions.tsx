@@ -28,18 +28,22 @@ function anchorName(id: string): string {
  * `ConfirmDialog`.
  *
  * Placement: where CSS anchor positioning is supported the list opens just below the button,
- * right-aligned with it. Elsewhere the browser's default applies and the list opens centred
- * in the viewport, which is still usable. No "use client": there are no handlers, and a
- * Server Component may call `useId`.
+ * right-aligned with it, and flips above it near the viewport bottom. Elsewhere the browser's
+ * default applies and the list opens centred in the viewport. The row label is the list's
+ * first, visible line, so the menu always says which row it belongs to. Browsers without the
+ * Popover API render the list inline and always visible; browsers without anchor positioning
+ * open it centred with the row label as its first line. No "use client": there are no
+ * handlers, and a Server Component may call `useId`.
  */
 export function RowActions({ primary, more, moreLabel = "เพิ่มเติม", rowLabel }: RowActionsProps) {
   const menuId = useId();
   const anchor = anchorName(menuId);
+  const labelId = `${menuId}-label`;
   return (
     <div className="flex items-center justify-end gap-2">
       <Link
         href={primary.href}
-        className="inline-flex min-h-control-sm items-center px-1 text-body font-bold text-primary-press underline"
+        className="inline-flex min-h-control-sm items-center px-1 text-body text-primary-press underline"
       >
         {primary.label}
       </Link>
@@ -54,24 +58,28 @@ export function RowActions({ primary, more, moreLabel = "เพิ่มเต�
           >
             <Ellipsis aria-hidden="true" strokeWidth={1.9} className="size-icon" />
           </button>
-          <ul
+          <div
             id={menuId}
             popover="auto"
-            aria-label={`${moreLabel}: ${rowLabel}`}
             style={{ positionAnchor: anchor }}
-            className="min-w-44 rounded-control border border-[length:var(--b9-border)] border-line bg-surface p-1 text-fg supports-[position-area:bottom]:m-0 supports-[position-area:bottom]:mt-1 supports-[position-area:bottom]:[position-area:bottom_span-left]"
+            className="min-w-44 rounded-control border border-[length:var(--b9-border)] border-line bg-surface p-1 text-fg supports-[position-area:bottom]:m-0 supports-[position-area:bottom]:my-1 supports-[position-area:bottom]:[position-area:bottom_span-left] supports-[position-area:bottom]:[position-try-fallbacks:flip-block]"
           >
-            {more.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="flex min-h-control-sm items-center rounded-control px-3 text-body hover:bg-surface-muted"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+            <p id={labelId} className="px-3 py-1 text-micro text-fg-muted">
+              {rowLabel}
+            </p>
+            <ul aria-labelledby={labelId}>
+              {more.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="flex min-h-control-sm items-center rounded-control px-3 text-body hover:bg-surface-muted"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </>
       ) : null}
     </div>
