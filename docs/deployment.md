@@ -229,9 +229,9 @@ two things go wrong easily:
   first deployment of this project a production one. Use `--environment=preview` for
   staging (`--target=preview` on CLI versions before 66) and `--prod` for production, and
   check `vercel inspect <url>` before aliasing a domain.
-- **Name the team when aliasing.** `vercel alias set <url> <domain>` needs
-  `--scope <team id>` when it runs with the team-scoped token; without it the API answers
-  "User not found".
+- **Aliasing needs a user login.** `vercel alias set <url> <domain>` works when you are
+  logged in as yourself, but not with the team-scoped token GitHub uses ("User not
+  found"), which is why the staging workflow assigns the domain through the REST API.
 - **No `.env*` files in the project folder while building.** The build output references
   files named `.env*` that sit in the folder (seen with `.env.example` and with a renamed
   backup of `.env.local`), so treat any such file as something that may be uploaded with
