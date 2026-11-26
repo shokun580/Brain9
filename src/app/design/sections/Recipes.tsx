@@ -102,10 +102,9 @@ function Recipe({
   );
 }
 
-const icon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon" } as const;
+const icon = { "aria-hidden": true, className: "size-icon" } as const;
 const rowIcon = {
   "aria-hidden": true,
-  strokeWidth: 1.9,
   className: "size-icon text-primary-press",
 } as const;
 
@@ -338,7 +337,7 @@ const profileCode = `<ElderHeader title="ข้อมูลของฉัน" b
 
 {/* SignOutButton ("use client") */}
 <Button variant="secondary" fullWidth onClick={() => setOpen(true)}>
-  <LogOut aria-hidden="true" strokeWidth={1.9} className="size-icon shrink-0" />
+  <LogOut aria-hidden="true" className="size-icon shrink-0" />
   ออกจากระบบ
 </Button>
 <ConfirmDialog open={open} title="ต้องการออกจากระบบหรือไม่" confirmLabel="ออกจากระบบ" onConfirm={signOut} onCancel={() => setOpen(false)}>

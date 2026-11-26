@@ -24,9 +24,7 @@ export function Badge({ tone = "neutral", children }: BadgeProps) {
         tones[tone],
       )}
     >
-      {Icon ? (
-        <Icon aria-hidden="true" strokeWidth={1.9} className="size-icon-sm shrink-0" />
-      ) : null}
+      {Icon ? <Icon aria-hidden="true" className="size-icon-sm shrink-0" /> : null}
       {children}
     </span>
   );

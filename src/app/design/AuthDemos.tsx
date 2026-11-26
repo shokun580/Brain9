@@ -245,7 +245,7 @@ export function SignOutDemo() {
   return (
     <div className="flex flex-col gap-3">
       <Button variant="secondary" fullWidth onClick={() => setOpen(true)}>
-        <LogOut aria-hidden="true" strokeWidth={1.9} className="size-icon shrink-0" />
+        <LogOut aria-hidden="true" className="size-icon shrink-0" />
         ออกจากระบบ
       </Button>
       {answer ? (

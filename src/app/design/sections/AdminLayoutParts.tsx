@@ -20,7 +20,7 @@ import {
 import { AdminScope, SubHeading } from "../chrome";
 import { Example } from "../Example";
 
-const icon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon" } as const;
+const icon = { "aria-hidden": true, className: "size-icon" } as const;
 
 export function AdminLayoutParts() {
   return (
@@ -132,12 +132,12 @@ export function AdminLayoutParts() {
               {
                 value: "list",
                 label: "รายการ",
-                icon: <List strokeWidth={1.9} className="size-icon-sm" />,
+                icon: <List className="size-icon-sm" />,
               },
               {
                 value: "grid",
                 label: "ตาราง",
-                icon: <LayoutGrid strokeWidth={1.9} className="size-icon-sm" />,
+                icon: <LayoutGrid className="size-icon-sm" />,
               },
             ]}
           />

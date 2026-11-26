@@ -3,7 +3,7 @@ import { Button, DisplaySettings, ElderHeader, TextLink } from "@/shared/ui";
 import { ElderScope, SubHeading } from "../chrome";
 import { Example } from "../Example";
 
-const icon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon shrink-0" } as const;
+const icon = { "aria-hidden": true, className: "size-icon shrink-0" } as const;
 
 export function ElderActions() {
   return (

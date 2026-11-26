@@ -41,7 +41,7 @@ export function Pagination({ page, pageSize, total, hrefFor }: PaginationProps) 
         <Step
           label="หน้าก่อนหน้า"
           href={range.page > 1 ? hrefFor(range.page - 1) : undefined}
-          icon={<ChevronLeft aria-hidden="true" strokeWidth={1.9} className="size-icon-sm" />}
+          icon={<ChevronLeft aria-hidden="true" className="size-icon-sm" />}
         />
         {pageItems(range.page, range.pageCount).map((item, i) =>
           item === "ellipsis" ? (
@@ -67,7 +67,7 @@ export function Pagination({ page, pageSize, total, hrefFor }: PaginationProps) 
         <Step
           label="หน้าถัดไป"
           href={range.page < range.pageCount ? hrefFor(range.page + 1) : undefined}
-          icon={<ChevronRight aria-hidden="true" strokeWidth={1.9} className="size-icon-sm" />}
+          icon={<ChevronRight aria-hidden="true" className="size-icon-sm" />}
         />
       </div>
     </nav>

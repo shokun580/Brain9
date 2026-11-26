@@ -10,7 +10,7 @@ export function Toast({ message, tone = "success" }: ToastProps) {
       role="status"
       className="inline-flex items-center gap-2 rounded-control border-[length:var(--b9-border)] border-edge bg-ink px-4 py-3 text-body font-bold text-white shadow-overlay"
     >
-      <Icon aria-hidden="true" strokeWidth={1.9} className="size-icon shrink-0 text-white" />
+      <Icon aria-hidden="true" className="size-icon shrink-0 text-white" />
       {message}
     </div>
   );

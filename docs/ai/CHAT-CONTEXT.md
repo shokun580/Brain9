@@ -32,6 +32,8 @@ rules exactly. If a request conflicts with them, say so instead of complying.
   - type `text-title|heading|lead|body|small|micro`
   - sizes `h-control`, `min-h-control`, `h-control-sm`, `min-h-control-sm`, `size-icon`,
     `size-icon-sm`, `max-w-admin` (the shell sets it; do not repeat it)
+  - icons come from `lucide-react`, sized with `size-icon` / `size-icon-sm`; never set
+    `strokeWidth` (the scope sets it)
   - radii `rounded-control|field|panel|dialog`; shadows `shadow-cell`, `shadow-cell-lit`,
     `shadow-overlay` (`shadow-dock` belongs to the tab bar: do not use it)
   - a border that must thicken in high contrast is `border-[length:var(--b9-border)]`
@@ -436,7 +438,7 @@ user can focus or type into. A step kept in a client component's state goes back
 
   ```tsx
   <Button variant="secondary" fullWidth onClick={() => setOpen(true)}>
-    <LogOut aria-hidden="true" strokeWidth={1.9} className="size-icon shrink-0" />
+    <LogOut aria-hidden="true" className="size-icon shrink-0" />
     ออกจากระบบ
   </Button>
   <ConfirmDialog open={open} title="ต้องการออกจากระบบหรือไม่" confirmLabel="ออกจากระบบ" onConfirm={signOut} onCancel={() => setOpen(false)}>

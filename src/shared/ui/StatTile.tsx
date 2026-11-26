@@ -7,15 +7,15 @@ type DeltaTone = "up" | "flat" | "warn";
 const deltaStyle: Record<DeltaTone, { className: string; icon: ReactNode }> = {
   up: {
     className: "text-success",
-    icon: <ArrowUp aria-hidden="true" strokeWidth={1.9} className="size-icon-sm shrink-0" />,
+    icon: <ArrowUp aria-hidden="true" className="size-icon-sm shrink-0" />,
   },
   flat: {
     className: "text-fg-muted",
-    icon: <Minus aria-hidden="true" strokeWidth={1.9} className="size-icon-sm shrink-0" />,
+    icon: <Minus aria-hidden="true" className="size-icon-sm shrink-0" />,
   },
   warn: {
     className: "text-attention",
-    icon: <TriangleAlert aria-hidden="true" strokeWidth={1.9} className="size-icon-sm shrink-0" />,
+    icon: <TriangleAlert aria-hidden="true" className="size-icon-sm shrink-0" />,
   },
 };
 

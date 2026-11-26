@@ -5,7 +5,7 @@ import { TabBar, TabBarView, type TabBarItem } from "@/shared/ui";
 // Shell for every elderly-facing screen. OWNER: infra (team lead).
 // Keep it free of data access: anything that reads the session belongs in a component
 // rendered inside <Suspense> on the page.
-const iconProps = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon" } as const;
+const iconProps = { "aria-hidden": true, className: "size-icon" } as const;
 
 const tabs: TabBarItem[] = [
   { href: "/home", label: "หน้าหลัก", icon: <House {...iconProps} /> },

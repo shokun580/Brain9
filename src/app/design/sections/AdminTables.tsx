@@ -23,7 +23,7 @@ const filters = (
   </>
 );
 
-const tagIcon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon-sm" } as const;
+const tagIcon = { "aria-hidden": true, className: "size-icon-sm" } as const;
 
 export function AdminTables() {
   return (

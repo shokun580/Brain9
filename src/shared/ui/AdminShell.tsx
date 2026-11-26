@@ -270,7 +270,6 @@ export function AdminShell({
     >
       <ChevronsLeft
         aria-hidden="true"
-        strokeWidth={1.9}
         className={cn("size-icon shrink-0 transition-transform duration-200", FLIP_WHEN_CLOSED)}
       />
       <span>{collapseLabel(open)}</span>
@@ -314,7 +313,7 @@ export function AdminShell({
             title="เปิดหรือปิดเมนู"
             className="grid size-control place-items-center rounded-control text-fg-2 hover:bg-surface-muted"
           >
-            <Menu aria-hidden="true" strokeWidth={1.9} className="size-icon" />
+            <Menu aria-hidden="true" className="size-icon" />
           </button>
           {centerSlot ? <div className="min-w-0">{centerSlot}</div> : null}
           <div className="ml-auto flex min-w-0 items-center gap-3">
@@ -323,7 +322,7 @@ export function AdminShell({
                 href={helpHref}
                 className="flex min-h-control items-center gap-1.5 rounded-control px-2.5 text-small text-fg-2 hover:bg-surface-muted"
               >
-                <CircleHelp aria-hidden="true" strokeWidth={1.9} className="size-icon-sm" />
+                <CircleHelp aria-hidden="true" className="size-icon-sm" />
                 ช่วยเหลือ
               </Link>
             ) : null}
@@ -336,7 +335,7 @@ export function AdminShell({
                   type="submit"
                   className="flex min-h-control items-center gap-1.5 rounded-control px-2.5 text-small text-fg-2 hover:bg-surface-muted"
                 >
-                  <LogOut aria-hidden="true" strokeWidth={1.9} className="size-icon-sm" />
+                  <LogOut aria-hidden="true" className="size-icon-sm" />
                   ออกจากระบบ
                 </button>
               </form>

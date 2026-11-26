@@ -64,10 +64,7 @@ export function ChoiceList({
               aria-hidden="true"
               className="flex size-8 shrink-0 items-center justify-center rounded-full border-[length:var(--b9-border)] border-line-strong bg-surface text-on-primary group-has-[:checked]:border-primary group-has-[:checked]:bg-primary"
             >
-              <Check
-                strokeWidth={2.4}
-                className="size-5 opacity-0 group-has-[:checked]:opacity-100"
-              />
+              <Check className="size-5 opacity-0 group-has-[:checked]:opacity-100" />
             </span>
             <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
               <span className="text-lead font-bold text-fg">{option.title}</span>
