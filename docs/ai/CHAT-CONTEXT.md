@@ -35,7 +35,7 @@ rules exactly. If a request conflicts with them, say so instead of complying.
   - radii `rounded-control|field|panel|dialog`; shadows `shadow-cell`, `shadow-cell-lit`,
     `shadow-overlay`
   - a border that must thicken in high contrast is `border-[length:var(--b9-border)]`
-  - chart colours are the CSS variables `--chart-1` to `--chart-4`
+  - chart colours (`--chart-1` to `--chart-4`) belong to `LineChart` / `BarChart`; you never write them
 
   Sizes come from the scope on the layout root, `data-ui="elder" | "admin"`; never
   hard-code colours or sizes. Elder (`(auth)`, `(elder)`): body text 20px, controls 64px
@@ -362,6 +362,10 @@ Tables (admin)
 - `Pagination` — `page`, `pageSize`, `total`, `hrefFor(page)`; first `r = pageRange(rawPage, pageSize, total)` from `@/shared/lib/pagination`, query with `r`, pass `r.page`
 - `RowActions` — `primary: {label,href}`, `more?: {label,href}[]`, `rowLabel`
 
+Charts (admin)
+
+- `LineChart`, `BarChart` — client; `title`, `summary` (one sentence with the finding), `data`, `xKey`, `xLabel`, `series: {key,label}[]` (1 to 4), `unit?`, `yMax?`; `BarChart` also `stacked?`
+
 Loading
 
 - `Reveal` — `fallback`, children (a `Suspense` whose skeleton fades into the content)
@@ -441,14 +445,31 @@ Every screen is built from the design system and nothing else. Hard rules:
     `text-heading font-bold text-on-primary`. Two-finger step: `bg-attention-soft`, 2px
     `border-attention` (`border-2`), `text-attention`, both cells share one number and the
     word "สองนิ้ว".
-- **Charts** (analytics) have no component and no approved library: draw them as inline SVG
-  in your own component inside an `AdminSection` (a `StatTile` takes no children), coloured
-  only with `--chart-1` … `--chart-4` (`fill-[var(--chart-1)]`, `stroke-[var(--chart-1)]`;
-  a sequential scale is `--chart-1` at 100 / 78 / 55 / 35% opacity), axes `stroke-line`,
-  labels `fill-fg-muted` in the type tokens, every series labelled in words and a text
-  summary or a table of the same numbers beside every chart (never colour alone). A chart
-  library needs the lead's approval in an `infra` issue first. Pages wider than the 860px
-  column are not supported yet: say so and stop.
+- **Charts** (admin screens) are drawn only with `LineChart` and `BarChart` from
+  `@/shared/ui`. Do not import `recharts`, do not draw a chart by hand, do not add another
+  chart library: a chart these two cannot draw is an `infra` issue. Put the chart in an
+  `AdminSection` (no card; `StatTile` takes no children), pass 1 to 4 series and a `summary`
+  sentence that states the finding in words (mandatory), and set `unit`. The y axis starts
+  at 0. Elderly screens use `Meter`, not charts. Pages wider than the 860px column are not
+  supported yet: say so and stop.
+
+  ```tsx
+  <AdminSection title="ความแม่นยำรายสัปดาห์">
+    <LineChart
+      title="ความแม่นยำเฉลี่ยแยกตามศูนย์"
+      summary="ศูนย์ตัวอย่าง ก สูงกว่าศูนย์ตัวอย่าง ข ทุกสัปดาห์ที่มีข้อมูล"
+      data={rows} // [{ week: "สัปดาห์ 1", centreA: 62, centreB: null }, …]
+      xKey="week"
+      xLabel="สัปดาห์"
+      series={[
+        { key: "centreA", label: "ศูนย์ตัวอย่าง ก" },
+        { key: "centreB", label: "ศูนย์ตัวอย่าง ข" },
+      ]}
+      unit="%"
+      yMax={100}
+    />
+  </AdminSection>
+  ```
 
 ## Non-negotiable rules
 

@@ -81,3 +81,39 @@ describe("ESLint: design tokens only in feature code", () => {
     TIMEOUT,
   );
 });
+
+async function restrictedImports(code: string, filePath: string) {
+  const [result] = await eslint.lintText(code, { filePath });
+  return (result?.messages ?? []).filter((message) => message.ruleId === "no-restricted-imports");
+}
+
+describe("ESLint: charts only through the shared components", () => {
+  it.each([
+    'import { LineChart } from "recharts";\nexport const x = LineChart;\n',
+    'import { Line } from "recharts/es6";\nexport const x = Line;\n',
+  ])(
+    "rejects %s in a module, a route and the rest of the design system",
+    async (code) => {
+      for (const filePath of [
+        FEATURE_FILE,
+        "src/app/admin/X.tsx",
+        "src/shared/ui/Other.tsx",
+        "src/shared/ui/Chart.tsx",
+      ]) {
+        const messages = await restrictedImports(code, filePath);
+        expect(messages.length, filePath).toBeGreaterThanOrEqual(1);
+        expect(messages[0]?.message).toContain("Use LineChart / BarChart from @/shared/ui");
+      }
+    },
+    TIMEOUT,
+  );
+
+  it(
+    "allows Recharts in src/shared/ui/ChartDrawing.tsx only",
+    async () => {
+      const code = 'import { Line } from "recharts";\nexport const x = Line;\n';
+      expect(await restrictedImports(code, "src/shared/ui/ChartDrawing.tsx")).toHaveLength(0);
+    },
+    TIMEOUT,
+  );
+});

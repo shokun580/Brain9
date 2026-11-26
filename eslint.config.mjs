@@ -26,6 +26,21 @@ const PRISMA_DIRECT = {
     "Import the client as `db` from '@/shared/lib/db' and types from '@/generated/prisma/*'.",
 };
 
+// Charts are drawn only by the shared LineChart / BarChart (src/shared/ui/ChartDrawing.tsx), which is
+// the one file allowed to import Recharts (see docs/design-system.md section 8).
+const NO_RECHARTS = {
+  name: "recharts",
+  message: "Use LineChart / BarChart from @/shared/ui",
+};
+const NO_RECHARTS_SUBPATH = {
+  group: ["recharts/*"],
+  message: "Use LineChart / BarChart from @/shared/ui",
+};
+const SHARED_NO_APP_IMPORT = {
+  group: ["@/modules/**", "@/app/**"],
+  message: "src/shared must not import from modules or routes.",
+};
+
 // ---------------------------------------------------------------------------------------
 // Soft delete only (see AGENTS.md → "Database rules").
 // No row is ever physically deleted: set `deletedAt` instead. A call is rejected when it
@@ -70,7 +85,10 @@ const eslintConfig = defineConfig([
     rules: {
       "no-restricted-imports": [
         "error",
-        { patterns: [DEEP_MODULE_IMPORT, DEEPER_MODULE_IMPORT, PRISMA_DIRECT] },
+        {
+          paths: [NO_RECHARTS],
+          patterns: [DEEP_MODULE_IMPORT, DEEPER_MODULE_IMPORT, PRISMA_DIRECT, NO_RECHARTS_SUBPATH],
+        },
       ],
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },
@@ -82,13 +100,8 @@ const eslintConfig = defineConfig([
       "no-restricted-imports": [
         "error",
         {
-          patterns: [
-            PRISMA_DIRECT,
-            {
-              group: ["@/modules/**", "@/app/**"],
-              message: "src/shared must not import from modules or routes.",
-            },
-          ],
+          paths: [NO_RECHARTS],
+          patterns: [PRISMA_DIRECT, SHARED_NO_APP_IMPORT, NO_RECHARTS_SUBPATH],
         },
       ],
     },
@@ -100,14 +113,23 @@ const eslintConfig = defineConfig([
       "no-restricted-imports": [
         "error",
         {
+          paths: [NO_RECHARTS],
           patterns: [
             DEEP_MODULE_IMPORT,
             DEEPER_MODULE_IMPORT,
             PRISMA_DIRECT,
+            NO_RECHARTS_SUBPATH,
             { group: ["@/app/**"], message: "Modules must not import from src/app." },
           ],
         },
       ],
+    },
+  },
+  {
+    // The one file that may import Recharts. Same options as the src/shared block, minus Recharts.
+    files: ["src/shared/ui/ChartDrawing.tsx"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [PRISMA_DIRECT, SHARED_NO_APP_IMPORT] }],
     },
   },
   {

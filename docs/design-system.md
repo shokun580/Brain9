@@ -41,7 +41,7 @@ removes shadows. Never fix a size in px: use the type and size utilities below.
 Defined in `src/app/globals.css`. Style only with these utility families, nothing else:
 
 - **Colour:** the token utilities in the colour table below (`bg-…`, `text-…`, `border-…`, and
-  `fill-…` / `stroke-…` inside an SVG), plus `border-[length:var(--b9-border)]` (and its `-t`
+  `fill-…` / `stroke-…` for an icon or a shared drawing), plus `border-[length:var(--b9-border)]` (and its `-t`
   / `-b` forms) for a border that thickens in high contrast.
 - **Type:** `text-title` `text-heading` `text-lead` `text-body` `text-small` `text-micro`, and
   `font-bold`.
@@ -53,9 +53,8 @@ Defined in `src/app/globals.css`. Style only with these utility families, nothin
   `grid`, `grid-cols-…`), `gap-…`, padding, margin, width and max-width, on Tailwind's spacing
   scale; `list-disc` for a list in a dialog; and the two fixed values this document writes
   out: `max-w-[35rem]` for an admin form and the `StatTile` grid class in section 5.
-- **Charts, inside a chart's SVG only:** `fill-[var(--chart-1)]` … `fill-[var(--chart-4)]`
-  and `stroke-[var(--chart-1)]` … `stroke-[var(--chart-4)]` (section 8). ESLint lets them
-  through, like every value it does not reject; that does not approve them anywhere else.
+- **Charts:** a lane writes no chart styling. The colours `--chart-1` … `--chart-4` are
+  used only by the shared `LineChart` and `BarChart` (section 8); a lane passes data to them.
 
 ESLint rejects raw colours and arbitrary colour or font-size values (`#0B7A75`, `bg-[#fff]`,
 `text-[19px]`). It does not catch Tailwind's own palette, type sizes, radii, shadows and
@@ -108,7 +107,8 @@ Pairing rules:
 
 `--chart-1` (teal, same as primary), `--chart-2` (blue), `--chart-3` (amber), `--chart-4`
 (purple). Read them as CSS variables (`var(--chart-1)`), never as hex. Never rely on
-colour alone: label every series. How a chart is drawn: section 8.
+colour alone. A lane never reads these variables: the shared `LineChart` and `BarChart`
+use them (section 8).
 
 ## 4. Component catalogue
 
@@ -186,6 +186,13 @@ Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.ti
 | `Td`                 | body cell                              | admin | `numeric`, `primary`, `muted`                                            |
 | `Pagination`         | row count and page links               | admin | `page`, `pageSize`, `total`, `hrefFor`                                   |
 | `RowActions`         | end-of-row control                     | admin | `primary: {label,href}`, `more`, `rowLabel`                              |
+
+### Charts
+
+| Component   | Use it for                              | Scope | Key props                                                              |
+| ----------- | --------------------------------------- | ----- | ---------------------------------------------------------------------- |
+| `LineChart` | a trend over time (section 8)           | admin | `title`, `summary`, `data`, `xKey`, `xLabel`, `series`, `unit`, `yMax` |
+| `BarChart`  | comparing counts or amounts (section 8) | admin | the same, plus `stacked`                                               |
 
 ### Loading
 
@@ -1132,24 +1139,90 @@ In high contrast the shadows turn off and `border-edge` turns white, so every st
 visible; none rests on colour alone. The play board never moves or resizes while the user
 taps, and nothing in it animates. `/design` shows both as pictures.
 
-## 8. Charts (analytics)
+## 8. Charts (admin)
 
-There is no chart component and no chart library is approved. The analytics lane draws a
-chart itself, following this list:
+Charts are drawn only by two shared components, `LineChart` and `BarChart` from
+`@/shared/ui`. They fix the colours (`--chart-1` … `--chart-4`), the type, the grid, the
+legend, the tooltip and the text alternative. A lane passes data and words and styles
+nothing. Do not import `recharts` (ESLint rejects it outside the shared component), do not
+draw a chart by hand, and do not add another chart library: a chart these two cannot draw is
+an `infra` issue. Both are client components that take plain data, so a Server Component may
+render them.
 
-- Inline SVG in the lane's own component, inside an `AdminSection` (no card around it).
-  `StatTile` takes no children, so a chart never goes inside one: a tile that needs a small
-  chart is an `infra` issue.
-- Colours only from `--chart-1` … `--chart-4`, as `fill-[var(--chart-1)]` /
-  `stroke-[var(--chart-1)]`, series in that order. A sequential scale is `--chart-1` at
-  100 / 78 / 55 / 35% opacity (`fillOpacity={1}`, `0.78`, `0.55`, `0.35`).
-- Axes and grid lines `stroke-line`; labels `fill-fg-muted` in the type tokens
-  (`text-small`, `text-micro`).
-- Every series is labelled in words, and every chart has a text summary or a table of the
-  same numbers beside it, so colour is never the only way to read it.
-- No animation.
-- A chart library is a dependency: it needs the lead's approval in an `infra` issue first
-  (`AGENTS.md` §2.9).
+Charts are for admin screens. The elderly side shows progress with `Meter` and words: a
+chart would add to the bundle on phones and is harder to read.
+
+**Which one**
+
+| Use                    | When                                                                  |
+| ---------------------- | --------------------------------------------------------------------- |
+| `LineChart`            | a value changing over time or over a sequence (accuracy per week)     |
+| `BarChart`             | comparing counts or amounts between categories (sessions per centre)  |
+| `BarChart` + `stacked` | the total matters as much as its parts (people per level, per centre) |
+
+**Props** (the same for both; `BarChart` adds `stacked`)
+
+| Prop      | What                                                                                              |
+| --------- | ------------------------------------------------------------------------------------------------- |
+| `title`   | what the chart shows; the visible caption                                                         |
+| `summary` | one sentence with the main finding, in words ("สัปดาห์นี้ฝึกมากขึ้น 12 ครั้ง"); required                   |
+| `data`    | one object per point on the x axis; a missing value is `null` (a gap in a line, `–` in the table) |
+| `xKey`    | the key of the x-axis category in each object                                                     |
+| `xLabel`  | the column header of that category in the table of numbers                                        |
+| `series`  | `{ key, label }[]`, 1 to 4, drawn in `--chart-1` … `--chart-4` order; a fifth is not drawn        |
+| `unit`    | shown after values in the tooltip and the table ("%", "ครั้ง", "วินาที")                              |
+| `yMax`    | upper bound of the y axis; default fits the data; the axis always starts at 0                     |
+
+Under the drawing each chart shows a summary sentence and a closed "ดูตัวเลขเป็นตาราง"
+disclosure with the same numbers as a table, so nothing depends on colour or on seeing the
+drawing. With more than one series a legend in words comes first: lines differ by dash
+pattern and point shape as well as colour; for bars the legend lists the series in the order
+of the bars (stacked: from the bottom up).
+
+**Sample** (inside an `AdminSection`, no card around it)
+
+```tsx
+import { AdminSection, LineChart } from "@/shared/ui";
+
+// `rows` comes from your module's query, passed down as plain data.
+const rows = [
+  { week: "สัปดาห์ 1", centreA: 62, centreB: 55 },
+  { week: "สัปดาห์ 2", centreA: 65, centreB: null },
+  { week: "สัปดาห์ 3", centreA: 70, centreB: 63 },
+];
+
+export function AccuracyTrend() {
+  return (
+    <AdminSection title="ความแม่นยำรายสัปดาห์" description="เฉลี่ยทุกคอร์ส">
+      <LineChart
+        title="ความแม่นยำเฉลี่ยแยกตามศูนย์"
+        summary="ศูนย์ตัวอย่าง ก สูงกว่าศูนย์ตัวอย่าง ข ทุกสัปดาห์ที่มีข้อมูล"
+        data={rows}
+        xKey="week"
+        xLabel="สัปดาห์"
+        series={[
+          { key: "centreA", label: "ศูนย์ตัวอย่าง ก" },
+          { key: "centreB", label: "ศูนย์ตัวอย่าง ข" },
+        ]}
+        unit="%"
+        yMax={100}
+      />
+    </AdminSection>
+  );
+}
+```
+
+**Rules**
+
+- 1 to 4 series. More than four is not readable: split it into two charts.
+- `summary` is mandatory and states the finding in words, not "แผนภูมิแสดงความแม่นยำ".
+  Write it from the data, in Thai, polite and plain.
+- Always set `unit` when the numbers have one. The y axis starts at 0; do not truncate it.
+- No card around a chart: it goes in an `AdminSection`. `StatTile` takes no children, so a
+  chart never goes inside one.
+- Wrap the component that reads the data in `Reveal`, with a `SkeletonRegion` of a few
+  `SkeletonLine`s as the fallback.
+- No animation, no custom colours, no `className` on the chart. Elderly screens use `Meter`.
 - A chart wider than the 860px column is not supported yet (section 12).
 
 ## 9. Motion
