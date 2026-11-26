@@ -33,9 +33,13 @@ export default function GlobalError({ error, retry }: { error: unknown; retry: (
         <SystemScreen
           title="ระบบของเรามีปัญหาชั่วคราว"
           description="ไม่ใช่ความผิดของคุณนะ รอสักครู่แล้วลองอีกครั้งได้เลย"
-          action={<Button onClick={() => retry()}>ลองอีกครั้ง</Button>}
+          action={
+            <Button fullWidth onClick={() => retry()}>
+              ลองอีกครั้ง
+            </Button>
+          }
           secondaryAction={
-            <Button variant="secondary" href="/">
+            <Button fullWidth variant="secondary" href="/">
               กลับหน้าหลัก
             </Button>
           }

@@ -157,7 +157,8 @@ open `/design` (local or staging) to see every component live. Hard rules:
 - **System screens:** the 404 and error screens are shared (`src/app/not-found.tsx`,
   `error.tsx`, `global-error.tsx`); a lane adds none of its own. A page the visitor may
   not open answers with `notFound()`, exactly like a page that does not exist: never a
-  "no permission" screen, never a redirect that reveals the route.
+  "no permission" screen, never a redirect that reveals the route. The one redirect is
+  `requireUser()` sending a signed-out visitor of an elderly page to `/login`.
 - **Logo:** `BrandMark` only; do not redraw or recolour it.
 - **Exception:** the 3x3 board (engine) and the Pattern Editor grid (content) are built by
   their lanes, using only the cell states, tokens and fixed geometry listed in the

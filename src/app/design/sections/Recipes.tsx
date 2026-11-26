@@ -181,8 +181,7 @@ const elderListCode = `<ElderHeader title="แบบฝึกของฉัน"
   </Reveal>
 </Section>`;
 
-const systemCode = `// ไฟล์ระบบมีสามไฟล์ และทีมอื่นไม่เพิ่มของตัวเอง
-// หน้าที่ผู้เข้าชมเปิดไม่ได้ ตอบเหมือนหน้าที่ไม่มีอยู่จริง
+const systemCode = `// A page the visitor may not open answers like a page that does not exist.
 if (!allowed) notFound();`;
 
 const playCode = `{/* หน้าเล่น: เส้นทางของการฝึก ใช้ Suspense ห้ามใช้ Reveal และไม่มีอะไรเคลื่อนไหว */}
@@ -468,18 +467,28 @@ export function RecipesSection() {
         <div className="flex flex-col gap-4">
           <div className="overflow-hidden rounded-panel border-[length:var(--b9-border)] border-line">
             <SystemScreen
+              embedded
               title="ยังหาหน้านี้ไม่เจอ"
               description="ไม่เป็นไรนะ กลับไปหน้าหลักแล้วเริ่มใหม่ได้เลย"
-              action={<Button href="#recipe-system-screens">กลับหน้าหลัก</Button>}
+              action={
+                <Button fullWidth href="#recipe-system-screens">
+                  กลับหน้าหลัก
+                </Button>
+              }
             />
           </div>
           <div className="overflow-hidden rounded-panel border-[length:var(--b9-border)] border-line">
             <SystemScreen
+              embedded
               title="ระบบของเรามีปัญหาชั่วคราว"
               description="ไม่ใช่ความผิดของคุณนะ รอสักครู่แล้วลองอีกครั้งได้เลย"
-              action={<Button href="#recipe-system-screens">ลองอีกครั้ง</Button>}
+              action={
+                <Button fullWidth href="#recipe-system-screens">
+                  ลองอีกครั้ง
+                </Button>
+              }
               secondaryAction={
-                <Button variant="secondary" href="#recipe-system-screens">
+                <Button fullWidth variant="secondary" href="#recipe-system-screens">
                   กลับหน้าหลัก
                 </Button>
               }

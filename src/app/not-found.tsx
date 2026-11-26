@@ -13,7 +13,11 @@ export default function NotFound() {
     <SystemScreen
       title="ยังหาหน้านี้ไม่เจอ"
       description="ไม่เป็นไรนะ กลับไปหน้าหลักแล้วเริ่มใหม่ได้เลย"
-      action={<Button href="/">กลับหน้าหลัก</Button>}
+      action={
+        <Button fullWidth href="/">
+          กลับหน้าหลัก
+        </Button>
+      }
     />
   );
 }

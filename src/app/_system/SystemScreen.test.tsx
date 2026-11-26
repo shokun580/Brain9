@@ -33,6 +33,11 @@ describe("SystemScreen", () => {
     expect(out).toContain("ทางเลือก");
   });
 
+  it("fills the viewport unless embedded", () => {
+    expect(html(<SystemScreen {...base} />)).toContain("min-h-dvh");
+    expect(html(<SystemScreen {...base} embedded />)).not.toContain("min-h-dvh");
+  });
+
   it("carries the elderly scope", () => {
     expect(html(<SystemScreen {...base} />)).toContain('data-ui="elder"');
   });

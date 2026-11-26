@@ -1021,8 +1021,8 @@ help line, and an optional muted reference line. No card, no illustration, no co
 no animation. A page the visitor may not open calls `notFound()` and shows this same screen.
 
 ```tsx
-const record = await getThing(id);
-if (!record || !allowed(user, record)) notFound();
+// A page the visitor may not open answers like a page that does not exist.
+if (!allowed) notFound();
 ```
 
 ## 6. How to…
@@ -1054,7 +1054,8 @@ the only place an error appears. Never show a stack trace, a code or a secret.
 `src/app/not-found.tsx`, `src/app/error.tsx` and `src/app/global-error.tsx`, all built on
 `src/app/_system/SystemScreen.tsx` (plain text, elderly scope, one look for every visitor).
 A page the visitor may not open answers with `notFound()`, exactly like a page that does not
-exist: never a "no permission" screen, never a redirect that reveals the route. For a record
+exist: never a "no permission" screen, never a redirect that reveals the route. The one redirect
+is `requireUser()` sending a signed-out visitor of an elderly page to `/login`. For a record
 that belongs to someone else: `if (!allowed) notFound();`. `requireAdmin()` already does this
 for `/admin`. Expected failures of a form are not system screens: they stay `Field` errors
 and `Notice` (see "Show an error").
@@ -1218,6 +1219,8 @@ factual; a destructive confirmation says what will happen.
 - Skeleton lines use `1lh` and need Chrome 109, Safari 16.4 or Firefox 120. Browsers
   without view transitions change page at once; nothing breaks.
 - `/design` returns 404 in production (it exists on `local` and `staging` only).
-- Inside a `<Suspense>` boundary the 404 screen is sent with HTTP status 200 and, on
-  `/admin`, after the static menu frame. A real 404 status needs a check in `src/proxy.ts`,
-  which waits for the identity lane's sessions.
+- Inside a `<Suspense>` boundary the 404 screen still reveals an admin route to a visitor who
+  may not open it: the HTTP status is 200, the static admin menu frame is in the first HTML,
+  and the admin page's own `<title>` stays in the first HTML and in the browser tab. Closing
+  all three needs the check in `src/proxy.ts` before rendering, which waits for the identity
+  lane's sessions. Until then keep page titles generic.

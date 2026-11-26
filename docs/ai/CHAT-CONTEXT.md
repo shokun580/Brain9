@@ -421,7 +421,9 @@ Every screen is built from the design system and nothing else. Hard rules:
   place an error appears.
 - **System screens** (404, error) are shared: `src/app/not-found.tsx`, `error.tsx`,
   `global-error.tsx`. A lane adds none. A page the visitor may not open answers with
-  `notFound()`, like a page that does not exist: never a "no permission" screen or a redirect.
+  `notFound()`, exactly like a page that does not exist: never a "no permission" screen,
+  never a redirect that reveals the route. The one redirect is `requireUser()` sending a
+  signed-out visitor of an elderly page to `/login`.
 - **Irreversible actions** are confirmed with `ConfirmDialog`, stating what will happen.
 - **Logo:** `BrandMark` only; do not redraw or recolour it.
 - **Exception:** the 3x3 board (engine) and the Pattern Editor grid (content) are built by

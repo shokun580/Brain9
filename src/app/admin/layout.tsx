@@ -9,8 +9,9 @@ import { adminNav } from "./nav";
 // approves. Keep this file free of data access outside <Suspense>.
 
 /**
- * Answers "not found" to anyone who is not an admin. A layout is NOT a security boundary — it does not re-run on
- * every navigation — so each page, query and Server Action must still authorize itself.
+ * Answers "not found" to anyone who is not an admin. A layout is NOT a security boundary — it
+ * does not re-run on every navigation — so each page, query and Server Action must still
+ * authorize itself.
  */
 async function AdminGate({ children }: { children: React.ReactNode }) {
   await requireAdmin();

@@ -10,13 +10,17 @@ export type SystemScreenProps = {
   secondaryAction?: ReactNode;
   /** Small muted line under the help text, e.g. "รหัสอ้างอิง 1a2b3c". */
   reference?: string;
+  /** For the /design page only: do not fill the viewport. */
+  embedded?: boolean;
 };
 
 /**
  * The one look of every system screen (not found, error). These files render outside both
  * scope layouts, so the screen brings the elderly scope itself, and it is the same for every
  * visitor: an admin URL that answers "not found" must look like any other unknown address.
- * Plain text only: no card, no illustration, no animation.
+ * Plain text only: no card, no illustration, no animation. The mark is `size-14` (56px) as in
+ * the lead's mock-up, larger than the default so it anchors a screen with no illustration.
+ * The actions stack at full width of the column, primary first; callers pass `fullWidth`.
  */
 export function SystemScreen({
   title,
@@ -24,14 +28,18 @@ export function SystemScreen({
   action,
   secondaryAction,
   reference,
+  embedded,
 }: SystemScreenProps) {
   return (
-    <div data-ui="elder" className="flex min-h-dvh flex-col bg-page text-fg">
+    <div
+      data-ui="elder"
+      className={`flex flex-col bg-page text-fg ${embedded ? "py-6" : "min-h-dvh"}`}
+    >
       <main className="m-auto flex w-full max-w-[640px] flex-col items-center gap-4 px-5 py-10 text-center">
         <BrandMark className="size-14" />
         <h1 className="text-title font-bold text-fg">{title}</h1>
         <p className="text-lead text-fg-2">{description}</p>
-        <div className="mt-2 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
+        <div className="mt-2 flex w-full flex-col gap-3">
           {action}
           {secondaryAction}
         </div>
