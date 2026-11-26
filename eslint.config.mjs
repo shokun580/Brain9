@@ -78,6 +78,30 @@ const NO_RAW_DESIGN_VALUES = [
   },
 ];
 
+// ---------------------------------------------------------------------------------------
+// No raw HTML injection (see docs/security.md). React escapes everything it renders;
+// `dangerouslySetInnerHTML` is the way around that, and the Content Security Policy allows
+// inline scripts, so an injected one would run. Feature code may not use it. The one
+// reviewed use (a fixed string, no user input) lives in src/shared.
+// ---------------------------------------------------------------------------------------
+const NO_RAW_HTML_MESSAGE =
+  "No dangerouslySetInnerHTML in feature code (docs/security.md): render text and components instead. If raw HTML seems necessary, open an `infra` issue.";
+const NO_RAW_HTML = [
+  { selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']", message: NO_RAW_HTML_MESSAGE },
+  { selector: "Property[key.name='dangerouslySetInnerHTML']", message: NO_RAW_HTML_MESSAGE },
+];
+
+// ---------------------------------------------------------------------------------------
+// No SQL built from strings (see docs/security.md). Prisma's query API and the tagged
+// `$queryRaw` / `$executeRaw` templates send values as parameters; the `Unsafe` variants
+// take a plain string, which is how injection happens.
+// ---------------------------------------------------------------------------------------
+const NO_UNSAFE_SQL = {
+  selector: "CallExpression[callee.property.name=/^\\$(queryRawUnsafe|executeRawUnsafe)$/]",
+  message:
+    "No $queryRawUnsafe / $executeRawUnsafe (docs/security.md): use the Prisma query API, or the tagged template db.$queryRaw`…` so values are sent as parameters.",
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -91,6 +115,10 @@ const eslintConfig = defineConfig([
         },
       ],
       "no-console": ["warn", { allow: ["warn", "error"] }],
+      // Code is never built from a string (docs/security.md).
+      "no-eval": "error",
+      "no-implied-eval": "error",
+      "no-new-func": "error",
     },
   },
   {
@@ -133,16 +161,36 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    // Soft delete only: no Prisma hard deletes anywhere in application code.
+    // Soft delete only, and no SQL built from strings, anywhere in application code.
     files: ["src/**"],
-    rules: { "no-restricted-syntax": ["error", NO_HARD_DELETE] },
+    rules: { "no-restricted-syntax": ["error", NO_HARD_DELETE, NO_UNSAFE_SQL] },
   },
   {
-    // Feature code must use design tokens. `no-restricted-syntax` options are replaced, not
-    // merged, between config objects, so this object lists the hard-delete selector as well.
+    // Feature code must use design tokens and may not inject raw HTML. `no-restricted-syntax`
+    // options are replaced, not merged, between config objects, so this object lists the
+    // hard-delete selector as well.
     files: ["src/app/**", "src/modules/**"],
     ignores: ["src/app/design/**", "src/app/layout.tsx", "src/app/globals.css"],
-    rules: { "no-restricted-syntax": ["error", NO_HARD_DELETE, ...NO_RAW_DESIGN_VALUES] },
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        NO_HARD_DELETE,
+        NO_UNSAFE_SQL,
+        ...NO_RAW_DESIGN_VALUES,
+        ...NO_RAW_HTML,
+      ],
+    },
+  },
+  {
+    // The files exempt from the token rule above are still routes: no raw HTML there either.
+    files: ["src/app/design/**", "src/app/layout.tsx"],
+    rules: { "no-restricted-syntax": ["error", NO_HARD_DELETE, NO_UNSAFE_SQL, ...NO_RAW_HTML] },
+  },
+  {
+    // A test may run a script string to prove what the inline display-preferences script
+    // does (display-settings.test.ts). Tests are never shipped to a browser.
+    files: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    rules: { "no-new-func": "off" },
   },
   {
     // Command-line scripts may print to the terminal.

@@ -70,7 +70,9 @@ export function readAppliedDisplayPrefs(root: { dataset: DOMStringMap }): Displa
  * Runs in `<head>` before the first paint (see the Next.js guide "Preventing flash before
  * hydration"). Plain ES5 on purpose: it is a string, so it cannot import parseDisplayPrefs;
  * display-settings.test.ts runs it against the same inputs to keep the two in step.
+ *
+ * The script is one fixed literal: nothing is interpolated into it, so no value can ever
+ * change the code that runs. The storage key is therefore written out here a second time;
+ * the test fails if it stops matching DISPLAY_PREFS_KEY.
  */
-export const DISPLAY_PREFS_SCRIPT = `(function(){try{var r=localStorage.getItem(${JSON.stringify(
-  DISPLAY_PREFS_KEY,
-)});if(!r)return;var p=JSON.parse(r);if(!p||typeof p!=="object"||Array.isArray(p))return;var d=document.documentElement.dataset;if(p.size===2||p.size===3)d.size=String(p.size);if(p.contrast==="high")d.contrast="high"}catch(e){}})()`;
+export const DISPLAY_PREFS_SCRIPT = `(function(){try{var r=localStorage.getItem("brain9.display");if(!r)return;var p=JSON.parse(r);if(!p||typeof p!=="object"||Array.isArray(p))return;var d=document.documentElement.dataset;if(p.size===2||p.size===3)d.size=String(p.size);if(p.contrast==="high")d.contrast="high"}catch(e){}})()`;

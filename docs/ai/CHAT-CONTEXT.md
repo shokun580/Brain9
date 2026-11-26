@@ -500,6 +500,13 @@ Every screen is built from the design system and nothing else. Hard rules:
    `pnpm db:migrate --name <lane>_<what>`; never edit an existing migration.
 10. No new npm packages. If one seems necessary, say which and why, and stop.
 11. Do not invent requirements or columns. If something is unspecified, ask.
+12. Security (`docs/security.md`): check an id from the request against the signed-in
+    person before using it; a signed-out action runs validate → rate limit → database;
+    nothing personal in a URL, log, error or browser storage; no script, style, font,
+    image or request to another host and no `<iframe>` (the Content Security Policy blocks
+    them); no `dangerouslySetInnerHTML`, `eval` or `$queryRawUnsafe`; redirect only to a
+    fixed internal path. A new environment variable, cookie, upload or external service:
+    say which and why, and stop.
 
 ## Domain facts
 

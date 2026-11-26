@@ -1409,6 +1409,9 @@ factual; a destructive confirmation says what will happen.
 - Skeleton lines use `1lh` and need Chrome 109, Safari 16.4 or Firefox 120. Browsers
   without view transitions change page at once; nothing breaks.
 - `/design` returns 404 in production (it exists on `local` and `staging` only).
+- A screen cannot load a script, style, font or image from another host, or call one from
+  the browser: the Content Security Policy blocks it (`docs/security.md` §6). Fonts and
+  icons come from the project.
 - Inside a `<Suspense>` boundary the 404 screen still reveals an admin route to a visitor who
   may not open it: the HTTP status is 200, the static admin menu frame is in the first HTML,
   and the admin page's own `<title>` stays in the first HTML and in the browser tab. Closing

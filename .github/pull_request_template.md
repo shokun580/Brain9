@@ -36,6 +36,7 @@ Closes #
 - [ ] New logic has unit tests
 - [ ] User-facing text is Thai; UI is built only from @/shared/ui and tokens, following docs/design-system.md
 - [ ] No secrets, no real personal data, nothing sensitive in logs
+- [ ] The security checklist in docs/security.md §8 holds
 
 ## AI assistance
 

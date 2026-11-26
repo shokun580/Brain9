@@ -94,7 +94,10 @@ function runScript(stored: string | null | "throw"): DOMStringMap {
 
 describe("DISPLAY_PREFS_SCRIPT", () => {
   it("contains the storage key and is wrapped in try/catch", () => {
-    expect(DISPLAY_PREFS_SCRIPT).toContain(DISPLAY_PREFS_KEY);
+    // The key is written out in the script (nothing is interpolated into code): keep it equal.
+    expect(DISPLAY_PREFS_SCRIPT).toContain(
+      `localStorage.getItem(${JSON.stringify(DISPLAY_PREFS_KEY)})`,
+    );
     expect(DISPLAY_PREFS_SCRIPT).toContain("try");
     expect(DISPLAY_PREFS_SCRIPT).toContain("catch");
   });
