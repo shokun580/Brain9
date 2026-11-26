@@ -169,8 +169,9 @@ open `/design` (local or staging) to see every component live. Hard rules:
   their lanes, using only the cell states, tokens and fixed geometry listed in the
   document's "The 3x3 board" section. That geometry is the one place arbitrary sizes are
   allowed.
-- **Charts** (analytics) are inline SVG coloured only with `--chart-1` … `--chart-4`, as
-  the document's "Charts" section describes; a chart library needs an `infra` issue first.
+- **Charts** (admin screens) are drawn only with `LineChart` and `BarChart` from
+  `@/shared/ui`. Do not import `recharts` in a lane, do not draw a chart by hand, and do
+  not add another chart library: a chart these two cannot draw is an `infra` issue.
 
 **Tests** — pure logic (scoring, validation, metrics, slot rules) must have Vitest unit
 tests next to the code (`*.test.ts`). Keep logic in pure functions so it is testable

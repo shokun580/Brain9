@@ -65,3 +65,6 @@ export {
 
 // motion (Task 23)
 export { Reveal, type RevealProps } from "./Reveal";
+
+// charts (amendment 2)
+export { BarChart, LineChart, type ChartProps, type ChartSeries } from "./Chart";

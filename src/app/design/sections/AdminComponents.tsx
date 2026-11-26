@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Part } from "../chrome";
+import { AdminCharts } from "./AdminCharts";
 import { AdminEditorGrid } from "./AdminEditorGrid";
 import { AdminForms } from "./AdminForms";
 import { AdminLayoutParts } from "./AdminLayoutParts";
@@ -20,6 +21,7 @@ export function AdminComponentsSection() {
       </p>
       <AdminLayoutParts />
       <AdminTables />
+      <AdminCharts />
       <AdminForms />
       <AdminLoading />
       <AdminEditorGrid />
