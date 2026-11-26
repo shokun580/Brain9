@@ -14,7 +14,7 @@ import { cn } from "@/shared/lib/cn";
 import { ElderScope, SubHeading } from "../chrome";
 import { Example } from "../Example";
 
-type CellState = "empty" | "shown" | "lit" | "tapped" | "correct" | "wrong";
+export type CellState = "empty" | "shown" | "lit" | "tapped" | "correct" | "wrong";
 
 const cellStyle: Record<CellState, string> = {
   empty: "bg-surface shadow-cell",
@@ -26,7 +26,7 @@ const cellStyle: Record<CellState, string> = {
 };
 
 /** A static picture of one cell: 20px radius, white or filled, the glyph says it without colour. */
-function Cell({ state, children }: { state: CellState; children?: ReactNode }) {
+export function Cell({ state, children }: { state: CellState; children?: ReactNode }) {
   return (
     <span
       className={cn(

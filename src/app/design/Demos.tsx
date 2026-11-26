@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Button, ConfirmDialog, PinPad, Toast } from "@/shared/ui";
+import {
+  AdminSection,
+  Button,
+  ConfirmDialog,
+  PinPad,
+  SaveBar,
+  Select,
+  TextField,
+  Toast,
+} from "@/shared/ui";
 
 /** Opens a ConfirmDialog from a button. The dialog's functions live here because a Server
  *  Component cannot pass functions to a client component. */
@@ -22,7 +31,7 @@ export function ConfirmDialogDemo({
   const [answer, setAnswer] = useState("");
   return (
     <div className="flex flex-col items-start gap-3">
-      <Button variant={tone === "danger" ? "secondary" : "primary"} onClick={() => setOpen(true)}>
+      <Button variant={tone} onClick={() => setOpen(true)}>
         {triggerLabel}
       </Button>
       {answer ? (
@@ -84,5 +93,42 @@ export function PinPadDemo() {
       onDigit={() => setFilled((count) => Math.min(count + 1, 4))}
       onDelete={() => setFilled((count) => Math.max(count - 1, 0))}
     />
+  );
+}
+
+/** The edit recipe, live: `dirty` turns on with the first change and off after a save. Saving
+ *  here only resets the bar; the real form posts to a Server Action. */
+export function EditFormDemo() {
+  const [dirty, setDirty] = useState(false);
+  return (
+    <form
+      onChange={() => setDirty(true)}
+      onSubmit={(event) => {
+        event.preventDefault();
+        setDirty(false);
+      }}
+    >
+      <AdminSection title="ข้อมูลคอร์ส">
+        <div className="flex max-w-[35rem] flex-col gap-5">
+          <TextField label="ชื่อคอร์ส" name="r-title" defaultValue="คอร์สตัวอย่าง 01" />
+          <Select
+            label="ระดับความยาก"
+            name="r-level"
+            options={[
+              { value: "1", label: "ระดับ 1" },
+              { value: "2", label: "ระดับ 2" },
+            ]}
+          />
+        </div>
+      </AdminSection>
+      <div className="mt-6 [&>div]:static">
+        <SaveBar dirty={dirty}>
+          <Button variant="secondary" href="#recipes">
+            ยกเลิก
+          </Button>
+          <Button type="submit">บันทึก</Button>
+        </SaveBar>
+      </div>
+    </form>
   );
 }

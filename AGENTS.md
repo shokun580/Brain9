@@ -133,9 +133,12 @@ open `/design` (local or staging) to see every component live. Hard rules:
   shared component through `className` (it is for layout only: width, margin, placement).
 - **Missing something?** Stop and open an `infra` issue that describes the screen and what
   is missing. Do not hand-roll it and do not add a UI library.
-- **Tokens:** no raw colours and no arbitrary colour or font-size values (`#0B7A75`,
-  `bg-[#fff]`, `text-[19px]`). ESLint rejects them. Never fix a size in px: sizes follow
-  `data-size` and `data-contrast` on `<html>`.
+- **Tokens:** style only with the token utilities listed in the document. No raw colours
+  and no arbitrary colour or font-size values (`#0B7A75`, `bg-[#fff]`, `text-[19px]`):
+  ESLint rejects them. Tailwind's own palette, type sizes, radii, shadows and animations
+  (`bg-red-500`, `text-white`, `text-2xl`, `rounded-xl`, `shadow-lg`, `animate-bounce`) are
+  not part of the design either, and ESLint does not catch them: a passing lint is not
+  approval. Never fix a size in px: sizes follow `data-size` and `data-contrast` on `<html>`.
 - **Pages follow a recipe** in the document; do not invent a layout.
   - Elderly screens (`(auth)`, `(elder)`): no cards, one primary button per screen, one
     step at a time with `StepProgress`, every icon has a text label, text never below
@@ -152,7 +155,11 @@ open `/design` (local or staging) to see every component live. Hard rules:
 - **Irreversible actions** are confirmed with `ConfirmDialog`, stating what will happen.
 - **Logo:** `BrandMark` only; do not redraw or recolour it.
 - **Exception:** the 3x3 board (engine) and the Pattern Editor grid (content) are built by
-  their lanes, using the cell states and tokens in the document's "The 3x3 board" section.
+  their lanes, using only the cell states, tokens and fixed geometry listed in the
+  document's "The 3x3 board" section. That geometry is the one place arbitrary sizes are
+  allowed.
+- **Charts** (analytics) are inline SVG coloured only with `--chart-1` … `--chart-4`, as
+  the document's "Charts" section describes; a chart library needs an `infra` issue first.
 
 **Tests** — pure logic (scoring, validation, metrics, slot rules) must have Vitest unit
 tests next to the code (`*.test.ts`). Keep logic in pure functions so it is testable

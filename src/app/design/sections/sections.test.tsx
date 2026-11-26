@@ -55,6 +55,22 @@ describe("the catalogue", () => {
     }
   });
 
+  it("nests every demo heading under its own part or sub-heading", () => {
+    // A demo sits one level under the nearest part (h2) or sub-heading (h3) above it, so two
+    // demos of the same part are always siblings, never h3 next to h4.
+    const outline = [...wholePage().matchAll(/<h([2-6])[^>]*data-outline="(\w+)"[^>]*>([^<]*)/g)];
+    expect(outline.length).toBeGreaterThan(40);
+    let parent = 2;
+    for (const [, level, kind, text] of outline) {
+      if (kind === "part" || kind === "sub") {
+        parent = Number(level);
+        continue;
+      }
+      expect(kind).toBe("example");
+      expect(Number(level), `"${text}" is h${level} under an h${parent}`).toBe(parent + 1);
+    }
+  });
+
   it("points every in-page link at an element that exists", () => {
     const markup = wholePage();
     const ids = new Set([...markup.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));

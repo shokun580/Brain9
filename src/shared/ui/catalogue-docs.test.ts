@@ -36,3 +36,16 @@ describe("docs/design-system.md", () => {
     expect(doc).toContain(`\`${name}\``);
   });
 });
+
+// Chat assistants cannot open the repository: their list of components is the only one they see.
+describe("docs/ai/CHAT-CONTEXT.md", () => {
+  const components = exportedComponents(read("src/shared/ui/index.ts"));
+  const chat = read("docs/ai/CHAT-CONTEXT.md");
+
+  it.each(components)("lists %s", (name) => {
+    expect(
+      chat.includes(`\`${name}\``),
+      `add \`${name}\` to the "Shared UI" list in docs/ai/CHAT-CONTEXT.md`,
+    ).toBe(true);
+  });
+});

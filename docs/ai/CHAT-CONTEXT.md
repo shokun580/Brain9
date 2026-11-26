@@ -119,7 +119,11 @@ export async function createCourseAction(
 }
 ```
 
-Page (admin list page; the only approved shape for a list):
+Page (admin list page; the only approved shape for a list). Without paging or filters the
+page holds `TableCard` around the list, as here. With paging or filters the list component
+owns the `TableCard` (toolbar, table, footer with `Pagination`), because the page function
+may not read data; the page then renders `<Reveal fallback={…}><ThingPagedList
+searchParams={searchParams} /></Reveal>` with no `TableCard`:
 
 ```tsx
 import { CourseList, CourseListSkeleton } from "@/modules/content/ui";
@@ -178,6 +182,123 @@ export default function Page() {
 
 (A page that reads data puts that component inside `<Reveal fallback={…skeleton…}>`.)
 
+Admin edit page. A form that **creates** something has its submit button under the fields,
+on the left, and no `SaveBar`. A page that **edits existing data** ends with `SaveBar`
+inside the `<form>`; its save button is the form's single `type="submit"`. `dirty` is a
+boolean the form's client component owns: `false` until a field changes (set it in the
+form's `onChange`), back to `false` after a successful save. The page reads the record in an
+async component inside `<Reveal>` and passes it to this form:
+
+```tsx
+"use client";
+import { useActionState, useState } from "react";
+import { AdminSection, Button, Notice, SaveBar, TextField, Toast } from "@/shared/ui";
+import { updateThingAction, type UpdateThingState } from "../server/thing-actions"; // your own action
+
+export function ThingEditor({ thing }: { thing: { id: string; name: string } }) {
+  const [dirty, setDirty] = useState(false);
+  const [state, formAction, pending] = useActionState<UpdateThingState, FormData>(
+    async (previous, formData) => {
+      const result = await updateThingAction(previous, formData);
+      if (result?.ok) setDirty(false);
+      return result;
+    },
+    null,
+  );
+  const fieldErrors = state && !state.ok ? state.fieldErrors : undefined;
+  return (
+    <form action={formAction} onChange={() => setDirty(true)}>
+      <input type="hidden" name="id" value={thing.id} />
+      <AdminSection title="ข้อมูลทั่วไป">
+        <div className="flex max-w-[35rem] flex-col gap-5">
+          <TextField
+            label="ชื่อรายการ"
+            name="name"
+            defaultValue={thing.name}
+            errors={fieldErrors?.name}
+          />
+        </div>
+      </AdminSection>
+      <div className="mt-6 flex flex-col items-start gap-3">
+        {state && !state.ok && !state.fieldErrors ? (
+          <Notice tone="danger">{state.message}</Notice>
+        ) : null}
+        {state?.ok && !dirty ? <Toast message="บันทึกเรียบร้อยแล้ว" /> : null}
+      </div>
+      <SaveBar dirty={dirty}>
+        <Button variant="secondary" href="/admin/things">
+          ยกเลิก
+        </Button>
+        <Button type="submit" disabled={pending}>
+          บันทึก
+        </Button>
+      </SaveBar>
+    </form>
+  );
+}
+```
+
+Admin detail page: `PageHeader` with breadcrumbs and one primary action → `Tabs` when the
+record has several views (each tab is its own route) → `AdminSection`s with the record's
+fields → a last section with a danger `Button` that opens `ConfirmDialog` stating what will
+happen (in your own `"use client"` wrapper). The header names the record, so the async
+component that reads it renders the header too; the page is only
+`<Reveal fallback={<AdminPageSkeleton />}><ThingDetail params={params} /></Reveal>`:
+
+```tsx
+// inside ThingDetail (async): await requireAdmin(); const { id } = await params; read the record
+<>
+  <PageHeader
+    title={thing.name}
+    breadcrumbs={[{ label: "รายการตัวอย่าง", href: "/admin/things" }, { label: thing.name }]}
+    action={<Button href={`/admin/things/${thing.id}/edit`}>แก้ไข</Button>}
+  />
+  <div className="mt-4">
+    <Tabs
+      label="มุมมองของรายการ"
+      items={[
+        { href: `/admin/things/${thing.id}`, label: "ข้อมูล", active: true },
+        { href: `/admin/things/${thing.id}/history`, label: "ประวัติ" },
+      ]}
+    />
+  </div>
+  <AdminSection title="ข้อมูลทั่วไป">
+    <dl className="flex flex-col gap-4">
+      <div>
+        <dt className="text-small text-fg-muted">ชื่อ</dt>
+        <dd className="text-body text-fg">{thing.name}</dd>
+      </div>
+    </dl>
+  </AdminSection>
+  <AdminSection title="เก็บเข้าคลัง" description="รายการจะไม่แสดงในรายการหลัก ผู้ดูแลระบบขอคืนได้">
+    <ArchiveThingButton thingId={thing.id} thingName={thing.name} />{" "}
+    {/* danger Button → ConfirmDialog */}
+  </AdminSection>
+</>
+```
+
+Elderly play and result screens (engine). A training route: read data inside `Suspense`,
+never `Reveal`; nothing animates. The board is the engine lane's `PatternGrid` from
+`@/modules/engine/ui`.
+
+```tsx
+// play
+<ElderHeader title="ฝึกจำลำดับ" />
+<Section first>
+  <Suspense fallback={<SkeletonRegion label="กำลังเตรียมแบบฝึก"><SkeletonLine width="lg" text="title" /></SkeletonRegion>}>
+    <PatternGrid /> {/* two-finger cue: <Notice tone="attention"> above the board */}
+  </Suspense>
+</Section>
+
+// result (inside the engine lane's async component, in the same Suspense)
+<Section first>
+  <ResultBanner tone="success" headingLevel={2} title="ถูกต้อง เก่งมากเลย" detail="ถูก 4 จาก 5 ข้อ" />
+</Section>
+<Section><PatternGrid /></Section> {/* the board in its final states */}
+<Section><Meter label="คะแนนรอบนี้" value={4} max={5} segments valueText="ถูก 4 จาก 5 ข้อ" /></Section>
+<Section><Button href={result.nextHref} fullWidth>ทำข้อถัดไป</Button></Section>
+```
+
 Identity API available to every lane (`@/modules/identity`):
 `getCurrentUser(): Promise<CurrentUser | null>`, `requireUser()`, `requireAdmin()`,
 `recordAudit({ actorId, action, entityType, entityId?, targetUserId?, metadata? })`.
@@ -196,15 +317,15 @@ Forms
 - `NumberField` — `label`, `name`, `unit`, `hint`, `errors`, …
 - `Select` — `label`, `name`, `options: {value,label}[]`, `hint`, `errors`, …
 - `Checkbox` — `label`, `name`, `hint`, `errors`, …
-- `ChoiceList` — elder; `name`, `legend`, `options: {value,title,description?,badge?,disabled?}[]` (a disabled option explains itself in `description`), `defaultValue`, `hint`, `errors`, `required`, `onValueChange`
-- `SegmentedControl` — admin; `name`, `legend`, `defaultValue`, `options: {value,label,icon?}[]`, `onValueChange`
+- `ChoiceList` — elder, 2 to 6 options (more than 6 → an `infra` issue); `name`, `legend`, `options: {value,title,description?,badge?,disabled?}[]` (a disabled option explains itself in `description`), `defaultValue`, `hint`, `errors`, `required`, `onValueChange`
+- `SegmentedControl` — admin, 2–3 options; `name`, `legend`, `defaultValue`, `options: {value,label,icon?}[]`, `onValueChange`
 - `PinPad` — elder, client; `length` (4|6), `filled`, `onDigit`, `onDelete`, `disabled`
 - `DisplaySettings` — elder, client; `triggerLabel`; put it in `ElderHeader`'s `action`
 
 Feedback
 
 - `Notice` — `tone` (`primary|success|danger|attention`), `title?`, children
-- `Toast` — `message`, `tone` (`success|danger`); the caller decides when to show it
+- `Toast` — `message`, `tone` (`success|danger`); the caller decides when to show it; for a success, never the only place an error appears
 - `ConfirmDialog` — client; `open`, `title`, children (what will happen), `confirmLabel`, `cancelLabel?`, `tone` (`primary|danger`), `onConfirm`, `onCancel`
 - `ResultBanner` — elder; `tone` (`success|danger`), `title`, `detail?`, `headingLevel?`
 - `Badge` — elder; `tone` (`neutral|primary|success|danger|attention`), children
@@ -245,7 +366,7 @@ Loading
 - `SkeletonLine` — `width` (`sm|md|lg|full`), `text`; `SkeletonBlock` — `shape` (`icon|icon-tile|control|control-sm`)
 - `TableSkeleton` — `columns: {label,numeric?}[]`, `rows?`, `lines?`, and `label` (alone) or `bare` (inside a region)
 - `ListRowSkeleton`, `StatTileSkeleton` — `rows?` / `count?`, and `label` or `bare`
-- `AdminPageSkeleton` — no props (the admin layout uses it)
+- `AdminPageSkeleton` — no props (the admin layout, and a detail page's fallback)
 
 Brand
 
@@ -264,24 +385,64 @@ Every screen is built from the design system and nothing else. Hard rules:
   shared component through `className` (it is for layout only: width, margin, placement).
 - **Missing something?** Stop and tell the user to open an `infra` issue that describes the
   screen and what is missing. Do not hand-roll it and do not add a UI library.
-- **Tokens:** no raw colours and no arbitrary colour or font-size values (`#0B7A75`,
-  `bg-[#fff]`, `text-[19px]`). ESLint rejects them. Never fix a size in px.
+- **Tokens:** style only with the token utilities listed above. No raw colours and no
+  arbitrary colour or font-size values (`#0B7A75`, `bg-[#fff]`, `text-[19px]`): ESLint
+  rejects them. Tailwind's own palette, type sizes, radii, shadows and animations
+  (`bg-red-500`, `text-white`, `text-2xl`, `rounded-xl`, `shadow-lg`, `animate-bounce`) are
+  not part of the design either, and ESLint does not catch them: a passing lint is not
+  approval. Allowed families, nothing else: the colour, type (`font-bold` too), size, radius
+  and shadow token utilities above, `border-[length:var(--b9-border)]`, and Tailwind's layout
+  utilities (flex, grid, gap, padding, margin, width and max-width on its spacing scale,
+  `list-disc` in a dialog, `max-w-[35rem]` for a form, the `StatTile` grid class
+  `grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3`). Never fix a size in px: sizes
+  follow `data-size` and `data-contrast` on `<html>`.
 - **Pages follow a recipe**; do not invent a layout.
   - Elderly screens: no cards, one primary button per screen, one step at a time with
     `StepProgress`, every icon has a text label, text never below 17.5px, targets at least 48px.
-  - Admin screens: one column, `PageHeader` → `AdminSection`s → optional `SaveBar`. Tables in
-    `TableCard` + `Table`, figures in `StatTile`, status as `StatusDot` or `Tag`. Forms are
-    one column (at most `max-w-[35rem]`) and never wrapped in a card. One primary action per page.
+  - Admin screens: one column, `PageHeader` → `Tabs` (a record with several views) →
+    `AdminSection`s → `SaveBar` (an edit page only). Tables in `TableCard` + `Table`, figures
+    in `StatTile`, status as `StatusDot` or `Tag` (in every table and sample). Forms are one
+    column (at most `max-w-[35rem]`) and never wrapped in a card. A create form: submit under
+    the fields, no `SaveBar`; an edit page: `SaveBar` inside the `<form>` (see the edit
+    sample above). One primary action per page.
 - **Loading:** a component that reads data is wrapped in `Reveal` (or `Suspense`) with a
   skeleton from `@/shared/ui`, never a line of text.
 - **Motion:** only the shared page fade exists. Add no animation, transition or
   `ViewTransition` of your own; nothing inside a training exercise animates.
 - **Meaning:** correct and wrong always show ✓ / ✕ **and** words, never colour alone.
+- **Errors** are shown where they happened: `errors` on the field, or a `Notice tone="danger"`
+  next to the form. `Toast` is for a success or neutral confirmation only, never the only
+  place an error appears.
 - **Irreversible actions** are confirmed with `ConfirmDialog`, stating what will happen.
 - **Logo:** `BrandMark` only; do not redraw or recolour it.
 - **Exception:** the 3x3 board (engine) and the Pattern Editor grid (content) are built by
-  their lanes with the cell states: shown `bg-primary-tint`, lit and tapped `bg-primary`,
-  correct `bg-success` with ✓, wrong `bg-danger` with ✕.
+  their lanes, using only the cell states, tokens and fixed geometry below. That geometry
+  is the one place arbitrary sizes are allowed.
+  - Play board (elder): container `grid grid-cols-3`, square (`aspect-square`),
+    `bg-primary-soft`, `rounded-panel` (26px), 14px padding (`p-3.5`), 12px gap (`gap-3`),
+    no shadow, as large as the screen allows with every cell at least 20mm wide on a phone.
+    Cell: square, 20px radius (`rounded-[20px]`), `border-[length:var(--b9-border)]
+border-edge`, glyph `text-title font-bold`. At rest `bg-surface` + `shadow-cell`; shown
+    `bg-primary-tint`; lit `bg-primary` + `shadow-cell-lit`; tapped in order `bg-primary`
+    with the order number in `text-on-primary`; correct `bg-success` with the order number
+    or ✓ in `text-on-primary`; wrong `bg-danger` with ✕ in `text-on-danger` (the words are
+    in the `ResultBanner`). Only the rest and lit cells have a shadow. Two-finger cue: a
+    `Notice tone="attention"` above the board. It never moves or resizes while the user taps.
+  - Pattern Editor grid (admin): container `grid grid-cols-3`, 8px gap (`gap-2`), no
+    background, padding, radius or shadow. Cell: square, 1px `border` `border-line-strong`,
+    10px radius (`rounded-[10px]`), `bg-surface-subtle`, no shadow, its number 1–9 top-left in
+    `text-micro text-fg-muted`. Chosen: `bg-primary border-primary` with the order number in
+    `text-heading font-bold text-on-primary`. Two-finger step: `bg-attention-soft`, 2px
+    `border-attention` (`border-2`), `text-attention`, both cells share one number and the
+    word "สองนิ้ว".
+- **Charts** (analytics) have no component and no approved library: draw them as inline SVG
+  in your own component inside an `AdminSection` (a `StatTile` takes no children), coloured
+  only with `--chart-1` … `--chart-4` (`fill-[var(--chart-1)]`, `stroke-[var(--chart-1)]`;
+  a sequential scale is `--chart-1` at 100 / 78 / 55 / 35% opacity), axes `stroke-line`,
+  labels `fill-fg-muted` in the type tokens, every series labelled in words and a text
+  summary or a table of the same numbers beside every chart (never colour alone). A chart
+  library needs the lead's approval in an `infra` issue first. Pages wider than the 860px
+  column are not supported yet: say so and stop.
 
 ## Non-negotiable rules
 

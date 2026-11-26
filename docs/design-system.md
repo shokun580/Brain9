@@ -11,7 +11,8 @@ The code is the truth: if this file and the code disagree, tell the lead.
 
 The design is closed. A screen is built from the design system and nothing else.
 
-1. Build only with components from `@/shared/ui` and the tokens in `src/app/globals.css`.
+1. Build only with components from `@/shared/ui` and the utilities listed in section 3. A
+   passing lint is not approval: ESLint catches raw colours, not Tailwind's own classes.
 2. Follow a page recipe from section 5. Do not invent a layout.
 3. Never restyle a shared component. `className` on one is for layout only.
 4. If something is missing, **stop and open an `infra` issue**. Write: the screen you are
@@ -37,8 +38,28 @@ removes shadows. Never fix a size in px: use the type and size utilities below.
 
 ## 3. Tokens
 
-Defined in `src/app/globals.css`; use them as Tailwind utilities (`bg-…`, `text-…`,
-`border-…`). Anything else (raw hex, `bg-[#fff]`, `text-[19px]`) is rejected by ESLint.
+Defined in `src/app/globals.css`. Style only with these utility families, nothing else:
+
+- **Colour:** the token utilities in the colour table below (`bg-…`, `text-…`, `border-…`, and
+  `fill-…` / `stroke-…` inside an SVG), plus `border-[length:var(--b9-border)]` (and its `-t`
+  / `-b` forms) for a border that thickens in high contrast.
+- **Type:** `text-title` `text-heading` `text-lead` `text-body` `text-small` `text-micro`, and
+  `font-bold`.
+- **Size:** `h-control` `min-h-control` `h-control-sm` `min-h-control-sm` `size-icon`
+  `size-icon-sm`.
+- **Radius:** `rounded-control` `rounded-field` `rounded-panel` `rounded-dialog`.
+- **Shadow:** `shadow-cell` `shadow-cell-lit` `shadow-overlay`.
+- **Layout (Tailwind's own):** flex and grid (`flex`, `flex-col`, `items-…`, `justify-…`,
+  `grid`, `grid-cols-…`), `gap-…`, padding, margin, width and max-width, on Tailwind's spacing
+  scale; `list-disc` for a list in a dialog; and the two fixed values this document writes
+  out: `max-w-[35rem]` for an admin form and the `StatTile` grid class in section 5.
+
+ESLint rejects raw colours and arbitrary colour or font-size values (`#0B7A75`, `bg-[#fff]`,
+`text-[19px]`). It does not catch Tailwind's own palette, type sizes, radii, shadows and
+animations (`bg-red-500`, `text-white`, `text-2xl`, `rounded-xl`, `shadow-lg`,
+`animate-bounce`): they are not part of the design either, and a passing lint is not
+approval. The 3x3 board and the Pattern Editor grid (section 7) are the one place a fixed
+size in px is allowed.
 
 ### Colours
 
@@ -84,7 +105,7 @@ Pairing rules:
 
 `--chart-1` (teal, same as primary), `--chart-2` (blue), `--chart-3` (amber), `--chart-4`
 (purple). Read them as CSS variables (`var(--chart-1)`), never as hex. Never rely on
-colour alone: label every series.
+colour alone: label every series. How a chart is drawn: section 8.
 
 ## 4. Component catalogue
 
@@ -101,19 +122,21 @@ meant to be used; shared ones adapt to the scope they sit in.
 | `NumberField`      | numbers, optional unit               | both  | `label`, `name`, `unit`, `hint`, `errors`                                                                        |
 | `Select`           | choose one from a list               | both  | `label`, `name`, `options: {value,label}[]`                                                                      |
 | `Checkbox`         | a yes / no                           | both  | `label`, `name`, `hint`, `errors`                                                                                |
-| `ChoiceList`       | large single choice (3–6 options)    | elder | `name`, `legend`, `options` (`title`, `description`, `badge`, `disabled`), `defaultValue`, `onValueChange`       |
-| `SegmentedControl` | compact single choice (2–4 options)  | admin | `name`, `legend`, `defaultValue`, `options`, `onValueChange`                                                     |
+| `ChoiceList`       | large single choice (2 to 6 options) | elder | `name`, `legend`, `options` (`title`, `description`, `badge`, `disabled`), `defaultValue`, `onValueChange`       |
+| `SegmentedControl` | compact single choice (2–3 options)  | admin | `name`, `legend`, `defaultValue`, `options`, `onValueChange`                                                     |
 | `PinPad`           | PIN entry                            | elder | `length` (4 or 6), `filled`, `onDigit`, `onDelete`, `disabled`                                                   |
 | `DisplaySettings`  | text size and high-contrast dialog   | elder | `triggerLabel`; place it in `ElderHeader`'s `action`                                                             |
 
 Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.title}`.
+`ChoiceList` takes 2 to 6 options and `SegmentedControl` 2 or 3; a question with more than
+6 answers needs an `infra` issue.
 
 ### Feedback
 
 | Component       | Use it for                            | Scope | Key props                                                                                       |
 | --------------- | ------------------------------------- | ----- | ----------------------------------------------------------------------------------------------- |
 | `Notice`        | inline message in a page              | both  | `tone` (`primary` `success` `danger` `attention`), `title`                                      |
-| `Toast`         | short confirmation after an action    | both  | `message`, `tone` (`success` `danger`)                                                          |
+| `Toast`         | a success after an action             | both  | `message`, `tone` (`success` `danger`); never the only place an error appears                   |
 | `ConfirmDialog` | anything irreversible                 | both  | `open`, `title`, `children` (what will happen), `confirmLabel`, `tone`, `onConfirm`, `onCancel` |
 | `ResultBanner`  | outcome of an answer                  | elder | `tone` (`success` `danger`), `title`, `detail`, `headingLevel`                                  |
 | `Badge`         | status pill on the elderly side       | elder | `tone` (`neutral` `primary` `success` `danger` `attention`)                                     |
@@ -163,16 +186,16 @@ Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.ti
 
 ### Loading
 
-| Component           | Use it for                                    | Scope | Key props                                           |
-| ------------------- | --------------------------------------------- | ----- | --------------------------------------------------- |
-| `Reveal`            | Suspense whose skeleton fades into content    | both  | `fallback`, `children`                              |
-| `SkeletonRegion`    | one loading area (announced once)             | both  | `label`                                             |
-| `SkeletonLine`      | one line of text                              | both  | `width` (`sm` `md` `lg` `full`), `text`             |
-| `SkeletonBlock`     | an icon, tile or button shape                 | both  | `shape` (`icon` `icon-tile` `control` `control-sm`) |
-| `TableSkeleton`     | a loading table                               | admin | `columns`, `rows`, `lines`, `label` or `bare`       |
-| `ListRowSkeleton`   | loading `ListRow`s                            | elder | `rows`, `label` or `bare`                           |
-| `StatTileSkeleton`  | loading `StatTile`s                           | admin | `count`, `label` or `bare`                          |
-| `AdminPageSkeleton` | generic admin page (the admin layout uses it) | admin | none                                                |
+| Component           | Use it for                                 | Scope | Key props                                           |
+| ------------------- | ------------------------------------------ | ----- | --------------------------------------------------- |
+| `Reveal`            | Suspense whose skeleton fades into content | both  | `fallback`, `children`                              |
+| `SkeletonRegion`    | one loading area (announced once)          | both  | `label`                                             |
+| `SkeletonLine`      | one line of text                           | both  | `width` (`sm` `md` `lg` `full`), `text`             |
+| `SkeletonBlock`     | an icon, tile or button shape              | both  | `shape` (`icon` `icon-tile` `control` `control-sm`) |
+| `TableSkeleton`     | a loading table                            | admin | `columns`, `rows`, `lines`, `label` or `bare`       |
+| `ListRowSkeleton`   | loading `ListRow`s                         | elder | `rows`, `label` or `bare`                           |
+| `StatTileSkeleton`  | loading `StatTile`s                        | admin | `count`, `label` or `bare`                          |
+| `AdminPageSkeleton` | generic admin page (layout, detail page)   | admin | none                                                |
 
 ### Brand
 
@@ -187,8 +210,9 @@ client components (`"use client"`): `AdminShell`, `ConfirmDialog`, `DisplaySetti
 `PinPad`, `TabBar` and `TabBarView`. A Server Component may render a client component, but
 may not pass it a function (a Server Action is the one exception). `ChoiceList` and
 `SegmentedControl` also take a function prop (`onValueChange`), so use that prop only inside
-your own `"use client"` component; without it both work as plain native radios. Everything else in the catalogue works in either kind.
-Anything that needs state, an `onClick` or a Server Action call (a dialog's `open`, a toast)
+your own `"use client"` component; without it both work as plain native radios. Everything
+else in the catalogue works in either kind. Anything that needs state, an `onClick` or a
+Server Action call (a dialog's `open`, a toast)
 goes in a small `"use client"` component in your lane's `ui/` (recipes in section 6).
 
 ### Notes on the easy-to-misuse ones
@@ -223,19 +247,30 @@ read inside a component wrapped in `Reveal` / `Suspense`.
 ### Admin rules
 
 - One left-aligned column; the shell sets the width (`max-w-admin`). No side column.
-- Order: `PageHeader` → `AdminSection`s → optional `SaveBar`.
+- Order: `PageHeader` → `Tabs` (a record with several views) → `AdminSection`s → `SaveBar`
+  (an edit page only).
 - Cards only for a figure (`StatTile`) or a table (`TableCard`). Never around a form or a
   whole section. No shadows.
-- Forms are one column, at most `max-w-[35rem]`, submit button under the fields on the left.
-- One primary action per page, in `PageHeader`'s `action` or under a form.
+- Forms are one column, at most `max-w-[35rem]`.
+- A form that **creates** something has its submit button under the fields, on the left, and
+  no `SaveBar`. A page that **edits existing data** ends with `SaveBar` inside the `<form>`;
+  its save button is the form's single `type="submit"`. `dirty` is a boolean the form's
+  client component owns: `false` until a field changes (set it in the form's `onChange`),
+  back to `false` after a successful save.
+- One primary action per page: in `PageHeader`'s `action`, the submit button of a create
+  form, or the save button of a `SaveBar`.
 - Status is `StatusDot` (a row's state) or `Tag` (a property). Bold only where section 3 says.
 
 ### Admin list page
 
 The reference is `src/app/admin/content/courses/page.tsx` with
 `src/modules/content/ui/{CourseList,CourseListSkeleton,course-columns}`. Placeholders such
-as `<lane>`, `Thing` and `listThingsForAdmin` stand for your own module's names. `TableCard`
-sits in the **page**, around the list; the skeleton brings its own `TableCard`.
+as `<lane>`, `Thing` and `listThingsForAdmin` stand for your own module's names.
+
+Without paging or filters the page holds `TableCard` around the list (as
+`src/app/admin/content/courses/page.tsx` does). With paging or filters the list component
+owns the `TableCard` (toolbar, table, footer with `Pagination`), because the page function
+may not read data. Either way the skeleton brings its own `TableCard`.
 
 ```tsx
 // src/app/admin/<area>/<thing>/page.tsx — thin: no data access here
@@ -343,10 +378,10 @@ import { RowActions } from "@/shared/ui";
 </Td>;
 ```
 
-**With filters or paging**, the list component owns the whole card, because only it knows
-the total. Then the page has no `TableCard` and does not wrap the list in one; the skeleton
-still brings its own. `TableCard`'s `toolbar` prop takes filters (a `Select`, a `TextField`
-in a GET form, a `SegmentedControl` or `Tabs`); its `footer` prop takes `Pagination`.
+**With paging or filters**, the list component owns the `TableCard`: only it knows the
+total. The page has no `TableCard`. `TableCard`'s `toolbar` prop takes filters (a `Select`,
+a `TextField` in a GET form, a `SegmentedControl` or `Tabs`); its `footer` prop takes
+`Pagination`.
 
 ```tsx
 // page: pass the searchParams promise down; read it inside Reveal, never in the page
@@ -375,7 +410,18 @@ export default function AdminThingsPage({
 // src/modules/<lane>/ui/ThingPagedList.tsx — count first, then pageRange, query with its result
 import { requireAdmin } from "@/modules/identity";
 import { pageRange } from "@/shared/lib/pagination";
-import { EmptyState, Pagination, Table, TableCard, TBody, Td, Th, THead, Tr } from "@/shared/ui";
+import {
+  EmptyState,
+  Pagination,
+  StatusDot,
+  Table,
+  TableCard,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from "@/shared/ui";
 import { countThings, listThingsPage } from "../server/thing-queries"; // your own queries
 import { thingColumns } from "./thing-columns";
 
@@ -422,7 +468,9 @@ export async function ThingPagedList({
             <Tr key={thing.id}>
               <Td primary>{thing.name}</Td>
               <Td numeric>{thing.count}</Td>
-              <Td>เปิดใช้งาน</Td>
+              <Td>
+                <StatusDot tone="ok">เปิดใช้งาน</StatusDot>
+              </Td>
             </Tr>
           ))}
         </TBody>
@@ -434,8 +482,11 @@ export async function ThingPagedList({
 
 ### Admin form page
 
-One column, no card, the form in a client component of your module (copy
-`src/modules/content/ui/CreateCourseForm.tsx`).
+One column, no card, the form in a client component of your module. Two shapes, by what
+the form does (the rule is in "Admin rules" above).
+
+**A form that creates something:** the submit button under the fields, on the left, and no
+`SaveBar` (copy `src/modules/content/ui/CreateCourseForm.tsx`).
 
 ```tsx
 // page: thin
@@ -489,8 +540,225 @@ export function ThingForm() {
 }
 ```
 
-A long editor (several sections) puts `SaveBar` last: `dirty` from the form's state, the
-buttons as children (secondary "ยกเลิก", then the one primary "บันทึก").
+**A page that edits existing data:** the form wraps its `AdminSection`s and ends with
+`SaveBar`, inside the `<form>`. The bar's buttons are a secondary "ยกเลิก" link back and the
+one primary "บันทึก", the form's single `type="submit"`; there is no button under the
+fields. The page reads the record inside `Reveal`, so a small loader component hands it to
+the client form.
+
+```tsx
+// src/app/admin/<area>/<thing>/[id]/edit/page.tsx — thin: params go down, read inside Reveal
+import { EditThing } from "@/modules/<lane>/ui";
+import { PageHeader, Reveal, SkeletonBlock, SkeletonLine, SkeletonRegion } from "@/shared/ui";
+
+export default function EditThingPage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <>
+      <PageHeader
+        title="แก้ไขรายการ"
+        breadcrumbs={[{ label: "รายการตัวอย่าง", href: "/admin/things" }, { label: "แก้ไขรายการ" }]}
+      />
+      <Reveal
+        fallback={
+          <SkeletonRegion label="กำลังโหลดข้อมูล">
+            <div className="mt-6 flex max-w-[35rem] flex-col gap-3">
+              <SkeletonLine text="heading" width="md" />
+              <SkeletonBlock shape="control" />
+            </div>
+          </SkeletonRegion>
+        }
+      >
+        <EditThing params={params} />
+      </Reveal>
+    </>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/EditThing.tsx — async Server Component: authorize, read, hand over
+import { notFound } from "next/navigation";
+import { requireAdmin } from "@/modules/identity";
+import { getThingForAdmin } from "../server/thing-queries"; // your own query
+import { ThingEditor } from "./ThingEditor";
+
+export async function EditThing({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
+  const { id } = await params;
+  const thing = await getThingForAdmin(id);
+  if (!thing) notFound();
+  return <ThingEditor thing={{ id: thing.id, name: thing.name, level: String(thing.level) }} />;
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/ThingEditor.tsx — the form owns `dirty`
+"use client";
+
+import { useActionState, useState } from "react";
+import { AdminSection, Button, Notice, SaveBar, Select, TextField, Toast } from "@/shared/ui";
+import { updateThingAction, type UpdateThingState } from "../server/thing-actions"; // your own action
+
+export function ThingEditor({ thing }: { thing: { id: string; name: string; level: string } }) {
+  const [dirty, setDirty] = useState(false);
+  const [state, formAction, pending] = useActionState<UpdateThingState, FormData>(
+    async (previous, formData) => {
+      const result = await updateThingAction(previous, formData);
+      if (result?.ok) setDirty(false); // saved: nothing is unsaved any more
+      return result;
+    },
+    null,
+  );
+  const fieldErrors = state && !state.ok ? state.fieldErrors : undefined;
+
+  return (
+    <form action={formAction} onChange={() => setDirty(true)}>
+      {/* the action authorizes and validates the id like any other input */}
+      <input type="hidden" name="id" value={thing.id} />
+      <AdminSection title="ข้อมูลทั่วไป">
+        <div className="flex max-w-[35rem] flex-col gap-5">
+          <TextField
+            label="ชื่อรายการ"
+            name="name"
+            defaultValue={thing.name}
+            required
+            maxLength={200}
+            errors={fieldErrors?.name}
+          />
+        </div>
+      </AdminSection>
+      <AdminSection title="การตั้งค่า">
+        <div className="flex max-w-[35rem] flex-col gap-5">
+          <Select
+            label="ระดับ"
+            name="level"
+            defaultValue={thing.level}
+            options={[
+              { value: "1", label: "ระดับ 1" },
+              { value: "2", label: "ระดับ 2" },
+            ]}
+            errors={fieldErrors?.level}
+          />
+        </div>
+      </AdminSection>
+      <div className="mt-6 flex flex-col items-start gap-3">
+        {state && !state.ok && !state.fieldErrors ? (
+          <Notice tone="danger">{state.message}</Notice>
+        ) : null}
+        {state?.ok && !dirty ? <Toast message="บันทึกเรียบร้อยแล้ว" /> : null}
+      </div>
+      <SaveBar dirty={dirty}>
+        <Button variant="secondary" href="/admin/things">
+          ยกเลิก
+        </Button>
+        <Button type="submit" disabled={pending}>
+          {pending ? "กำลังบันทึก…" : "บันทึก"}
+        </Button>
+      </SaveBar>
+    </form>
+  );
+}
+```
+
+### Admin detail page
+
+One record: `PageHeader` with breadcrumbs and one primary action, then `Tabs` when the
+record has several views (each tab is its own route, so a view survives a reload; leave
+`Tabs` out when there is one view), then `AdminSection`s with the record's fields, then a
+last section for the destructive action: a danger `Button` that opens `ConfirmDialog`,
+exactly the "Confirm an irreversible action" recipe in section 6. The header names the
+record, so the component that reads it renders the header too; the page holds only
+`Reveal`. Fields are a `<dl>` with exactly the classes below.
+
+```tsx
+// src/app/admin/<area>/<thing>/[id]/page.tsx — thin: params go down, read inside Reveal
+import { ThingDetail } from "@/modules/<lane>/ui";
+import { AdminPageSkeleton, Reveal } from "@/shared/ui";
+
+export default function AdminThingPage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <Reveal fallback={<AdminPageSkeleton />}>
+      <ThingDetail params={params} />
+    </Reveal>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/ThingHeader.tsx — the same header on every tab of the record
+import { Button, PageHeader, Tabs } from "@/shared/ui";
+
+export function ThingHeader({
+  thing,
+  tab,
+}: {
+  thing: { id: string; name: string };
+  tab: "info" | "history";
+}) {
+  const base = `/admin/things/${thing.id}`;
+  return (
+    <>
+      <PageHeader
+        title={thing.name}
+        breadcrumbs={[{ label: "รายการตัวอย่าง", href: "/admin/things" }, { label: thing.name }]}
+        action={<Button href={`${base}/edit`}>แก้ไข</Button>}
+      />
+      <div className="mt-4">
+        <Tabs
+          label="มุมมองของรายการ"
+          items={[
+            { href: base, label: "ข้อมูล", active: tab === "info" },
+            { href: `${base}/history`, label: "ประวัติ", active: tab === "history" },
+          ]}
+        />
+      </div>
+    </>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/ThingDetail.tsx — async Server Component: authorize, then read
+import { notFound } from "next/navigation";
+import { requireAdmin } from "@/modules/identity";
+import { AdminSection, StatusDot } from "@/shared/ui";
+import { getThingForAdmin } from "../server/thing-queries"; // your own query (audits a read of a person's data)
+import { ArchiveThingButton } from "./ArchiveThingButton"; // section 6, "Confirm an irreversible action"
+import { ThingHeader } from "./ThingHeader";
+
+export async function ThingDetail({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
+  const { id } = await params;
+  const thing = await getThingForAdmin(id);
+  if (!thing) notFound();
+
+  return (
+    <>
+      <ThingHeader thing={thing} tab="info" />
+      <AdminSection title="ข้อมูลทั่วไป">
+        <dl className="flex flex-col gap-4">
+          <div>
+            <dt className="text-small text-fg-muted">ชื่อ</dt>
+            <dd className="text-body text-fg">{thing.name}</dd>
+          </div>
+          <div>
+            <dt className="text-small text-fg-muted">สถานะ</dt>
+            <dd>
+              <StatusDot tone="ok">เปิดใช้งาน</StatusDot>
+            </dd>
+          </div>
+        </dl>
+      </AdminSection>
+      <AdminSection title="เก็บเข้าคลัง" description="รายการจะไม่แสดงในรายการหลัก ผู้ดูแลระบบขอคืนได้">
+        <ArchiveThingButton thingId={thing.id} thingName={thing.name} />
+      </AdminSection>
+    </>
+  );
+}
+```
+
+The history tab is `[id]/history/page.tsx` with its own component that renders
+`<ThingHeader thing={thing} tab="history" />` and its own sections.
 
 ### Admin overview with figures
 
@@ -540,9 +808,18 @@ export async function OverviewStats() {
 
 Match the skeleton's `count` to the number of tiles.
 
+### Admin page while loading
+
+Not a page of its own: what every recipe above shows while its data component reads. The
+`PageHeader` and the section headings appear at once; the `Reveal` fallback draws the shape
+of what is coming (`ThingListSkeleton` in its own `TableCard`, `StatTileSkeleton`,
+`AdminPageSkeleton`), built from the same column list as the real component, so nothing
+jumps when the data arrives. Never a line of text such as "กำลังโหลด…".
+
 ### Elderly step screen
 
-One question, one primary `Button`, "ขั้นที่ X จาก Y". No cards, no second primary.
+`ElderHeader`, then a `<form>` of three `Section`s: `StepProgress` ("ขั้นที่ X จาก Y"), one
+question, and one primary `Button type="submit" fullWidth`. No cards, no second primary.
 
 ```tsx
 // page: thin
@@ -649,6 +926,86 @@ export async function MyExerciseRows() {
 }
 ```
 
+### Elderly play and result screens
+
+The engine lane's main screens (spec §6.1 and §8). A training route: data is read inside
+`Suspense`, never `Reveal`, and nothing on the screen animates.
+
+- **Play:** `ElderHeader`, then the board in a `Section first`. The board is the engine
+  lane's `PatternGrid` from `@/modules/engine/ui`, built from section 7; its two-finger cue
+  is a `Notice tone="attention"` above it. No other button competes with the board.
+- **Result:** `ElderHeader`, then `ResultBanner` (✓ or ✕ and words, `headingLevel={2}`), the
+  board in its final states, `Meter` if a score is shown, and one primary `Button`.
+
+```tsx
+// src/app/(elder)/play/page.tsx — thin; a training route: Suspense, never Reveal
+import { Suspense } from "react";
+import { PatternGrid } from "@/modules/engine/ui"; // the engine lane's board (section 7)
+import { ElderHeader, Section, SkeletonLine, SkeletonRegion } from "@/shared/ui";
+
+export default function PlayPage() {
+  return (
+    <>
+      <ElderHeader title="ฝึกจำลำดับ" />
+      <Section first>
+        <Suspense
+          fallback={
+            <SkeletonRegion label="กำลังเตรียมแบบฝึก">
+              <SkeletonLine width="lg" text="title" />
+            </SkeletonRegion>
+          }
+        >
+          <PatternGrid />
+        </Suspense>
+      </Section>
+    </>
+  );
+}
+```
+
+```tsx
+// src/modules/engine/ui/ExerciseResult.tsx — async Server Component, rendered in Suspense
+import { Button, Meter, ResultBanner, Section } from "@/shared/ui";
+import { getLatestResult } from "../server/result-queries"; // the engine lane's own query (authorizes inside)
+import { PatternGrid } from "./PatternGrid"; // the engine lane's board, here in its final states
+
+export async function ExerciseResult() {
+  const result = await getLatestResult();
+  return (
+    <>
+      <Section first>
+        <ResultBanner
+          tone={result.passed ? "success" : "danger"}
+          headingLevel={2}
+          title={result.passed ? "ถูกต้อง เก่งมากเลย" : "ไม่เป็นไรนะ ลองอีกครั้ง"}
+          detail={`ถูก ${result.correct} จาก ${result.total} ข้อ`}
+        />
+      </Section>
+      <Section>
+        <PatternGrid />
+      </Section>
+      <Section>
+        <Meter
+          label="คะแนนรอบนี้"
+          value={result.correct}
+          max={result.total}
+          segments
+          valueText={`ถูก ${result.correct} จาก ${result.total} ข้อ`}
+        />
+      </Section>
+      <Section>
+        <Button href={result.nextHref} fullWidth>
+          {result.passed ? "ทำข้อถัดไป" : "ลองอีกครั้ง"}
+        </Button>
+      </Section>
+    </>
+  );
+}
+```
+
+The result page is the play page's shape with `ElderHeader title="ผลการฝึก"` and
+`<ExerciseResult />` in the same `Suspense`.
+
 ## 6. How to…
 
 **Add an admin menu entry.** One line in `src/app/admin/nav.tsx` under your own section
@@ -668,15 +1025,17 @@ from a recipe. The page fades on navigation only if its section has its own `tem
 description that says what to do next ("ยังไม่มีคอร์ส", "เริ่มสร้างคอร์สแรกได้เลย"). An
 `action` is a `Button`. No illustration.
 
-**Show an error.** A failed form: `Notice tone="danger"` above the submit button, plus
-`errors` on the fields. A failed read: `Notice tone="danger"` with a calm next step
-("ลองโหลดหน้านี้อีกครั้งนะ"). After an action: `Toast`. Never show a stack trace, a code
-or a secret.
+**Show an error.** An error is shown where it happened: `errors` on the field it belongs to
+(the `Field` error text), or a `Notice tone="danger"` next to the form or the button that
+failed. A failed read: `Notice tone="danger"` with a calm next step
+("ลองโหลดหน้านี้อีกครั้งนะ"). `Toast` is for a success or neutral confirmation only, never
+the only place an error appears. Never show a stack trace, a code or a secret.
 
 **Confirm an irreversible action.** `ConfirmDialog` is a client component that takes
 function props, so a small `"use client"` wrapper in your lane's `ui/` holds `open` and
 calls your Server Action; a Server Component renders the wrapper with plain props. The
-dialog's children say what will happen, and `confirmLabel` names the action.
+button that opens it is `variant="danger"`, the dialog's children say what will happen,
+and `confirmLabel` names the action. A failure shows as a `Notice` next to the button.
 
 ```tsx
 // src/modules/<lane>/ui/ArchiveThingButton.tsx
@@ -701,7 +1060,7 @@ export function ArchiveThingButton({ thingId, thingName }: { thingId: string; th
 
   return (
     <>
-      <Button variant="secondary" disabled={pending} onClick={() => setOpen(true)}>
+      <Button variant="danger" disabled={pending} onClick={() => setOpen(true)}>
         เก็บเข้าคลัง
       </Button>
       {error ? <Notice tone="danger">{error}</Notice> : null}
@@ -725,70 +1084,70 @@ export function ArchiveThingButton({ thingId, thingName }: { thingId: string; th
 
 **Show a toast after an action.** `Toast` only draws the message (`message`, and `tone`
 `success` or `danger`); your client component decides when it appears, for example from the
-state of `useActionState`. Keep the toast in the same client component as the form. A
-`Toast` never hides itself: it stays until your component stops rendering it (the next
-submit replaces the state), so only show it while the state says so.
-
-```tsx
-// src/modules/<lane>/ui/RenameThingForm.tsx
-"use client";
-
-import { useActionState } from "react";
-import { Button, TextField, Toast } from "@/shared/ui";
-import { renameThingAction, type RenameThingState } from "../server/thing-actions"; // your own action
-
-export function RenameThingForm({ currentName }: { currentName: string }) {
-  const [state, formAction, pending] = useActionState<RenameThingState, FormData>(
-    renameThingAction,
-    null,
-  );
-  const fieldErrors = state && !state.ok ? state.fieldErrors : undefined;
-
-  return (
-    <form action={formAction} className="flex max-w-[35rem] flex-col gap-5">
-      <TextField
-        label="ชื่อรายการ"
-        name="name"
-        defaultValue={currentName}
-        errors={fieldErrors?.name}
-      />
-      <div>
-        <Button type="submit" disabled={pending}>
-          บันทึก
-        </Button>
-      </div>
-      {state?.ok ? <Toast message="บันทึกเรียบร้อยแล้ว" /> : null}
-      {state && !state.ok && !state.fieldErrors ? (
-        <Toast tone="danger" message={state.message} />
-      ) : null}
-    </form>
-  );
-}
-```
+state of `useActionState`. Keep the toast in the same client component as the form, in flow
+next to the action. A `Toast` never hides itself: it stays until your component stops
+rendering it, so only show it while the state says so. `ThingEditor` in the admin form page
+recipe (section 5) is the sample: a `Toast` for the success, a `Notice tone="danger"` for a
+failure.
 
 ## 7. The 3x3 board
 
 The board (engine lane, `<PatternGrid />`) and the Pattern Editor grid (content lane) are
-the only hand-built controls in the product. They use these states and tokens.
+the only hand-built controls in the product. They use only the states, tokens and fixed
+geometry below. This geometry is the one place arbitrary sizes are allowed, and only in
+these two controls.
 
-| Board  | State           | Look                                                                                              |
-| ------ | --------------- | ------------------------------------------------------------------------------------------------- |
-| Play   | board           | `bg-primary-soft`, `rounded-panel`, square, 14px padding, 12px gap, as large as the screen allows |
-| Play   | cell at rest    | `bg-surface`, 20px radius, `shadow-cell`                                                          |
-| Play   | shown           | `bg-primary-tint`                                                                                 |
-| Play   | lit             | `bg-primary`, `shadow-cell-lit`                                                                   |
-| Play   | tapped in order | `bg-primary` with the order number in `text-on-primary`                                           |
-| Play   | correct         | `bg-success` with the order number or ✓                                                           |
-| Play   | wrong           | `bg-danger` with ✕ (and the words in the banner)                                                  |
-| Play   | two-finger cue  | a `Notice tone="attention"` above the board                                                       |
-| Editor | grid            | 8px gap; cell `border-line-strong`, 10px radius, `bg-surface-subtle`, small number 1–9 top-left   |
-| Editor | chosen          | `bg-primary` with the order number                                                                |
-| Editor | two-finger step | `bg-attention-soft`, 2px `border-attention`, both cells share one number                          |
+**Play board** (elder scope):
 
-The play board never moves or resizes while the user taps. Every state is also visible in
-high contrast and never rests on colour alone. `/design` shows both as pictures.
+| Part            | Look                                                                                                                 |
+| --------------- | -------------------------------------------------------------------------------------------------------------------- |
+| container       | `grid grid-cols-3`, square (`aspect-square`), `bg-primary-soft`, `rounded-panel` (26px), no shadow                   |
+| padding, gap    | 14px padding (`p-3.5`), 12px gap (`gap-3`)                                                                           |
+| size            | as large as the screen allows; every cell at least 20mm wide on a phone                                              |
+| cell            | square, 20px radius (`rounded-[20px]`), `border-[length:var(--b9-border)] border-edge`, glyph `text-title font-bold` |
+| cell at rest    | `bg-surface`, `shadow-cell`                                                                                          |
+| shown           | `bg-primary-tint`, no shadow                                                                                         |
+| lit             | `bg-primary`, `shadow-cell-lit`                                                                                      |
+| tapped in order | `bg-primary`, the order number in `text-on-primary`, no shadow                                                       |
+| correct         | `bg-success`, the order number or ✓ in `text-on-primary`, no shadow                                                  |
+| wrong           | `bg-danger`, ✕ in `text-on-danger`, no shadow (the words are in the `ResultBanner`)                                  |
+| two-finger cue  | a `Notice tone="attention"` above the board                                                                          |
 
-## 8. Motion
+**Pattern Editor grid** (admin scope):
+
+| Part            | Look                                                                                                                         |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| container       | `grid grid-cols-3`, 8px gap (`gap-2`), no background, no padding, no radius, no shadow                                       |
+| cell            | square, 1px `border` `border-line-strong`, 10px radius (`rounded-[10px]`), `bg-surface-subtle`, no shadow                    |
+| cell number     | 1–9 in the top-left corner, `text-micro text-fg-muted`                                                                       |
+| chosen          | `bg-primary border-primary`, the order number in `text-heading font-bold text-on-primary`                                    |
+| two-finger step | `bg-attention-soft`, 2px `border-attention` (`border-2`), `text-attention`, both cells share one number and the word "สองนิ้ว" |
+
+In high contrast the shadows turn off and `border-edge` turns white, so every state stays
+visible; none rests on colour alone. The play board never moves or resizes while the user
+taps, and nothing in it animates. `/design` shows both as pictures.
+
+## 8. Charts (analytics)
+
+There is no chart component and no chart library is approved. The analytics lane draws a
+chart itself, following this list:
+
+- Inline SVG in the lane's own component, inside an `AdminSection` (no card around it).
+  `StatTile` takes no children, so a chart never goes inside one: a tile that needs a small
+  chart is an `infra` issue.
+- Colours only from `--chart-1` … `--chart-4`, as `fill-[var(--chart-1)]` /
+  `stroke-[var(--chart-1)]`, series in that order. A sequential scale is `--chart-1` at
+  100 / 78 / 55 / 35% opacity (`fillOpacity={1}`, `0.78`, `0.55`, `0.35`).
+- Axes and grid lines `stroke-line`; labels `fill-fg-muted` in the type tokens
+  (`text-small`, `text-micro`).
+- Every series is labelled in words, and every chart has a text summary or a table of the
+  same numbers beside it, so colour is never the only way to read it.
+- No animation.
+- A chart library is a dependency: it needs the lead's approval in an `infra` issue first
+  (`AGENTS.md` §2.9).
+- A chart wider than the 860px column is not supported yet (section 12).
+
+## 9. Motion
 
 Only two things move, both defined by infra: the shared page fade (a typed navigation from
 the admin menu or the elder tab bar) and the skeleton-to-content reveal. A lane adds no
@@ -796,7 +1155,7 @@ animation, no transition, no `ViewTransition` and no typed link of its own. Noth
 a training exercise animates, so timing is never affected. Reduced motion switches the fade
 off and stills the skeleton.
 
-## 9. Voice
+## 10. Voice
 
 Thai, polite, short, encouraging, never blaming. Buttons are verbs. Numbers are digits.
 No English on the elderly side except unavoidable proper nouns. Admin text is plain and
@@ -809,7 +1168,7 @@ factual; a destructive confirmation says what will happen.
 | "OK"                                 | "เสร็จแล้ว" / the verb of the action |
 | buttons: "เริ่มฝึก", "จองคิว", "ระงับบัญชี" | (verbs, as written)                |
 
-## 10. Do / Don't
+## 11. Do / Don't
 
 | Do                                              | Don't                                                |
 | ----------------------------------------------- | ---------------------------------------------------- |
@@ -820,12 +1179,14 @@ factual; a destructive confirmation says what will happen.
 | a skeleton in `Reveal` while data loads         | the text "กำลังโหลด…"                                 |
 | `Button` with a `variant`                       | a hand-made button with raw colours                  |
 
-## 11. Known limits
+## 12. Known limits
 
 - `line-strong` (#C3CDD3) is 1.62:1 on white. This is a decision by the lead; high-contrast
   mode (2px white borders) is the mitigation. Do not raise it.
 - Set `APP_ENV` on every deployment: the admin footer shows it, and it defaults to `local`.
 - Not built yet: row selection and rows-per-page in tables. Ask infra when a lane needs one.
+- Pages wider than the 860px column (charts, the Pattern Editor) are not supported by
+  `AdminShell` yet: open an `infra` issue when the first one is needed.
 - Skeleton lines use `1lh` and need Chrome 109, Safari 16.4 or Firefox 120. Browsers
   without view transitions change page at once; nothing breaks.
 - `/design` returns 404 in production (it exists on `local` and `staging` only).

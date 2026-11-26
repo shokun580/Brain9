@@ -6,7 +6,7 @@ export function Part({ id, intro, children }: { id: PartId; intro?: string; chil
   return (
     <section id={id} aria-labelledby={`${id}-title`} className="mt-16 scroll-mt-6 first:mt-0">
       <header className="border-b-[length:var(--b9-border)] border-line-strong pb-2">
-        <h2 id={`${id}-title`} data-outline className="text-title font-bold text-fg">
+        <h2 id={`${id}-title`} data-outline="part" className="text-title font-bold text-fg">
           {partTitle(id)}
         </h2>
         {intro ? <p className="mt-1 text-body text-fg-muted">{intro}</p> : null}
@@ -18,7 +18,7 @@ export function Part({ id, intro, children }: { id: PartId; intro?: string; chil
 
 export function SubHeading({ children }: { children: ReactNode }) {
   return (
-    <h3 data-outline className="mt-10 text-heading font-bold text-fg">
+    <h3 data-outline="sub" className="mt-10 text-heading font-bold text-fg">
       {children}
     </h3>
   );

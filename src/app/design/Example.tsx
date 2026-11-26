@@ -15,7 +15,7 @@ export function Example({ title, importLine, note, headingLevel = 4, children }:
   const Heading = `h${headingLevel}` as const;
   return (
     <div className="mt-8">
-      <Heading data-outline className="text-lead font-bold text-fg">
+      <Heading data-outline="example" className="text-lead font-bold text-fg">
         {title}
       </Heading>
       {note ? (

@@ -26,14 +26,14 @@ export function ElderActions() {
       <Example
         title="Button: รูปแบบ"
         importLine='import { Button } from "@/shared/ui";'
-        note="หนึ่งหน้าจอมีปุ่มหลัก (primary) ได้หนึ่งปุ่มเท่านั้น ปุ่มอื่นใช้ secondary หรือ quiet ปุ่มยกเลิกสิ่งที่ย้อนไม่ได้ใช้ danger"
+        note="หนึ่งหน้าจอมีปุ่มหลัก (primary) ได้หนึ่งปุ่มเท่านั้น ปุ่มอื่นใช้ secondary หรือ quiet ปุ่มของการกระทำที่ย้อนกลับไม่ได้ใช้ danger เช่น ยกเลิกการจอง ส่วนการออกจากระบบไม่ได้ทำลายอะไร จึงไม่ใช้ danger"
       >
         <ElderScope>
           <div className="flex flex-wrap gap-3">
             <Button variant="primary">เริ่มฝึก</Button>
             <Button variant="secondary">ดูผลลัพธ์</Button>
             <Button variant="quiet">ไว้ทีหลัง</Button>
-            <Button variant="danger">ออกจากระบบ</Button>
+            <Button variant="danger">ยกเลิกการจอง</Button>
           </div>
         </ElderScope>
       </Example>

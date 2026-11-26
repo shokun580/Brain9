@@ -1,14 +1,6 @@
 import { Play } from "lucide-react";
 import type { ReactNode } from "react";
-import {
-  AdminSection,
-  Badge,
-  Button,
-  Section,
-  TableCard,
-  TableSkeleton,
-  TextField,
-} from "@/shared/ui";
+import { AdminSection, Badge, Button, TableCard, TableSkeleton, TextField } from "@/shared/ui";
 import { AdminScope, ElderScope, Part } from "../chrome";
 import { courseColumns } from "../fake-courses";
 import { Example } from "../Example";
@@ -31,6 +23,14 @@ function Pair({ children }: { children: ReactNode }) {
 }
 
 const icon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon shrink-0" } as const;
+
+// DON'T: a hand-made button with a raw colour and Tailwind's own sizes. It exists only as the
+// bad half of a Do / Don't pair; never copy it. Every button is `Button` from @/shared/ui.
+const handMadeButton = (
+  <button type="button" className="rounded-full bg-[#2f80ed] px-3 py-1 text-sm text-white">
+    บันทึก
+  </button>
+);
 
 export function DoDontSection() {
   return (
@@ -100,7 +100,11 @@ export function DoDontSection() {
         </Pair>
       </Example>
 
-      <Example title="ไอคอนต้องมีคำกำกับ" importLine='import { Button } from "@/shared/ui";'>
+      <Example
+        headingLevel={3}
+        title="ไอคอนต้องมีคำกำกับ"
+        importLine='import { Button } from "@/shared/ui";'
+      >
         <Pair>
           <ElderScope>
             <Side good reason="ไอคอนอยู่คู่กับคำว่า “เริ่มฝึก”">
@@ -122,7 +126,11 @@ export function DoDontSection() {
         </Pair>
       </Example>
 
-      <Example title="หนึ่งหน้าจอ หนึ่งปุ่มหลัก" importLine='import { Button } from "@/shared/ui";'>
+      <Example
+        headingLevel={3}
+        title="หนึ่งหน้าจอ หนึ่งปุ่มหลัก"
+        importLine='import { Button } from "@/shared/ui";'
+      >
         <Pair>
           <ElderScope>
             <Side good reason="ปุ่มหลักหนึ่งปุ่ม ปุ่มรองเป็น quiet">
@@ -173,25 +181,21 @@ export function DoDontSection() {
       <Example
         headingLevel={3}
         title="ใช้ Button ไม่ต้องทำปุ่มเอง"
-        importLine='import { Button, Section } from "@/shared/ui";'
+        importLine='import { Button } from "@/shared/ui";'
       >
         <Pair>
           <ElderScope>
             <Side good reason="Button มาพร้อมขนาด 64 พิกเซล สี โฟกัส และโหมดสีตัดกันสูง">
-              <Section first>
+              <div>
                 <Button>บันทึก</Button>
-              </Section>
+              </div>
             </Side>
           </ElderScope>
           <ElderScope>
             <Side good={false} reason="ปุ่มเขียนเองที่ใช้สีดิบ เล็ก และไม่เปลี่ยนตามโหมดสีตัดกันสูง">
-              <div>
-                <button
-                  type="button"
-                  className="rounded-full bg-[#2f80ed] px-3 py-1 text-sm text-white"
-                >
-                  บันทึก
-                </button>
+              <div className="flex flex-col items-start gap-2">
+                <p className="text-small font-bold text-danger">✕ อย่าทำ</p>
+                {handMadeButton}
               </div>
             </Side>
           </ElderScope>
