@@ -93,15 +93,15 @@ Pairing rules:
 
 ### Type, sizes, radii, shadows
 
-| Group   | Utilities                                                                     | Notes                                                                              |
-| ------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Type    | `text-title` `text-heading` `text-lead` `text-body` `text-small` `text-micro` | elder 35 / 27 / 22 / 20 / 17.5 / 17.5px, admin 22 / 17 / 15.5 / 14.5 / 13 / 12.5px |
-| Weight  | regular and `font-bold` only                                                  | admin: bold only for the page title, section headings, a stat figure, buttons      |
-| Control | `h-control` `min-h-control` `h-control-sm` `min-h-control-sm`                 | height of buttons and fields in the active scope                                   |
-| Icon    | `size-icon` `size-icon-sm`                                                    | lucide icons: `strokeWidth={1.9}`, `aria-hidden` next to a label                   |
-| Radius  | `rounded-control` `rounded-field` `rounded-panel` `rounded-dialog`            | elder 18 / 14 / 26 / 26px, admin 8 / 8 / 10 / 12px                                 |
-| Shadow  | `shadow-cell` `shadow-cell-lit` `shadow-overlay`                              | cells of the board and overlays only; admin pages have no shadows                  |
-| Width   | `max-w-admin`                                                                 | set by `AdminShell`; do not repeat it                                              |
+| Group   | Utilities                                                                     | Notes                                                                                                            |
+| ------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Type    | `text-title` `text-heading` `text-lead` `text-body` `text-small` `text-micro` | elder 35 / 27 / 22 / 20 / 17.5 / 17.5px, admin 22 / 17 / 15.5 / 14.5 / 13 / 12.5px                               |
+| Weight  | regular and `font-bold` only                                                  | admin: bold only for the page title, section headings, a stat figure, buttons                                    |
+| Control | `h-control` `min-h-control` `h-control-sm` `min-h-control-sm`                 | height of buttons and fields in the active scope                                                                 |
+| Icon    | `size-icon` `size-icon-sm`                                                    | lucide icons, `aria-hidden` next to a label. Never set `strokeWidth`: the scope sets it (2.4 elderly, 1.9 admin) |
+| Radius  | `rounded-control` `rounded-field` `rounded-panel` `rounded-dialog`            | elder 18 / 14 / 26 / 26px, admin 8 / 8 / 10 / 12px                                                               |
+| Shadow  | `shadow-cell` `shadow-cell-lit` `shadow-overlay`                              | cells of the board and overlays only; admin pages have no shadows                                                |
+| Width   | `max-w-admin`                                                                 | set by `AdminShell`; do not repeat it                                                                            |
 
 ### Chart colours
 
@@ -831,7 +831,7 @@ export async function OverviewStats() {
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-3">
       <StatTile
-        icon={<Users aria-hidden="true" strokeWidth={1.9} className="size-icon" />}
+        icon={<Users aria-hidden="true" className="size-icon" />}
         label="ผู้ใช้ที่ฝึกวันนี้"
         value={String(active)}
         unit="คน"
@@ -1818,9 +1818,7 @@ export async function MyExerciseRows() {
         <ListRow
           key={exercise.id}
           href={`/courses/${exercise.id}`}
-          icon={
-            <Play aria-hidden="true" strokeWidth={1.9} className="size-icon text-primary-press" />
-          }
+          icon={<Play aria-hidden="true" className="size-icon text-primary-press" />}
           title={exercise.title}
           subtitle="ประมาณ 5 นาที"
         />
@@ -1986,7 +1984,7 @@ export function SignOutButton() {
   return (
     <>
       <Button variant="secondary" fullWidth disabled={pending} onClick={() => setOpen(true)}>
-        <LogOut aria-hidden="true" strokeWidth={1.9} className="size-icon shrink-0" />
+        <LogOut aria-hidden="true" className="size-icon shrink-0" />
         ออกจากระบบ
       </Button>
       <ConfirmDialog

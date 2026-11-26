@@ -23,11 +23,7 @@ export function ListRow({ href, title, subtitle, icon, badge }: ListRowProps) {
         {subtitle ? <span className="text-small text-fg-muted">{subtitle}</span> : null}
         {badge ? <span className="mt-1.5">{badge}</span> : null}
       </span>
-      <ChevronRight
-        aria-hidden="true"
-        strokeWidth={1.9}
-        className="size-icon shrink-0 text-fg-muted"
-      />
+      <ChevronRight aria-hidden="true" className="size-icon shrink-0 text-fg-muted" />
     </Link>
   );
 }

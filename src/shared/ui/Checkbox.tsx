@@ -52,7 +52,8 @@ export function Checkbox({
           )}
         >
           <Check
-            strokeWidth={3}
+            // Heavier than the scope's icon stroke on purpose; an inline style beats that rule.
+            style={{ strokeWidth: 3 }}
             className="size-[1em] opacity-0 group-has-[:checked]:opacity-100"
           />
         </span>

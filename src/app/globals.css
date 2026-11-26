@@ -85,6 +85,9 @@
   /* Icon sizes ignore --b9-scale: the text-size setting scales text only. */
   --b9-icon: 24px;
   --b9-icon-sm: 22px;
+  /* Stroke of a lucide icon. Thicker on the larger elderly icons, so an icon looks equally
+     heavy for its size in both scopes (2.4 / 24px, 1.9 / 18px). */
+  --b9-icon-stroke: 2.4;
 }
 
 /* font-size stays off :root so the root font size remains 16px. */
@@ -109,6 +112,7 @@
   --b9-radius-dialog: 12px;
   --b9-icon: 18px;
   --b9-icon-sm: 16px;
+  --b9-icon-stroke: 1.9;
   --b9-scale: 1;
   font-size: var(--b9-text-body);
   line-height: 1.5;
@@ -228,9 +232,14 @@ body {
   color: var(--b9-fg);
 }
 
-:focus-visible {
-  outline: 3px solid var(--b9-focus, var(--b9-primary));
-  outline-offset: 2px;
+/* The default focus ring. In the base layer so that a utility can replace it: a field that
+   draws the ring on its outer box (NumberField) switches the inner one off with
+   `focus-visible:outline-none`. An unlayered rule would beat every utility. */
+@layer base {
+  :focus-visible {
+    outline: 3px solid var(--b9-focus, var(--b9-primary));
+    outline-offset: 2px;
+  }
 }
 
 /* <noscript>-only styling: noscript:block, noscript:hidden … (scripting disabled). */
@@ -245,6 +254,13 @@ body {
   to {
     background-position: -100% 0;
   }
+}
+
+/* Lucide icons take their stroke width from the scope, so no screen sets `strokeWidth` by
+   hand and every icon in a scope has the same weight. An inline style still wins (the tick
+   of Checkbox is heavier on purpose). */
+svg.lucide {
+  stroke-width: var(--b9-icon-stroke);
 }
 
 @utility animate-skeleton {

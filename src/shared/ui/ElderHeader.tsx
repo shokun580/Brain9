@@ -24,7 +24,7 @@ export function ElderHeader({ title, greeting, name, backHref, onBack, action }:
   const heading = title ?? name ?? greeting;
   const back = (
     <>
-      <ChevronLeft aria-hidden="true" strokeWidth={1.9} className="size-icon-sm shrink-0" />
+      <ChevronLeft aria-hidden="true" className="size-icon-sm shrink-0" />
       ย้อนกลับ
     </>
   );

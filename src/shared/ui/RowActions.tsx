@@ -56,7 +56,7 @@ export function RowActions({ primary, more, moreLabel = "เพิ่มเต�
             style={{ anchorName: anchor }}
             className="inline-flex size-control-sm items-center justify-center rounded-control text-fg-2 hover:bg-surface-muted"
           >
-            <Ellipsis aria-hidden="true" strokeWidth={1.9} className="size-icon" />
+            <Ellipsis aria-hidden="true" className="size-icon" />
           </button>
           <div
             id={menuId}

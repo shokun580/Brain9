@@ -16,10 +16,9 @@ import { Example } from "../Example";
 
 const rowIcon = {
   "aria-hidden": true,
-  strokeWidth: 1.9,
   className: "size-icon text-primary-press",
 } as const;
-const tabIcon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon" } as const;
+const tabIcon = { "aria-hidden": true, className: "size-icon" } as const;
 
 const tabs: TabBarItem[] = [
   { href: "/home", label: "หน้าหลัก", icon: <House {...tabIcon} /> },
