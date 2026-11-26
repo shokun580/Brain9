@@ -63,6 +63,7 @@ constraints: a browser component must never pull in `server-only` code through a
 | -------------------------------------------------------------------- | ------------------------------------------------ | ----------- |
 | `/`                                                                  | Temporary landing page                           | infra       |
 | `/login`, `/register` — `(auth)`                                     | Login, sign-up with consent, center-device setup | identity    |
+| `/admin/login` — `(staff)`                                           | Staff sign-in (the layout is infra's)            | identity    |
 | `/courses`, `/play/…` — `(elder)`                                    | Choose and play exercises                        | engine      |
 | `/results` — `(elder)`                                               | Own results and recommendation                   | analytics   |
 | `/booking` — `(elder)`                                               | Book / cancel a seat                             | booking     |
@@ -75,7 +76,9 @@ constraints: a browser component must never pull in `server-only` code through a
 | `/api/health`                                                        | Deploy health check                              | infra       |
 | `/api/<module>/…`                                                    | Route handlers of that module                    | that module |
 
-Route groups `(auth)` and `(elder)` do not appear in the URL; they only share a layout.
+Route groups `(auth)`, `(elder)` and `(staff)` do not appear in the URL; they only share a
+layout. `(staff)` holds `/admin/login` outside `src/app/admin/`, so the admin shell and its
+gate do not wrap the one admin screen a signed-out visitor must reach.
 
 ## Rendering model (Next.js 16, Cache Components on)
 

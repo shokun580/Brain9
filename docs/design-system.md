@@ -27,10 +27,10 @@ The design is closed. A screen is built from the design system and nothing else.
 A layout sets `data-ui` on its root. The scope decides sizes; components never check it.
 A lane never sets `data-ui` itself.
 
-| Scope   | Set by                           | Body text | Control height  | Minimum target | Min. text | `data-size` / `data-contrast` |
-| ------- | -------------------------------- | --------- | --------------- | -------------- | --------- | ----------------------------- |
-| `elder` | `(auth)` and `(elder)` layouts   | 20px      | 64px (sm: 48px) | 48px           | 17.5px    | apply (set on `<html>`)       |
-| `admin` | `AdminShell` (`data-ui="admin"`) | 14.5px    | 36px (sm: 30px) | 30px           | 12.5px    | ignored                       |
+| Scope   | Set by                         | Body text | Control height  | Minimum target | Min. text | `data-size` / `data-contrast` |
+| ------- | ------------------------------ | --------- | --------------- | -------------- | --------- | ----------------------------- |
+| `elder` | `(auth)` and `(elder)` layouts | 20px      | 64px (sm: 48px) | 48px           | 17.5px    | apply (set on `<html>`)       |
+| `admin` | `AdminShell`, `StaffAuthShell` | 14.5px    | 36px (sm: 30px) | 30px           | 12.5px    | ignored                       |
 
 Elder text scales by `data-size` 1 / 2 / 3 (x1.0, x1.2, x1.4); icons do not scale. High
 contrast (`data-contrast="high"`) turns the page black, borders white and 2px thick, and
@@ -117,19 +117,20 @@ meant to be used; shared ones adapt to the scope they sit in.
 
 ### Forms
 
-| Component          | Use it for                           | Scope | Key props                                                                                                        |
-| ------------------ | ------------------------------------ | ----- | ---------------------------------------------------------------------------------------------------------------- |
-| `Button`           | every button and button-looking link | both  | `variant` (`primary` `secondary` `quiet` `danger`), `size`, `fullWidth`, `iconOnly` (needs `aria-label`), `href` |
-| `TextField`        | one-line text                        | both  | `label`, `name`, `hint`, `errors`, any `<input>` prop                                                            |
-| `Textarea`         | multi-line text                      | both  | same as `TextField`                                                                                              |
-| `NumberField`      | numbers, optional unit               | both  | `label`, `name`, `unit`, `hint`, `errors`                                                                        |
-| `Select`           | choose one from a list               | both  | `label`, `name`, `options: {value,label}[]`                                                                      |
-| `Checkbox`         | a yes / no                           | both  | `label`, `name`, `hint`, `errors`                                                                                |
-| `ChoiceList`       | large single choice (2 to 6 options) | elder | `name`, `legend`, `options` (`title`, `description`, `badge`, `disabled`), `defaultValue`, `onValueChange`       |
-| `SegmentedControl` | compact single choice (2–3 options)  | admin | `name`, `legend`, `defaultValue`, `options`, `onValueChange`                                                     |
-| `PinPad`           | PIN entry                            | elder | `length` (4 or 6), `filled`, `onDigit`, `onDelete`, `disabled`                                                   |
-| `PhonePad`         | phone number entry, no keyboard      | elder | `label`, `value`, `onChange`, `name` (adds a hidden field), `hint`, `error`, `disabled`                          |
-| `DisplaySettings`  | text size and high-contrast dialog   | elder | `triggerLabel`; place it in `ElderHeader`'s `action`                                                             |
+| Component          | Use it for                                         | Scope | Key props                                                                                                        |
+| ------------------ | -------------------------------------------------- | ----- | ---------------------------------------------------------------------------------------------------------------- |
+| `Button`           | every button and button-looking link               | both  | `variant` (`primary` `secondary` `quiet` `danger`), `size`, `fullWidth`, `iconOnly` (needs `aria-label`), `href` |
+| `TextLink`         | a quiet way to another screen, in underlined words | both  | `href`, or `onClick` (then it is a button), children                                                             |
+| `TextField`        | one-line text                                      | both  | `label`, `name`, `hint`, `errors`, any `<input>` prop                                                            |
+| `Textarea`         | multi-line text                                    | both  | same as `TextField`                                                                                              |
+| `NumberField`      | numbers, optional unit                             | both  | `label`, `name`, `unit`, `hint`, `errors`                                                                        |
+| `Select`           | choose one from a list                             | both  | `label`, `name`, `options: {value,label}[]`                                                                      |
+| `Checkbox`         | a yes / no (the box is drawn by the design system) | both  | `label`, `name`, `hint`, `errors`, any `<input>` prop                                                            |
+| `ChoiceList`       | large single choice (2 to 6 options)               | elder | `name`, `legend`, `options` (`title`, `description`, `badge`, `disabled`), `defaultValue`, `onValueChange`       |
+| `SegmentedControl` | compact single choice (2–3 options)                | admin | `name`, `legend`, `defaultValue`, `options`, `onValueChange`                                                     |
+| `PinPad`           | PIN entry                                          | elder | `label`, `hint`, `length` (4 or 6), `filled`, `onDigit`, `onDelete`, `disabled`                                  |
+| `PhonePad`         | phone number entry, no keyboard                    | elder | `label`, `value`, `onChange`, `name` (adds a hidden field), `hint`, `error`, `disabled`                          |
+| `DisplaySettings`  | text size and high-contrast dialog                 | elder | `triggerLabel`; place it in `ElderHeader`'s `action`                                                             |
 
 Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.title}`.
 `ChoiceList` takes 2 to 6 options and `SegmentedControl` 2 or 3; a question with more than
@@ -150,28 +151,29 @@ Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.ti
 
 ### Elderly layout
 
-| Component      | Use it for                                            | Scope | Key props                                            |
-| -------------- | ----------------------------------------------------- | ----- | ---------------------------------------------------- |
-| `ElderHeader`  | top of every elderly screen (its `h1`)                | elder | `title` or `greeting` + `name`, `backHref`, `action` |
-| `StepProgress` | "ขั้นที่ X จาก Y"                                         | elder | `current`, `total`                                   |
-| `Section`      | a block of a screen: space and a thin line            | elder | `eyebrow`, `title`, `action`, `first`                |
-| `ListRow`      | a whole row that is a link                            | elder | `href`, `title`, `subtitle`, `icon`, `badge`         |
-| `TabBar`       | bottom navigation (the `(elder)` layout only)         | elder | `items`, `hideOn`                                    |
-| `TabBarView`   | the same bar without router hooks (Suspense fallback) | elder | `items`, `pathname`, `hideOn`                        |
+| Component      | Use it for                                            | Scope | Key props                                                        |
+| -------------- | ----------------------------------------------------- | ----- | ---------------------------------------------------------------- |
+| `ElderHeader`  | top of every elderly screen (its `h1`)                | elder | `title` or `greeting` + `name`, `backHref` or `onBack`, `action` |
+| `StepProgress` | "ขั้นที่ X จาก Y"                                         | elder | `current`, `total`                                               |
+| `Section`      | a block of a screen: space and a thin line            | elder | `eyebrow`, `title`, `action`, `first`                            |
+| `ListRow`      | a whole row that is a link                            | elder | `href`, `title`, `subtitle`, `icon`, `badge`                     |
+| `TabBar`       | bottom navigation (the `(elder)` layout only)         | elder | `items`, `hideOn`                                                |
+| `TabBarView`   | the same bar without router hooks (Suspense fallback) | elder | `items`, `pathname`, `hideOn`                                    |
 
 ### Admin layout
 
-| Component                      | Use it for                                    | Scope | Key props                                                                |
-| ------------------------------ | --------------------------------------------- | ----- | ------------------------------------------------------------------------ |
-| `AdminShell`                   | the frame of `/admin` (the admin layout only) | admin | `brand`, `roleLabel`, `nav`, `user`, `environmentLabel`                  |
-| `PageHeader`                   | top of every admin page (its `h1`)            | admin | `title`, `description`, `breadcrumbs`, `action` (the one primary action) |
-| `AdminSection`                 | a flat block: heading, line, content          | admin | `title`, `count`, `description`, `action`                                |
-| `SaveBar`                      | sticky bar at the foot of an editor           | admin | `dirty`, `children` (the buttons)                                        |
-| `StatTile`                     | one figure                                    | admin | `icon`, `label`, `value`, `unit`, `delta: {text,tone}`                   |
-| `Tabs`                         | link tabs inside a page                       | admin | `items: {href,label,count,active}[]`, `label`                            |
-| `Tag`                          | a property of a row (a setting, a mode)       | admin | `tone` (`neutral` `attention` `primary`), `icon`                         |
-| `StatusDot`                    | the status of a row: dot plus word            | admin | `tone` (`ok` `draft` `off` `danger`)                                     |
-| `findActiveNav`, `sectionHref` | helpers of the menu (infra only)              | admin | not for pages                                                            |
+| Component                      | Use it for                                                        | Scope | Key props                                                                |
+| ------------------------------ | ----------------------------------------------------------------- | ----- | ------------------------------------------------------------------------ |
+| `AdminShell`                   | the frame of `/admin` (the admin layout only)                     | admin | `brand`, `roleLabel`, `nav`, `user`, `signOutAction`, `environmentLabel` |
+| `StaffAuthShell`               | the frame of the staff sign-in screen (the `(staff)` layout only) | admin | `brand`, `roleLabel`, `environmentLabel`                                 |
+| `PageHeader`                   | top of every admin page (its `h1`)                                | admin | `title`, `description`, `breadcrumbs`, `action` (the one primary action) |
+| `AdminSection`                 | a flat block: heading, line, content                              | admin | `title`, `count`, `description`, `action`                                |
+| `SaveBar`                      | sticky bar at the foot of an editor                               | admin | `dirty`, `children` (the buttons)                                        |
+| `StatTile`                     | one figure                                                        | admin | `icon`, `label`, `value`, `unit`, `delta: {text,tone}`                   |
+| `Tabs`                         | link tabs inside a page                                           | admin | `items: {href,label,count,active}[]`, `label`                            |
+| `Tag`                          | a property of a row (a setting, a mode)                           | admin | `tone` (`neutral` `attention` `primary`), `icon`                         |
+| `StatusDot`                    | the status of a row: dot plus word                                | admin | `tone` (`ok` `draft` `off` `danger`)                                     |
+| `findActiveNav`, `sectionHref` | helpers of the menu (infra only)                                  | admin | not for pages                                                            |
 
 `findActiveNav` and `sectionHref` are lower-case functions; the types `AdminNavSection`,
 `AdminNavGroup`, `AdminNavItem` describe `src/app/admin/nav.tsx`.
@@ -221,7 +223,9 @@ client components (`"use client"`): `AdminShell`, `ConfirmDialog`, `DisplaySetti
 `PhonePad`, `PinPad`, `TabBar` and `TabBarView`. A Server Component may render a client component, but
 may not pass it a function (a Server Action is the one exception). `ChoiceList` and
 `SegmentedControl` also take a function prop (`onValueChange`), so use that prop only inside
-your own `"use client"` component; without it both work as plain native radios. Everything
+your own `"use client"` component; without it both work as plain native radios. The same
+holds for `onBack` on `ElderHeader` and `onClick` on `TextLink`: with `backHref` / `href` they
+work in a Server Component, with a function only inside your own client component. Everything
 else in the catalogue works in either kind. Anything that needs state, an `onClick` or a
 Server Action call (a dialog's `open`, a toast) goes in a small `"use client"` component in
 your lane's `ui/` (recipes in section 6).
@@ -243,6 +247,18 @@ your lane's `ui/` (recipes in section 6).
   focus and is the one exception. Other numbers on elderly screens (a count, an age) still
   use `NumberField`; admin forms use `TextField`. `PhonePad` shows the digits (a phone
   number is not secret) and does not validate (the server does, with Zod).
+- **`PinPad`** shows no digits, so when a screen asks for a PIN that is not simply "the
+  PIN" (a new one, the same one again), say which with `label`. `PinPad` still validates
+  nothing and keeps nothing.
+- **`TextLink`** is for an entry that must stay quieter than the screen's buttons (`ลืมรหัส`,
+  the way from sign-in to sign-up, "read the full text"). It is always words. It is not a
+  small button: an action of the screen is a `Button`, and a row of a list is a `ListRow`.
+- **`Checkbox`** draws its own box and ✓ but is still a native checkbox underneath: pass
+  `checked` / `defaultChecked`, `onChange`, `disabled` as usual. Never tick a consent box in
+  advance.
+- **`ElderHeader`** takes `backHref` when "ย้อนกลับ" leads to another address, and `onBack`
+  when the previous step is kept in the state of a client component (the steps of sign-in
+  and sign-up). Never both.
 - **`ConfirmDialog`** for anything irreversible. `children` states what will happen, as a
   short list. Cancel is first and focused; the confirm button names the action.
 - **`RowActions`**: one text link plus a "more" menu of links. It needs a `rowLabel`
@@ -278,6 +294,8 @@ read inside a component wrapped in `Reveal` / `Suspense`.
 - One primary action per page: in `PageHeader`'s `action`, the submit button of a create
   form, or the save button of a `SaveBar`.
 - Status is `StatusDot` (a row's state) or `Tag` (a property). Bold only where section 3 says.
+- One admin screen sits outside the shell: staff sign-in (`/admin/login`, recipe "Staff
+  sign-in"). Staff sign out from the shell's top bar, not from a page.
 
 ### Admin list page
 
@@ -834,6 +852,94 @@ of what is coming (`ThingListSkeleton` in its own `TableCard`, `StatTileSkeleton
 `AdminPageSkeleton`), built from the same column list as the real component, so nothing
 jumps when the data arrives. Never a line of text such as "กำลังโหลด…".
 
+### Staff sign-in
+
+`/admin/login`, the one door for staff. It renders in the **admin scope**: the frame is
+`StaffAuthShell`, mounted by the infra layout `src/app/(staff)/layout.tsx` (the brand, one
+narrow column on a plain page, the footer of the admin area), so the page holds only
+`PageHeader` and the form. No card. Staff type a **username** and a **password** with the
+keyboard: two `TextField`s. The password can be shown: a `Checkbox` ("แสดงรหัสผ่าน") switches
+the field's `type` between `password` and `text`. One primary `Button type="submit" fullWidth`.
+A failed sign-in shows a `Notice tone="danger"` above the button with the action's message.
+Under the form a `TextLink` leads to `/login`, the screen for everyone else.
+
+`/login` does not link here: staff open the address themselves. There is no sign-up on this
+screen either: a staff account is created only from the menu inside the admin area.
+
+The page file is `src/app/(staff)/admin/login/page.tsx`. It sits in the `(staff)` route group
+and not under `src/app/admin/`, because everything in that folder is wrapped by the admin
+shell, whose gate answers "not found" to a visitor who is not signed in as an admin.
+
+```tsx
+// src/app/(staff)/admin/login/page.tsx — thin; the (staff) layout draws the frame
+import { StaffSignInForm } from "@/modules/<lane>/ui";
+
+export const metadata = { title: "เข้าสู่ระบบสำหรับผู้ดูแล" };
+
+export default function StaffSignInPage() {
+  return <StaffSignInForm />;
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/StaffSignInForm.tsx
+"use client";
+
+import { useActionState, useState } from "react";
+import { Button, Checkbox, Notice, PageHeader, TextField, TextLink } from "@/shared/ui";
+import { signInWithPasswordAction, type StaffSignInState } from "../server/sign-in-actions"; // your own action
+
+export function StaffSignInForm() {
+  const [show, setShow] = useState(false);
+  const [state, formAction, pending] = useActionState<StaffSignInState, FormData>(
+    signInWithPasswordAction,
+    null,
+  );
+  const fieldErrors = state && !state.ok ? state.fieldErrors : undefined;
+
+  return (
+    <>
+      <PageHeader title="เข้าสู่ระบบ" description="สำหรับเจ้าหน้าที่ศูนย์และผู้ดูแลระบบ" />
+      <form action={formAction} className="mt-6 flex flex-col gap-5">
+        <TextField
+          label="ชื่อผู้ใช้"
+          name="username"
+          autoComplete="username"
+          autoCapitalize="none"
+          spellCheck={false}
+          required
+          errors={fieldErrors?.username}
+        />
+        <TextField
+          label="รหัสผ่าน"
+          name="password"
+          type={show ? "text" : "password"}
+          autoComplete="current-password"
+          required
+          errors={fieldErrors?.password}
+        />
+        {/* Only switches the field above; the action reads `username` and `password`. */}
+        <Checkbox
+          label="แสดงรหัสผ่าน"
+          name="showPassword"
+          checked={show}
+          onChange={(event) => setShow(event.target.checked)}
+        />
+        {state && !state.ok && !state.fieldErrors ? (
+          <Notice tone="danger">{state.message}</Notice>
+        ) : null}
+        <Button type="submit" fullWidth disabled={pending}>
+          {pending ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}
+        </Button>
+      </form>
+      <div className="mt-4 flex justify-center">
+        <TextLink href="/login">ไปหน้าเข้าสู่ระบบของผู้ใช้ทั่วไป</TextLink>
+      </div>
+    </>
+  );
+}
+```
+
 ### Elderly step screen
 
 `ElderHeader`, then a `<form>` of three `Section`s: `StepProgress` ("ขั้นที่ X จาก Y"), one
@@ -895,27 +1001,69 @@ export function ExampleStep() {
 
 ### Elderly sign-in steps
 
-Sign-in is two steps, each its own screen and its own small `"use client"` component that
-owns its state. Step 1: `ElderHeader`, `StepProgress`, `PhonePad` and one primary `Button`
-(`ถัดไป`). Step 2: `ElderHeader`, `StepProgress`, `PinPad`; it submits when the last digit
-arrives, so it has no button, and a wrong PIN shows a `Notice` in the voice of section 10. Both
-screens hold no field the user can focus or type into (the rule in section 4, "Notes on the
-easy-to-misuse ones"), so the phone's keyboard never opens. No cards, no second primary. The sample imports only from `@/shared/ui`; `onNext` and
+Three screens. **`/login` is the entry screen:** the person first chooses between signing in
+and signing up. `BrandMark`, `ElderHeader`, then a primary `Button` (`เข้าสู่ระบบ`, to
+`/login/pin`) and a secondary one (`สมัครสมาชิก`, to `/signup`), each under one line that says
+who it is for. Still one primary button, and nothing else: staff have their own door
+(`/admin/login`, recipe "Staff sign-in"), which is not linked from here.
+
+**Sign-in itself is two steps at `/login/pin`**, each its own screen and its own small
+`"use client"` component that owns its state. Step 1: `ElderHeader` (back to `/login`),
+`StepProgress`, `PhonePad`, one primary `Button` (`ถัดไป`), and in a last `Section` a
+`TextLink` to `/signup` for a person who has no account yet. Step 2: `ElderHeader` (`onBack`,
+because the step is kept in state, not in the address), `StepProgress`, and `PinPad` with a
+`label`; it submits when the last digit arrives, so it has no button, and a wrong PIN shows a
+`Notice` in the voice of section 10. Under the pad a `TextLink` **`ลืมรหัส`** leads to
+`/login/forgot` (recipe "Forgotten PIN screens").
+
+The two screens with a pad hold no field the user can focus or type into (the rule in
+section 4, "Notes on the easy-to-misuse ones"), so the phone's keyboard never opens. No
+cards, no second primary. The samples import only from `@/shared/ui`; `onNext`, `onBack` and
 `checkPin` come from the identity lane (a PIN never leaves the browser except in that call).
+
+```tsx
+// src/modules/<lane>/ui/SignInEntry.tsx — the first screen of /login: choose, then go
+import { BrandMark, Button, ElderHeader, Section } from "@/shared/ui";
+
+export function SignInEntry() {
+  return (
+    <>
+      <BrandMark className="mb-4 size-14" />
+      <ElderHeader title="ยินดีต้อนรับสู่ Brain9" />
+      <Section first>
+        <div className="flex flex-col gap-3">
+          <p className="text-body text-fg-2">มีบัญชีอยู่แล้ว</p>
+          <Button fullWidth href="/login/pin">
+            เข้าสู่ระบบ
+          </Button>
+        </div>
+      </Section>
+      <Section>
+        <div className="flex flex-col gap-3">
+          <p className="text-body text-fg-2">ยังไม่มีบัญชี</p>
+          <Button variant="secondary" fullWidth href="/signup">
+            สมัครสมาชิก
+          </Button>
+        </div>
+      </Section>
+    </>
+  );
+}
+```
 
 ```tsx
 // src/modules/<lane>/ui/PhoneStep.tsx
 "use client";
 
 import { useState } from "react";
-import { Button, ElderHeader, PhonePad, Section, StepProgress } from "@/shared/ui";
+import { Button, ElderHeader, PhonePad, Section, StepProgress, TextLink } from "@/shared/ui";
 
 export function PhoneStep({ onNext }: { onNext: (phone: string) => void }) {
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string>();
   return (
     <>
-      <ElderHeader title="เข้าสู่ระบบ" />
+      <ElderHeader title="เข้าสู่ระบบ" backHref="/login" />
       <Section first>
         <StepProgress current={1} total={2} />
       </Section>
@@ -942,6 +1090,12 @@ export function PhoneStep({ onNext }: { onNext: (phone: string) => void }) {
           ถัดไป
         </Button>
       </Section>
+      <Section>
+        <div className="flex flex-wrap items-center justify-center gap-x-2">
+          <span className="text-body text-fg-2">ยังไม่มีบัญชี</span>
+          <TextLink href="/signup">สมัครสมาชิก</TextLink>
+        </div>
+      </Section>
     </>
   );
 }
@@ -952,11 +1106,17 @@ export function PhoneStep({ onNext }: { onNext: (phone: string) => void }) {
 "use client";
 
 import { useState } from "react";
-import { ElderHeader, Notice, PinPad, Section, StepProgress } from "@/shared/ui";
+import { ElderHeader, Notice, PinPad, Section, StepProgress, TextLink } from "@/shared/ui";
 
 const PIN_LENGTH = 4;
 
-export function PinStep({ checkPin }: { checkPin: (pin: string) => Promise<boolean> }) {
+export function PinStep({
+  checkPin,
+  onBack,
+}: {
+  checkPin: (pin: string) => Promise<boolean>;
+  onBack: () => void;
+}) {
   const [pin, setPin] = useState("");
   const [wrong, setWrong] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -981,19 +1141,636 @@ export function PinStep({ checkPin }: { checkPin: (pin: string) => Promise<boole
 
   return (
     <>
-      <ElderHeader title="เข้าสู่ระบบ" backHref="/login" />
+      <ElderHeader title="เข้าสู่ระบบ" onBack={onBack} />
       <Section first>
         <StepProgress current={2} total={2} />
       </Section>
       <Section>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col items-center gap-4">
           {wrong ? <Notice tone="danger">รหัสยังไม่ถูกต้อง กรุณาใส่อีกครั้ง</Notice> : null}
           <PinPad
+            label="ใส่รหัส 4 หลัก"
             length={PIN_LENGTH}
             filled={pin.length}
             disabled={checking}
             onDigit={press}
             onDelete={() => setPin((current) => current.slice(0, -1))}
+          />
+          <TextLink href="/login/forgot">ลืมรหัส</TextLink>
+        </div>
+      </Section>
+    </>
+  );
+}
+```
+
+**What `ลืมรหัส` shows before `/login/forgot` exists.** The same `TextLink`, in the same
+place, takes `onClick` instead of `href` and shows a `Notice tone="primary"` above the pad:
+
+```tsx
+{
+  forgot ? <Notice tone="primary">กรุณาแจ้งเจ้าหน้าที่ศูนย์ เจ้าหน้าที่ช่วยตั้งรหัสใหม่ให้ได้</Notice> : null;
+}
+<TextLink onClick={() => setForgot(true)}>ลืมรหัส</TextLink>;
+```
+
+### Elderly sign-up steps
+
+`/signup`, four steps, one question each, every step with `StepProgress`. One
+`"use client"` component owns the step and everything typed so far, so going back one step
+loses nothing except the PIN (which is typed again). No cards, at most one primary button.
+
+1. **Phone number:** `ElderHeader` (back to `/login`), `PhonePad`, one primary `Button`
+   (`ถัดไป`), and in a last `Section` a `TextLink` to `/login/pin` for a person who already
+   has an account. A number that is taken shows a `Notice tone="primary"` above the pad, and
+   the primary button becomes `ไปหน้าเข้าสู่ระบบ`.
+2. **PIN, entered twice:** `PinPad` with a `label` that says which entry it is
+   (`ตั้งรหัส 4 หลัก`, then `ใส่รหัสเดิมอีกครั้ง`). The fourth digit moves on by itself, so
+   the step has no button. Two entries that differ, or a PIN that is too easy to guess, show
+   a `Notice tone="danger"` and the person starts the PIN again. This is the component
+   `NewPinStep` below; `/login/new-pin` uses the same one.
+3. **First and last name:** two `TextField`s (the keyboard is expected here) and one primary
+   `Button type="submit"` (`ถัดไป`).
+4. **Consent:** for each policy a `Section` whose `eyebrow` is the policy's title, its
+   summary in large text (`text-lead`), and a `TextLink` that opens the full text. The full
+   text is a screen inside the same step (`ElderHeader` with `onBack`, the paragraphs, one
+   primary button back), so the ticks are kept. Then three `Checkbox`es, none ticked in
+   advance, one per purpose, and the primary `Button type="submit"` (`สมัครสมาชิก`). A box
+   that was left empty gets its message through `errors`.
+
+Steps 1 and 2 hold no field the user can focus or type into. Placeholders such as `<lane>`
+and the actions stand for the identity lane's own names.
+
+```tsx
+// src/modules/<lane>/ui/SignUpFlow.tsx — owns the step and everything typed so far
+"use client";
+
+import { useState } from "react";
+import { ElderHeader, Section, StepProgress } from "@/shared/ui";
+import { NewPinStep } from "./NewPinStep";
+import { SignUpConsentStep, type Policy } from "./SignUpConsentStep";
+import { SignUpNameStep } from "./SignUpNameStep";
+import { SignUpPhoneStep } from "./SignUpPhoneStep";
+
+type Step = "phone" | "pin" | "name" | "consent";
+
+export function SignUpFlow({ privacy, terms }: { privacy: Policy; terms: Policy }) {
+  const [step, setStep] = useState<Step>("phone");
+  const [phone, setPhone] = useState("");
+  const [pin, setPin] = useState("");
+  const [name, setName] = useState({ firstName: "", lastName: "" });
+
+  if (step === "phone") {
+    return (
+      <SignUpPhoneStep
+        initialPhone={phone}
+        onNext={(value) => {
+          setPhone(value);
+          setStep("pin");
+        }}
+      />
+    );
+  }
+  if (step === "pin") {
+    return (
+      <>
+        <ElderHeader title="สมัครสมาชิก" onBack={() => setStep("phone")} />
+        <Section first>
+          <StepProgress current={2} total={4} />
+        </Section>
+        <Section>
+          <NewPinStep
+            firstLabel="ตั้งรหัส 4 หลัก"
+            againLabel="ใส่รหัสเดิมอีกครั้ง"
+            onDone={(value) => {
+              setPin(value);
+              setStep("name");
+            }}
+          />
+        </Section>
+      </>
+    );
+  }
+  if (step === "name") {
+    return (
+      <SignUpNameStep
+        initial={name}
+        onBack={() => {
+          setPin(""); // going back to the PIN step means typing it again
+          setStep("pin");
+        }}
+        onNext={(value) => {
+          setName(value);
+          setStep("consent");
+        }}
+      />
+    );
+  }
+  return (
+    <SignUpConsentStep
+      privacy={privacy}
+      terms={terms}
+      account={{ phone, pin, ...name }}
+      onBack={() => setStep("name")}
+    />
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/SignUpPhoneStep.tsx — step 1
+"use client";
+
+import { useState, useTransition } from "react";
+import {
+  Button,
+  ElderHeader,
+  Notice,
+  PhonePad,
+  Section,
+  StepProgress,
+  TextLink,
+} from "@/shared/ui";
+import { checkPhoneAvailableAction } from "../server/sign-up-actions"; // your own action: returns an ActionResult
+
+export function SignUpPhoneStep({
+  initialPhone,
+  onNext,
+}: {
+  initialPhone: string;
+  onNext: (phone: string) => void;
+}) {
+  const [phone, setPhone] = useState(initialPhone);
+  const [error, setError] = useState<string>();
+  const [taken, setTaken] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  function next() {
+    if (phone.length !== 10) {
+      setError("เบอร์โทรศัพท์ต้องมี 10 หลัก กรุณาใส่ให้ครบ");
+      return;
+    }
+    startTransition(async () => {
+      const result = await checkPhoneAvailableAction(phone);
+      if (result.ok) onNext(phone);
+      else if (result.code === "CONFLICT") setTaken(true);
+      else setError(result.message);
+    });
+  }
+
+  return (
+    <>
+      <ElderHeader title="สมัครสมาชิก" backHref="/login" />
+      <Section first>
+        <StepProgress current={1} total={4} />
+      </Section>
+      <Section>
+        <div className="flex flex-col gap-4">
+          {taken ? (
+            <Notice tone="primary" title="เบอร์นี้มีบัญชีอยู่แล้ว">
+              กรุณาเข้าสู่ระบบด้วยเบอร์นี้
+            </Notice>
+          ) : null}
+          <PhonePad
+            label="เบอร์โทรศัพท์ของคุณ"
+            value={phone}
+            onChange={(value) => {
+              setPhone(value);
+              setError(undefined);
+              setTaken(false);
+            }}
+            hint="ใช้เบอร์นี้เข้าสู่ระบบในครั้งต่อไป"
+            error={error}
+            disabled={pending}
+          />
+        </div>
+      </Section>
+      <Section>
+        {taken ? (
+          <Button fullWidth href="/login/pin">
+            ไปหน้าเข้าสู่ระบบ
+          </Button>
+        ) : (
+          <Button fullWidth disabled={pending} onClick={next}>
+            ถัดไป
+          </Button>
+        )}
+      </Section>
+      {taken ? null : (
+        <Section>
+          <div className="flex flex-wrap items-center justify-center gap-x-2">
+            <span className="text-body text-fg-2">มีบัญชีอยู่แล้ว</span>
+            <TextLink href="/login/pin">เข้าสู่ระบบ</TextLink>
+          </div>
+        </Section>
+      )}
+    </>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/NewPinStep.tsx — a new PIN, entered twice (sign-up step 2 and /login/new-pin)
+"use client";
+
+import { useState } from "react";
+import { Notice, PinPad } from "@/shared/ui";
+import { isWeakPin } from "../contracts"; // your own pure rule: 1111, 1234, 4321 are refused
+
+const PIN_LENGTH = 4;
+
+export function NewPinStep({
+  firstLabel,
+  againLabel,
+  disabled,
+  onDone,
+}: {
+  firstLabel: string;
+  againLabel: string;
+  /** Locks the pad, e.g. while the new PIN is being saved. */
+  disabled?: boolean;
+  onDone: (pin: string) => void;
+}) {
+  // `first` is set once the first entry is complete; the digits never leave this component
+  // except through `onDone`.
+  const [first, setFirst] = useState<string>();
+  const [entry, setEntry] = useState("");
+  const [problem, setProblem] = useState<string>();
+
+  function press(digit: string) {
+    const next = entry + digit;
+    setProblem(undefined);
+    if (next.length < PIN_LENGTH) {
+      setEntry(next);
+      return;
+    }
+    // The last digit moves on: there is no button on this step.
+    setEntry("");
+    if (first === undefined) {
+      if (isWeakPin(next)) setProblem("รหัสนี้คาดเดาได้ง่าย กรุณาเลือกรหัสอื่น");
+      else setFirst(next);
+    } else if (next === first) {
+      onDone(next);
+    } else {
+      setFirst(undefined);
+      setProblem("รหัสทั้งสองครั้งไม่ตรงกัน กรุณาตั้งรหัสใหม่อีกครั้ง");
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      {problem ? <Notice tone="danger">{problem}</Notice> : null}
+      <PinPad
+        label={first === undefined ? firstLabel : againLabel}
+        hint={first === undefined ? "เลือกเลขที่จำได้ง่าย" : "เพื่อยืนยันว่าจำรหัสได้"}
+        length={PIN_LENGTH}
+        filled={entry.length}
+        disabled={disabled}
+        onDigit={press}
+        onDelete={() => setEntry((current) => current.slice(0, -1))}
+      />
+    </div>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/SignUpNameStep.tsx — step 3 (the keyboard is expected here)
+"use client";
+
+import { useState } from "react";
+import { Button, ElderHeader, Section, StepProgress, TextField } from "@/shared/ui";
+
+type Name = { firstName: string; lastName: string };
+
+export function SignUpNameStep({
+  initial,
+  onBack,
+  onNext,
+}: {
+  initial: Name;
+  onBack: () => void;
+  onNext: (name: Name) => void;
+}) {
+  const [name, setName] = useState(initial);
+  const [asked, setAsked] = useState(false);
+  const firstName = name.firstName.trim();
+  const lastName = name.lastName.trim();
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        setAsked(true);
+        if (firstName && lastName) onNext({ firstName, lastName });
+      }}
+    >
+      <ElderHeader title="สมัครสมาชิก" onBack={onBack} />
+      <Section first>
+        <StepProgress current={3} total={4} />
+      </Section>
+      <Section>
+        <div className="flex flex-col gap-5">
+          <TextField
+            label="ชื่อ"
+            name="firstName"
+            autoComplete="given-name"
+            maxLength={100}
+            value={name.firstName}
+            onChange={(event) => setName({ ...name, firstName: event.target.value })}
+            errors={asked && !firstName ? ["กรุณาใส่ชื่อ"] : undefined}
+          />
+          <TextField
+            label="นามสกุล"
+            name="lastName"
+            autoComplete="family-name"
+            maxLength={100}
+            value={name.lastName}
+            onChange={(event) => setName({ ...name, lastName: event.target.value })}
+            errors={asked && !lastName ? ["กรุณาใส่นามสกุล"] : undefined}
+          />
+        </div>
+      </Section>
+      <Section>
+        <Button type="submit" fullWidth>
+          ถัดไป
+        </Button>
+      </Section>
+    </form>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/SignUpConsentStep.tsx — step 4, and the full text of a policy
+"use client";
+
+import { useState, useTransition } from "react";
+import {
+  Button,
+  Checkbox,
+  ElderHeader,
+  Notice,
+  Section,
+  StepProgress,
+  TextLink,
+} from "@/shared/ui";
+import { signUpAction } from "../server/sign-up-actions"; // your own action: returns an ActionResult, redirects on success
+
+export type Policy = { id: string; title: string; summary: string; content: string };
+type Account = { phone: string; pin: string; firstName: string; lastName: string };
+type Failure = { message: string; fieldErrors?: Record<string, string[]> };
+
+export function SignUpConsentStep({
+  privacy,
+  terms,
+  account,
+  onBack,
+}: {
+  privacy: Policy;
+  terms: Policy;
+  account: Account;
+  onBack: () => void;
+}) {
+  const [reading, setReading] = useState<Policy>();
+  // Never ticked in advance.
+  const [consents, setConsents] = useState({
+    terms: false,
+    personalData: false,
+    cognitiveData: false,
+  });
+  const [failure, setFailure] = useState<Failure>();
+  const [pending, startTransition] = useTransition();
+
+  // The full text is a screen inside this step, so the ticks above are kept.
+  if (reading) {
+    return (
+      <>
+        <ElderHeader title={reading.title} onBack={() => setReading(undefined)} />
+        <Section first>
+          <div className="flex flex-col gap-4 text-body text-fg">
+            {reading.content.split(/\n{2,}/).map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
+          </div>
+        </Section>
+        <Section>
+          <Button fullWidth onClick={() => setReading(undefined)}>
+            กลับไปสมัครสมาชิกต่อ
+          </Button>
+        </Section>
+      </>
+    );
+  }
+
+  function submit() {
+    startTransition(async () => {
+      const result = await signUpAction({
+        ...account,
+        ...consents,
+        privacyPolicyId: privacy.id,
+        termsPolicyId: terms.id,
+      });
+      if (!result.ok) setFailure(result);
+    });
+  }
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        submit();
+      }}
+    >
+      <ElderHeader title="สมัครสมาชิก" onBack={onBack} />
+      <Section first>
+        <StepProgress current={4} total={4} />
+      </Section>
+      <Section eyebrow={privacy.title}>
+        <p className="text-lead text-fg">{privacy.summary}</p>
+        <TextLink onClick={() => setReading(privacy)}>อ่านประกาศฉบับเต็ม</TextLink>
+      </Section>
+      <Section eyebrow={terms.title}>
+        <p className="text-lead text-fg">{terms.summary}</p>
+        <TextLink onClick={() => setReading(terms)}>อ่านข้อตกลงฉบับเต็ม</TextLink>
+      </Section>
+      <Section eyebrow="กรุณาเลือกให้ครบทั้ง 3 ข้อ">
+        <div className="flex flex-col gap-2">
+          <Checkbox
+            label="ยอมรับข้อตกลงการใช้งาน"
+            name="terms"
+            checked={consents.terms}
+            onChange={(event) => setConsents({ ...consents, terms: event.target.checked })}
+            errors={failure?.fieldErrors?.terms}
+          />
+          <Checkbox
+            label="ยินยอมให้เก็บชื่อและเบอร์โทรศัพท์"
+            name="personalData"
+            checked={consents.personalData}
+            onChange={(event) => setConsents({ ...consents, personalData: event.target.checked })}
+            errors={failure?.fieldErrors?.personalData}
+          />
+          <Checkbox
+            label="ยินยอมให้เก็บผลการฝึกสมอง"
+            name="cognitiveData"
+            checked={consents.cognitiveData}
+            onChange={(event) => setConsents({ ...consents, cognitiveData: event.target.checked })}
+            errors={failure?.fieldErrors?.cognitiveData}
+          />
+        </div>
+      </Section>
+      <Section>
+        <div className="flex flex-col gap-4">
+          {failure && !failure.fieldErrors ? (
+            <Notice tone="danger">{failure.message}</Notice>
+          ) : null}
+          <Button type="submit" fullWidth disabled={pending}>
+            {pending ? "กำลังสมัครสมาชิก…" : "สมัครสมาชิก"}
+          </Button>
+        </div>
+      </Section>
+    </form>
+  );
+}
+```
+
+The wording of the three boxes and of the summaries is the identity lane's, from the
+published policy; the samples show the shape. **When sign-up is not open** (a policy has no
+published version) the page shows this instead of the flow, and nothing can be created:
+
+```tsx
+<ElderHeader title="สมัครสมาชิก" backHref="/login" />
+<EmptyState
+  title="ยังไม่เปิดรับสมัครสมาชิก"
+  description="กรุณาแจ้งเจ้าหน้าที่ศูนย์เพื่อขอความช่วยเหลือ"
+  headingLevel={2}
+/>
+```
+
+### Forgotten PIN screens
+
+Two routes, both without a field the user can focus or type into, and without
+`StepProgress` (each asks one thing).
+
+- **`/login/forgot`** (asking): `ElderHeader` (back to `/login/pin`), one sentence in
+  `text-lead` that says what will happen, `PhonePad`, one primary `Button`
+  (`ขอให้เจ้าหน้าที่โทรกลับ`). **After sending**, every valid number gets the same screen: the
+  title `ได้รับคำขอแล้ว` in `ElderHeader`, two sentences in `text-lead`, and one primary
+  `Button` back to `/login`. No coloured box, no list, no number shown.
+- **`/login/new-pin`** (after staff allowed it): `ElderHeader`, a `Notice tone="success"`
+  that says staff confirmed, then the PIN entered twice with `NewPinStep`, the same component
+  as step 2 of "Elderly sign-up steps" (its sample is there). No button: the last digit of
+  the second entry saves.
+
+The staff side, the list of requests, is an ordinary "Admin list page".
+
+```tsx
+// src/modules/<lane>/ui/ForgotPin.tsx — /login/forgot: ask, then the same answer for every number
+"use client";
+
+import { useState, useTransition } from "react";
+import { Button, ElderHeader, PhonePad, Section } from "@/shared/ui";
+import { requestPinResetAction } from "../server/pin-reset-actions"; // your own action: returns an ActionResult
+
+export function ForgotPin() {
+  const [phone, setPhone] = useState("");
+  const [error, setError] = useState<string>();
+  const [sent, setSent] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  function send() {
+    if (phone.length !== 10) {
+      setError("เบอร์โทรศัพท์ต้องมี 10 หลัก กรุณาใส่ให้ครบ");
+      return;
+    }
+    startTransition(async () => {
+      const result = await requestPinResetAction(phone);
+      if (result.ok) setSent(true);
+      else setError(result.message);
+    });
+  }
+
+  if (sent) {
+    return (
+      <>
+        <ElderHeader title="ได้รับคำขอแล้ว" />
+        <Section first>
+          <div className="flex flex-col gap-4 text-lead text-fg">
+            <p>เจ้าหน้าที่จะโทรกลับที่เบอร์นี้ในเวลาทำการ</p>
+            <p>หลังคุยกับเจ้าหน้าที่แล้ว กรุณาเปิด Brain9 บนเครื่องนี้อีกครั้งเพื่อตั้งรหัสใหม่</p>
+          </div>
+        </Section>
+        <Section>
+          <Button fullWidth href="/login">
+            กลับหน้าแรก
+          </Button>
+        </Section>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ElderHeader title="ลืมรหัส" backHref="/login/pin" />
+      <Section first>
+        <p className="text-lead text-fg">กรุณาใส่เบอร์โทรศัพท์ที่ใช้สมัคร เจ้าหน้าที่จะโทรกลับเพื่อช่วยตั้งรหัสใหม่</p>
+      </Section>
+      <Section>
+        <PhonePad
+          label="เบอร์โทรศัพท์ที่ใช้สมัคร"
+          value={phone}
+          onChange={(value) => {
+            setPhone(value);
+            setError(undefined);
+          }}
+          error={error}
+          disabled={pending}
+        />
+      </Section>
+      <Section>
+        <Button fullWidth disabled={pending} onClick={send}>
+          ขอให้เจ้าหน้าที่โทรกลับ
+        </Button>
+      </Section>
+    </>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/NewPin.tsx — /login/new-pin
+"use client";
+
+import { useState, useTransition } from "react";
+import { ElderHeader, Notice, Section } from "@/shared/ui";
+import { setNewPinAction } from "../server/pin-reset-actions"; // your own action: returns an ActionResult, redirects on success
+import { NewPinStep } from "./NewPinStep"; // the sample in "Elderly sign-up steps"
+
+export function NewPin() {
+  const [failure, setFailure] = useState<string>();
+  const [pending, startTransition] = useTransition();
+
+  function save(pin: string) {
+    startTransition(async () => {
+      const result = await setNewPinAction(pin);
+      if (!result.ok) setFailure(result.message);
+    });
+  }
+
+  return (
+    <>
+      <ElderHeader title="ตั้งรหัสใหม่" />
+      <Section first>
+        <Notice tone="success">เจ้าหน้าที่ยืนยันแล้ว ตั้งรหัสใหม่ได้</Notice>
+      </Section>
+      <Section>
+        <div className="flex flex-col gap-4">
+          {failure ? <Notice tone="danger">{failure}</Notice> : null}
+          <NewPinStep
+            firstLabel="ตั้งรหัสใหม่ 4 หลัก"
+            againLabel="ใส่รหัสใหม่อีกครั้ง"
+            disabled={pending}
+            onDone={save}
           />
         </div>
       </Section>
@@ -1134,6 +1911,105 @@ export async function ExerciseResult() {
 
 The result page is the play page's shape with `ElderHeader title="ผลการฝึก"` and
 `<ExerciseResult />` in the same `Suspense`.
+
+### Elderly profile and sign-out
+
+`/profile`: `ElderHeader` (back to `/home`), a `Section first` with the person's first and
+last name (read inside `Reveal`, with a skeleton), and **sign-out in the last `Section` of
+the screen**: a secondary `Button fullWidth` with an icon and its label (`ออกจากระบบ`).
+Pressing it opens a `ConfirmDialog` that says what signing out means: a slip of the finger
+would otherwise make the person type the phone number and the PIN again. The button is
+`secondary`, never `danger` (signing out destroys nothing) and never the screen's primary.
+The rest of the profile, when it is built, goes in `Section`s above the sign-out one.
+
+```tsx
+// src/app/(elder)/profile/page.tsx — thin: the name is read inside Reveal
+import { ProfileName, SignOutButton } from "@/modules/<lane>/ui";
+import { ElderHeader, Reveal, Section, SkeletonLine, SkeletonRegion } from "@/shared/ui";
+
+export const metadata = { title: "ข้อมูลของฉัน" };
+
+export default function ProfilePage() {
+  return (
+    <>
+      <ElderHeader title="ข้อมูลของฉัน" backHref="/home" />
+      <Section first>
+        <Reveal
+          fallback={
+            <SkeletonRegion label="กำลังโหลดชื่อ">
+              <SkeletonLine width="sm" text="small" />
+              <SkeletonLine width="md" text="heading" />
+            </SkeletonRegion>
+          }
+        >
+          <ProfileName />
+        </Reveal>
+      </Section>
+      <Section>
+        <SignOutButton />
+      </Section>
+    </>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/ProfileName.tsx — async Server Component: authorize, then show
+import { requireUser } from "@/modules/identity";
+
+export async function ProfileName() {
+  const user = await requireUser();
+  return (
+    <>
+      <p className="text-small text-fg-muted">ชื่อและนามสกุล</p>
+      <p className="text-heading font-bold text-fg">
+        {user.firstName} {user.lastName}
+      </p>
+    </>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/SignOutButton.tsx
+"use client";
+
+import { LogOut } from "lucide-react";
+import { useState, useTransition } from "react";
+import { Button, ConfirmDialog } from "@/shared/ui";
+import { signOutAction } from "../server/session-actions"; // your own action: ends the session, redirects to /login
+
+export function SignOutButton() {
+  const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  return (
+    <>
+      <Button variant="secondary" fullWidth disabled={pending} onClick={() => setOpen(true)}>
+        <LogOut aria-hidden="true" strokeWidth={1.9} className="size-icon shrink-0" />
+        ออกจากระบบ
+      </Button>
+      <ConfirmDialog
+        open={open}
+        title="ต้องการออกจากระบบหรือไม่"
+        confirmLabel="ออกจากระบบ"
+        onConfirm={() => {
+          setOpen(false);
+          startTransition(() => signOutAction());
+        }}
+        onCancel={() => setOpen(false)}
+      >
+        การเข้าใช้ครั้งถัดไปต้องใส่เบอร์โทรศัพท์และรหัส 4 หลักอีกครั้ง
+      </ConfirmDialog>
+    </>
+  );
+}
+```
+
+**Staff sign out from the admin shell,** not from a page: `AdminShell` draws `ออกจากระบบ`
+at the right end of the top bar, after the person's name, when the admin layout passes it
+`signOutAction`. It signs out at once, with no dialog. A lane adds no sign-out control to an
+admin page.
 
 ### System screens
 
@@ -1432,6 +2308,9 @@ The same rule in practice:
 - A screen cannot load a script, style, font or image from another host, or call one from
   the browser: the Content Security Policy blocks it (`docs/security.md` §6). Fonts and
   icons come from the project.
+- The admin top bar shows `ออกจากระบบ` only when `src/app/admin/layout.tsx` passes
+  `signOutAction` to `AdminShell`. That action is the identity lane's (issue #23); until it
+  exists the admin area has no sign-out control.
 - Inside a `<Suspense>` boundary the 404 screen still reveals an admin route to a visitor who
   may not open it: the HTTP status is 200, the static admin menu frame is in the first HTML,
   and the admin page's own `<title>` stays in the first HTML and in the browser tab. Closing

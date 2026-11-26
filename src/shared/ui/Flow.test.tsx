@@ -267,3 +267,29 @@ describe("ResultBanner heading", () => {
     );
   });
 });
+
+describe("PinPad label and hint", () => {
+  const pad = (props: { label?: string; hint?: string }) =>
+    html(<PinPad length={4} filled={1} onDigit={() => {}} onDelete={() => {}} {...props} />);
+
+  it("says which PIN to enter, in words above the dots", () => {
+    const out = pad({ label: "ตั้งรหัส 4 หลัก", hint: "เลือกเลขที่คุณจำได้ง่าย" });
+    expect(out).toContain(">ตั้งรหัส 4 หลัก</p>");
+    expect(out).toContain(">เลือกเลขที่คุณจำได้ง่าย</p>");
+    expect(out.indexOf("ตั้งรหัส 4 หลัก</p>")).toBeLessThan(out.indexOf('role="img"'));
+  });
+
+  it("names the dots with the label and the progress", () => {
+    expect(pad({ label: "ตั้งรหัส 4 หลัก" })).toContain('aria-label="ตั้งรหัส 4 หลัก ใส่แล้ว 1 จาก 4 หลัก"');
+  });
+
+  it("renders no empty line without them", () => {
+    const out = pad({});
+    expect(out).not.toContain("text-lead");
+    expect(out).toContain('aria-label="ใส่แล้ว 1 จาก 4 หลัก"');
+  });
+
+  it("still holds no field with a label", () => {
+    expect(pad({ label: "ตั้งรหัส 4 หลัก" })).not.toContain("<input");
+  });
+});

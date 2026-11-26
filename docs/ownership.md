@@ -5,14 +5,14 @@ a pull request needs approval from an owner of every path it touches.
 
 ## Lanes
 
-| Lane      | Owner                      | Paths                                                                                                                                                                                                                              |
-| --------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| identity  | Chanon `@chanon-max`       | `src/modules/identity/**` · `prisma/schema/identity.prisma` · `prisma/schema/centers.prisma` · `src/app/(auth)/**` · `src/app/(elder)/profile/**` · `src/app/admin/{users,centers,devices,privacy}/**` · `src/app/api/identity/**` |
-| booking   | Chanon `@chanon-max`       | `src/modules/booking/**` · `prisma/schema/booking.prisma` · `src/app/(elder)/booking/**` · `src/app/admin/{schedule,bookings}/**` · `src/app/api/booking/**`                                                                       |
-| content   | Apinan `@shokun580`        | `src/modules/content/**` · `prisma/schema/content.prisma` · `src/app/admin/content/**` · `src/app/api/content/**` · `docs/contracts/pattern-format.md`                                                                             |
-| engine    | Supanat `@Pxrch`           | `src/modules/engine/**` · `prisma/schema/engine.prisma` · `src/app/(elder)/courses/**` · `src/app/(elder)/play/**` · `src/app/api/engine/**`                                                                                       |
-| analytics | Saruta `@ptxsm`            | `src/modules/analytics/**` · `prisma/schema/analytics.prisma` · `src/app/(elder)/results/**` · `src/app/admin/analytics/**` · `src/app/api/analytics/**`                                                                           |
-| infra     | Apinan `@shokun580` (lead) | everything else — see hot files below                                                                                                                                                                                              |
+| Lane      | Owner                      | Paths                                                                                                                                                                                                                                                                 |
+| --------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| identity  | Chanon `@chanon-max`       | `src/modules/identity/**` · `prisma/schema/identity.prisma` · `prisma/schema/centers.prisma` · `src/app/(auth)/**` · `src/app/(staff)/admin/login/**` · `src/app/(elder)/profile/**` · `src/app/admin/{users,centers,devices,privacy}/**` · `src/app/api/identity/**` |
+| booking   | Chanon `@chanon-max`       | `src/modules/booking/**` · `prisma/schema/booking.prisma` · `src/app/(elder)/booking/**` · `src/app/admin/{schedule,bookings}/**` · `src/app/api/booking/**`                                                                                                          |
+| content   | Apinan `@shokun580`        | `src/modules/content/**` · `prisma/schema/content.prisma` · `src/app/admin/content/**` · `src/app/api/content/**` · `docs/contracts/pattern-format.md`                                                                                                                |
+| engine    | Supanat `@Pxrch`           | `src/modules/engine/**` · `prisma/schema/engine.prisma` · `src/app/(elder)/courses/**` · `src/app/(elder)/play/**` · `src/app/api/engine/**`                                                                                                                          |
+| analytics | Saruta `@ptxsm`            | `src/modules/analytics/**` · `prisma/schema/analytics.prisma` · `src/app/(elder)/results/**` · `src/app/admin/analytics/**` · `src/app/api/analytics/**`                                                                                                              |
+| infra     | Apinan `@shokun580` (lead) | everything else — see hot files below                                                                                                                                                                                                                                 |
 
 The team lead is a co-owner of every lane so that a pull request always has someone who
 can approve it.
@@ -26,7 +26,8 @@ Changing these affects everyone, so only the lead changes them, on request:
   `prisma.config.ts`, `vercel.json`, `.env.example`
 - Shared code: `src/shared/**`, `src/proxy.ts`
 - App shell: `src/app/layout.tsx`, `src/app/globals.css`, `src/app/page.tsx`,
-  `src/app/(elder)/layout.tsx`, `src/app/admin/layout.tsx`, `src/app/admin/page.tsx`,
+  `src/app/(elder)/layout.tsx`, `src/app/(staff)/layout.tsx`, `src/app/admin/layout.tsx`,
+  `src/app/admin/page.tsx`,
   `src/app/admin/template.tsx`, `src/app/(elder)/template.tsx`, `src/app/design/**`,
   `src/app/icon.svg`, `src/app/not-found.tsx`, `src/app/error.tsx`,
   `src/app/global-error.tsx`, `src/app/_system/**`

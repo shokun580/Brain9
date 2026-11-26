@@ -12,6 +12,7 @@
 /prisma/schema/identity.prisma        @chanon-max @shokun580
 /prisma/schema/centers.prisma         @chanon-max @shokun580
 /src/app/(auth)/                      @chanon-max @shokun580
+/src/app/(staff)/admin/login/         @chanon-max @shokun580
 /src/app/(elder)/profile/             @chanon-max @shokun580
 /src/app/admin/users/                 @chanon-max @shokun580
 /src/app/admin/centers/               @chanon-max @shokun580

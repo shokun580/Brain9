@@ -59,6 +59,7 @@ One Next.js app (App Router, TypeScript, Server Components) + PostgreSQL through
 src/
   app/                 routes only — thin files that compose module UI
     (auth)/            login, sign-up                          → identity
+    (staff)/           staff sign-in (/admin/login)            → identity (layout: infra)
     (elder)/           elderly-facing screens                  → engine, analytics, booking, identity
     admin/             admin screens                           → each module's own subfolder
     api/               route handlers                          → /api/<module>/…
@@ -219,7 +220,8 @@ without a database.
 `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `next.config.ts`, `tsconfig.json`,
 `eslint.config.mjs`, `vitest.config.mts`, `prisma.config.ts`, `prisma/schema/_base.prisma`,
 `prisma/seed.ts` (outside your marked section), `src/app/layout.tsx`, `src/app/globals.css`,
-`src/app/page.tsx`, `src/app/(elder)/layout.tsx`, `src/app/admin/layout.tsx`,
+`src/app/page.tsx`, `src/app/(elder)/layout.tsx`, `src/app/(staff)/layout.tsx`,
+`src/app/admin/layout.tsx`,
 `src/app/admin/nav.tsx` (one-line menu entries excepted, see `docs/ownership.md`),
 `src/app/admin/template.tsx`, `src/app/(elder)/template.tsx`, `src/app/design/**`,
 `src/app/icon.svg`, `src/app/not-found.tsx`, `src/app/error.tsx`, `src/app/global-error.tsx`,

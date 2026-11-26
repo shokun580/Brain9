@@ -213,6 +213,21 @@ describe("AdminShell", () => {
     expect(shell({ helpHref: "/help" })).toContain("ช่วยเหลือ");
   });
 
+  it("shows sign-out only when the action is wired: never a control that does nothing", () => {
+    expect(shell()).not.toContain("ออกจากระบบ");
+    expect(shell({ user: <span>คุณตัวอย่าง</span> })).not.toContain("ออกจากระบบ");
+  });
+
+  it("renders sign-out as a form with one submit button, in words, after the person's name", () => {
+    const out = shell({ user: <span>คุณตัวอย่าง</span>, signOutAction: async () => {} });
+    const header = out.match(/<header[\s\S]*?<\/header>/)?.[0] ?? "";
+    const form = header.match(/<form[\s\S]*?<\/form>/)?.[0] ?? "";
+    expect(form).toMatch(/<button type="submit"[^>]*>/);
+    expect(form).toContain("ออกจากระบบ");
+    expect(form).toMatch(/<svg[^>]*aria-hidden="true"/);
+    expect(header.indexOf("คุณตัวอย่าง")).toBeLessThan(header.indexOf("<form"));
+  });
+
   it("lets the footer be replaced", () => {
     expect(shell({ footer: "ท้ายหน้าตัวอย่าง" })).toContain("ท้ายหน้าตัวอย่าง");
   });

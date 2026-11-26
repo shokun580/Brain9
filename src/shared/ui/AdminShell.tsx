@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsLeft, CircleHelp, Menu } from "lucide-react";
+import { ChevronsLeft, CircleHelp, LogOut, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useState, useSyncExternalStore, ViewTransition, type ReactNode } from "react";
@@ -15,6 +15,11 @@ export type AdminShellProps = {
   nav: AdminNavSection[];
   /** Name and role of the signed-in admin. Nothing else about the person belongs here. */
   user?: ReactNode;
+  /**
+   * The identity lane's sign-out Server Action. The top bar shows "ออกจากระบบ" only when it is
+   * given: a control that does nothing is never rendered.
+   */
+  signOutAction?: () => void | Promise<void>;
   centerSlot?: ReactNode;
   footer?: ReactNode;
   /** The help link is rendered only when there is somewhere to go. */
@@ -237,6 +242,7 @@ export function AdminShell({
   roleLabel,
   nav,
   user,
+  signOutAction,
   centerSlot,
   footer = "Brain9 ระบบฝึกสมองผู้สูงอายุ",
   helpHref,
@@ -323,6 +329,17 @@ export function AdminShell({
             ) : null}
             {user ? (
               <div className="flex min-w-0 items-center border-l border-line pl-3">{user}</div>
+            ) : null}
+            {signOutAction ? (
+              <form action={signOutAction} className="flex shrink-0">
+                <button
+                  type="submit"
+                  className="flex min-h-control items-center gap-1.5 rounded-control px-2.5 text-small text-fg-2 hover:bg-surface-muted"
+                >
+                  <LogOut aria-hidden="true" strokeWidth={1.9} className="size-icon-sm" />
+                  ออกจากระบบ
+                </button>
+              </form>
             ) : null}
           </div>
         </header>

@@ -62,6 +62,9 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
       roleLabel="ผู้ดูแล"
       nav={adminNav}
       environmentLabel={environmentLabel()}
+      // TODO(infra): pass `signOutAction={signOutAction}` (import it from "@/modules/identity")
+      // when issue #23 exports it. The shell draws "ออกจากระบบ" in the top bar only when the
+      // action is given, so until then there is no sign-out control in the admin area.
       user={
         <Suspense fallback={<AdminUserSkeleton />}>
           <AdminUser />

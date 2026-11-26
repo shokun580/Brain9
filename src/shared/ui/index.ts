@@ -19,6 +19,7 @@ export { Section, type SectionProps } from "./Section";
 export { Select, type SelectProps } from "./Select";
 export { StepProgress, stepLabel, type StepProgressProps } from "./StepProgress";
 export { TextField, type TextFieldProps } from "./TextField";
+export { TextLink, type TextLinkProps } from "./TextLink";
 export { TabBar, TabBarView, type TabBarItem, type TabBarProps } from "./TabBar";
 export { Textarea, type TextareaProps } from "./Textarea";
 export { Toast, type ToastProps } from "./Toast";
@@ -33,6 +34,7 @@ export { SegmentedControl, type SegmentedControlProps } from "./SegmentedControl
 export { StatTile, type StatTileProps } from "./StatTile";
 export { BrandMark, type BrandMarkProps } from "./BrandMark";
 export { AdminShell, type AdminShellProps } from "./AdminShell";
+export { StaffAuthShell, type StaffAuthShellProps } from "./StaffAuthShell";
 
 // admin shell (Task 19)
 export {

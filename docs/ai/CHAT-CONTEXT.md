@@ -302,6 +302,142 @@ until that lane delivers it, with whatever props that lane defines.
 <Section><Button href={result.nextHref} fullWidth>ทำข้อถัดไป</Button></Section>
 ```
 
+Sign-in, sign-up, forgotten PIN and sign-out (identity). Full samples are in
+`docs/design-system.md` section 5; these are the shapes. Screens with a pad hold no field the
+user can focus or type into. A step kept in a client component's state goes back with
+`ElderHeader`'s `onBack`; a step at another address uses `backHref`.
+
+- **Elderly sign-in steps.** `/login` is the entry: `BrandMark`, `ElderHeader`, a line and the
+  primary `Button` `เข้าสู่ระบบ` (to `/login/pin`), a line and the secondary `Button`
+  `สมัครสมาชิก` (to `/signup`). No link for staff. `/login/pin` step 1: `StepProgress`,
+  `PhonePad`, primary `ถัดไป`, and a last `Section` with a `TextLink` to `/signup`. Step 2:
+  `PinPad` with a `label`, no button (the last digit submits), a `Notice` for a wrong PIN, and
+  under the pad a `TextLink` `ลืมรหัส` to `/login/forgot` (until that route exists: the same
+  `TextLink` with `onClick`, showing a `Notice tone="primary"` to ask centre staff).
+
+  ```tsx
+  // /login
+  <BrandMark className="mb-4 size-14" />
+  <ElderHeader title="ยินดีต้อนรับสู่ Brain9" />
+  <Section first>
+    <div className="flex flex-col gap-3">
+      <p className="text-body text-fg-2">มีบัญชีอยู่แล้ว</p>
+      <Button fullWidth href="/login/pin">เข้าสู่ระบบ</Button>
+    </div>
+  </Section>
+  <Section>
+    <div className="flex flex-col gap-3">
+      <p className="text-body text-fg-2">ยังไม่มีบัญชี</p>
+      <Button variant="secondary" fullWidth href="/signup">สมัครสมาชิก</Button>
+    </div>
+  </Section>
+
+  // /login/pin step 1, after the primary button: the way to sign-up
+  <Section>
+    <div className="flex flex-wrap items-center justify-center gap-x-2">
+      <span className="text-body text-fg-2">ยังไม่มีบัญชี</span>
+      <TextLink href="/signup">สมัครสมาชิก</TextLink>
+    </div>
+  </Section>
+
+  // /login/pin step 2
+  <ElderHeader title="เข้าสู่ระบบ" onBack={onBack} />
+  <Section first><StepProgress current={2} total={2} /></Section>
+  <Section>
+    <div className="flex flex-col items-center gap-4">
+      {wrong ? <Notice tone="danger">รหัสยังไม่ถูกต้อง กรุณาใส่อีกครั้ง</Notice> : null}
+      <PinPad label="ใส่รหัส 4 หลัก" length={4} filled={pin.length} disabled={checking} onDigit={press} onDelete={back} />
+      <TextLink href="/login/forgot">ลืมรหัส</TextLink>
+    </div>
+  </Section>
+  ```
+
+- **Staff sign-in.** `/admin/login`, in the admin scope; the page file is
+  `src/app/(staff)/admin/login/page.tsx` and the infra layout of `(staff)` draws the frame
+  (`StaffAuthShell`), so the page is only `PageHeader` and the form. Username and password
+  (`TextField`), a `Checkbox` that shows the password, one primary `Button`, a `Notice` for a
+  failure, a `TextLink` to `/login`. No card, no sign-up, and `/login` does not link here.
+
+  ```tsx
+  <PageHeader title="เข้าสู่ระบบ" description="สำหรับเจ้าหน้าที่ศูนย์และผู้ดูแลระบบ" />
+  <form action={formAction} className="mt-6 flex flex-col gap-5">
+    <TextField label="ชื่อผู้ใช้" name="username" autoComplete="username" autoCapitalize="none" spellCheck={false} required errors={fieldErrors?.username} />
+    <TextField label="รหัสผ่าน" name="password" type={show ? "text" : "password"} autoComplete="current-password" required errors={fieldErrors?.password} />
+    <Checkbox label="แสดงรหัสผ่าน" name="showPassword" checked={show} onChange={(event) => setShow(event.target.checked)} />
+    {state && !state.ok && !state.fieldErrors ? <Notice tone="danger">{state.message}</Notice> : null}
+    <Button type="submit" fullWidth disabled={pending}>เข้าสู่ระบบ</Button>
+  </form>
+  <div className="mt-4 flex justify-center">
+    <TextLink href="/login">ไปหน้าเข้าสู่ระบบของผู้ใช้ทั่วไป</TextLink>
+  </div>
+  ```
+
+- **Elderly sign-up steps.** `/signup`, four steps with `StepProgress`, one client component
+  owning the step and the values (going back loses only the PIN). 1: `PhonePad`, primary
+  `ถัดไป`, a `TextLink` to `/login/pin`; a taken number shows a `Notice tone="primary"` and
+  the primary button becomes `ไปหน้าเข้าสู่ระบบ`. 2: the PIN twice on `PinPad`, whose `label`
+  says which entry it is; no button; a mismatch or a weak PIN shows a `Notice tone="danger"`
+  and starts again. 3: `TextField` first name and last name, primary `ถัดไป`. 4: per policy a
+  `Section eyebrow={policy.title}` with the summary in `text-lead` and a `TextLink` that opens
+  the full text as a screen inside the same step; three `Checkbox`es, never ticked in
+  advance; primary `สมัครสมาชิก`.
+
+  ```tsx
+  // step 2 (and /login/new-pin): the label changes between the two entries
+  <PinPad
+    label={first === undefined ? "ตั้งรหัส 4 หลัก" : "ใส่รหัสเดิมอีกครั้ง"}
+    hint={first === undefined ? "เลือกเลขที่จำได้ง่าย" : "เพื่อยืนยันว่าจำรหัสได้"}
+    length={4} filled={entry.length} onDigit={press} onDelete={back}
+  />
+
+  // step 4
+  <Section eyebrow={privacy.title}>
+    <p className="text-lead text-fg">{privacy.summary}</p>
+    <TextLink onClick={() => setReading(privacy)}>อ่านประกาศฉบับเต็ม</TextLink>
+  </Section>
+  <Section eyebrow="กรุณาเลือกให้ครบทั้ง 3 ข้อ">
+    <div className="flex flex-col gap-2">
+      <Checkbox label="ยอมรับข้อตกลงการใช้งาน" name="terms" checked={consents.terms} onChange={…} errors={fieldErrors?.terms} />
+      <Checkbox label="ยินยอมให้เก็บชื่อและเบอร์โทรศัพท์" name="personalData" checked={…} onChange={…} errors={…} />
+      <Checkbox label="ยินยอมให้เก็บผลการฝึกสมอง" name="cognitiveData" checked={…} onChange={…} errors={…} />
+    </div>
+  </Section>
+  <Section><Button type="submit" fullWidth disabled={pending}>สมัครสมาชิก</Button></Section>
+  ```
+
+- **Forgotten PIN screens.** `/login/forgot`: `ElderHeader`, one sentence in `text-lead`,
+  `PhonePad`, one primary `Button`. After sending, the same screen for every number: the
+  title `ได้รับคำขอแล้ว`, two sentences, one primary `Button` to `/login`; no coloured box, no
+  list. `/login/new-pin`: a `Notice tone="success"`, then the PIN twice exactly as in sign-up
+  step 2. No `StepProgress` on these.
+
+  ```tsx
+  <ElderHeader title="ได้รับคำขอแล้ว" />
+  <Section first>
+    <div className="flex flex-col gap-4 text-lead text-fg">
+      <p>เจ้าหน้าที่จะโทรกลับที่เบอร์นี้ในเวลาทำการ</p>
+      <p>หลังคุยกับเจ้าหน้าที่แล้ว กรุณาเปิด Brain9 บนเครื่องนี้อีกครั้งเพื่อตั้งรหัสใหม่</p>
+    </div>
+  </Section>
+  <Section><Button fullWidth href="/login">กลับหน้าแรก</Button></Section>
+  ```
+
+- **Elderly profile and sign-out.** `/profile`: `ElderHeader`, a `Section first` with the name
+  (read inside `Reveal`), and sign-out in the last `Section`: a secondary `Button fullWidth`
+  with an icon and its label, which opens a `ConfirmDialog` before calling the sign-out
+  action. Never `danger`, never the primary. Staff sign out from the admin shell's top bar
+  (infra wires it); a lane adds no sign-out control to an admin page.
+
+  ```tsx
+  <Button variant="secondary" fullWidth onClick={() => setOpen(true)}>
+    <LogOut aria-hidden="true" strokeWidth={1.9} className="size-icon shrink-0" />
+    ออกจากระบบ
+  </Button>
+  <ConfirmDialog open={open} title="ต้องการออกจากระบบหรือไม่" confirmLabel="ออกจากระบบ" onConfirm={signOut} onCancel={() => setOpen(false)}>
+    การเข้าใช้ครั้งถัดไปต้องใส่เบอร์โทรศัพท์และรหัส 4 หลักอีกครั้ง
+  </ConfirmDialog>
+  ```
+
 Identity API available to every lane (`@/modules/identity`):
 `getCurrentUser(): Promise<CurrentUser | null>`, `requireUser()`, `requireAdmin()`,
 `recordAudit({ actorId, action, entityType, entityId?, targetUserId?, metadata? })`.
@@ -319,10 +455,11 @@ Forms
 - `TextField`, `Textarea` — `label`, `name`, `hint`, `errors`, …
 - `NumberField` — `label`, `name`, `unit`, `hint`, `errors`, …
 - `Select` — `label`, `name`, `options: {value,label}[]`, `hint`, `errors`, …
-- `Checkbox` — `label`, `name`, `hint`, `errors`, …
+- `TextLink` — a quiet way to another screen, in underlined words; `href`, or `onClick` (then it is a button, client only); never an icon alone, never instead of a `Button`
+- `Checkbox` — `label`, `name`, `hint`, `errors`, …; the box is drawn by the design system but it is a native checkbox (`checked`, `onChange`, `disabled`)
 - `ChoiceList` — elder, 2 to 6 options (more than 6 → an `infra` issue); `name`, `legend`, `options: {value,title,description?,badge?,disabled?}[]` (a disabled option explains itself in `description`), `defaultValue`, `hint`, `errors`, `required`, `onValueChange`
 - `SegmentedControl` — admin, 2–3 options; `name`, `legend`, `defaultValue`, `options: {value,label,icon?}[]`, `onValueChange`
-- `PinPad` — elder, client; `length` (4|6), `filled`, `onDigit`, `onDelete`, `disabled`
+- `PinPad` — elder, client; `label?`, `hint?` (which PIN to enter), `length` (4|6), `filled`, `onDigit`, `onDelete`, `disabled`
 - `PhonePad` — elder, client; `label`, `value` (digits), `onChange`, `name?` (hidden field), `hint`, `error`, `disabled`; shows `080-000-0000`, does not validate
 - `DisplaySettings` — elder, client; `triggerLabel`; put it in `ElderHeader`'s `action`
 
@@ -339,7 +476,7 @@ Feedback
 
 Elderly layout
 
-- `ElderHeader` — `title` or `greeting` + `name`, `backHref?`, `action?`
+- `ElderHeader` — `title` or `greeting` + `name`, `backHref?` or `onBack?` (a step kept in client state), `action?`
 - `StepProgress` — `current`, `total`
 - `Section` — `eyebrow?`, `title?`, `action?`, `first?`, children
 - `ListRow` — `href`, `title`, `subtitle?`, `icon?`, `badge?`
@@ -354,7 +491,8 @@ Admin layout
 - `Tabs` — `items: {href,label,count?,active?}[]`, `label?`
 - `Tag` — `tone` (`neutral|attention|primary`), `icon?`, children (a property of a row)
 - `StatusDot` — `tone` (`ok|draft|off|danger`), children (a row's status)
-- `AdminShell` — the admin layout only (infra)
+- `AdminShell` — the admin layout only (infra); it draws the staff sign-out in the top bar
+- `StaffAuthShell` — the frame of the staff sign-in screen; the `(staff)` layout only (infra)
 
 Tables (admin)
 
@@ -385,7 +523,8 @@ Client components (`"use client"`): `ConfirmDialog`, `PhonePad`, `PinPad`, `Disp
 `open`, handlers and Server Action calls in a small `"use client"` component of your own
 module's `ui/`. `ChoiceList` and `SegmentedControl` also take a function prop
 (`onValueChange`): use it only inside your own `"use client"` component; without it both
-work as plain native radios.
+work as plain native radios. The same holds for `onBack` on `ElderHeader` and `onClick` on
+`TextLink`.
 
 ## Design rules (the design is closed)
 
