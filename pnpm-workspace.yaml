@@ -5,3 +5,9 @@ onlyBuiltDependencies:
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
+# Security: effect <= 3.22.0 has a ReDoS advisory (GHSA-7589-6fvf-x4pw). It reaches us only
+# through the Prisma command-line tooling (@prisma/config), which pins 3.20.0. Remove this
+# once Prisma depends on a patched version.
+overrides:
+  effect: 3.22.5
