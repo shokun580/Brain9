@@ -19,6 +19,7 @@ import {
   SHAPES,
   colour,
   formatChartValue,
+  isDrawablePoint,
   type ChartProps,
   type ChartSeries,
 } from "./chart-helpers";
@@ -36,6 +37,9 @@ export type ChartDrawingProps = {
   stacked?: boolean;
 };
 
+// Tick text: the class beats Recharts default fill (a presentation attribute) in CSS; the fill
+// attribute is the same token for when the class is absent. Size comes from `text-micro`.
+const TICK = { fill: "var(--b9-fg-muted)", className: "fill-fg-muted text-micro" };
 const AXIS_LINE = { stroke: "var(--b9-line-strong)" };
 const MARGIN = { top: 8, right: 16, bottom: 0, left: 0 };
 
@@ -69,6 +73,7 @@ function axes({ xKey, yMax }: Pick<ChartDrawingProps, "xKey" | "yMax">) {
     <XAxis
       key="x"
       dataKey={xKey}
+      tick={TICK}
       tickLine={false}
       axisLine={AXIS_LINE}
       minTickGap={8}
@@ -76,6 +81,7 @@ function axes({ xKey, yMax }: Pick<ChartDrawingProps, "xKey" | "yMax">) {
     />,
     <YAxis
       key="y"
+      tick={TICK}
       width={48}
       tickLine={false}
       axisLine={false}
@@ -114,7 +120,9 @@ export default function ChartDrawing(props: ChartDrawingProps) {
                 isAnimationActive={false}
                 dot={(dot) => (
                   <g key={`${s.key}-${dot.index}`} fill={colour(i)}>
-                    <Marker shape={shape} x={dot.cx ?? 0} y={dot.cy ?? 0} r={4.5} />
+                    {isDrawablePoint(dot.cx, dot.cy) && typeof dot.cy === "number" ? (
+                      <Marker shape={shape} x={dot.cx} y={dot.cy} r={4.5} />
+                    ) : null}
                   </g>
                 )}
                 activeDot={false}

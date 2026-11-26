@@ -121,10 +121,7 @@ function NumbersTable({
   );
 }
 
-// Tick text is set through the wrapper's classes so it follows the type tokens (and so the
-// reader's text size and contrast settings) instead of a number in px.
-const DRAWING =
-  "h-72 w-full [&_.recharts-cartesian-axis-tick-value]:fill-fg-muted [&_.recharts-cartesian-axis-tick-value]:text-micro";
+const DRAWING = "h-72 w-full";
 
 function ChartFrame(props: ChartProps & { kind: "line" | "bar"; stacked?: boolean }) {
   const series = limitSeries(props.series);

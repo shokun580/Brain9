@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { html } from "../../../test/render";
 import { BarChart, LineChart } from "./Chart";
-import { buildTableRows, formatChartValue, limitSeries } from "./chart-helpers";
+import { buildTableRows, formatChartValue, isDrawablePoint, limitSeries } from "./chart-helpers";
 
 const data = [
   { week: "สัปดาห์ 1", a: 62, b: 40 },
@@ -44,6 +44,18 @@ describe("limitSeries", () => {
   });
   it("accepts none", () => {
     expect(limitSeries([])).toEqual([]);
+  });
+});
+
+describe("isDrawablePoint", () => {
+  it("accepts finite coordinates", () => {
+    expect(isDrawablePoint(10, 0)).toBe(true);
+  });
+  it("rejects a null point, whose coordinates are undefined or not finite", () => {
+    expect(isDrawablePoint(undefined, undefined)).toBe(false);
+    expect(isDrawablePoint(10, undefined)).toBe(false);
+    expect(isDrawablePoint(NaN, 5)).toBe(false);
+    expect(isDrawablePoint(5, null)).toBe(false);
   });
 });
 

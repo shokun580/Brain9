@@ -49,6 +49,13 @@ export function formatChartValue(value: string | number | null | undefined, unit
   return unit === "%" ? `${text}%` : `${text} ${unit}`;
 }
 
+/** A null (or missing) value reaches the dot renderer with no coordinates: draw nothing for it. */
+export function isDrawablePoint(cx: unknown, cy: unknown): cx is number {
+  return (
+    typeof cx === "number" && Number.isFinite(cx) && typeof cy === "number" && Number.isFinite(cy)
+  );
+}
+
 export type ChartTableRow = { x: string; cells: string[] };
 
 /** The rows of the table of numbers: the x label, then one formatted cell per series. */
