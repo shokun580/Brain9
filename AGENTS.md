@@ -154,6 +154,10 @@ open `/design` (local or staging) to see every component live. Hard rules:
   `ViewTransition` of your own; nothing inside a training exercise animates.
 - **Meaning:** correct and wrong always show ✓ / ✕ **and** words, never colour alone.
 - **Irreversible actions** are confirmed with `ConfirmDialog`, stating what will happen.
+- **System screens:** the 404 and error screens are shared (`src/app/not-found.tsx`,
+  `error.tsx`, `global-error.tsx`); a lane adds none of its own. A page the visitor may
+  not open answers with `notFound()`, exactly like a page that does not exist: never a
+  "no permission" screen, never a redirect that reveals the route.
 - **Logo:** `BrandMark` only; do not redraw or recolour it.
 - **Exception:** the 3x3 board (engine) and the Pattern Editor grid (content) are built by
   their lanes, using only the cell states, tokens and fixed geometry listed in the
@@ -207,7 +211,8 @@ without a database.
 `src/app/page.tsx`, `src/app/(elder)/layout.tsx`, `src/app/admin/layout.tsx`,
 `src/app/admin/nav.tsx` (one-line menu entries excepted, see `docs/ownership.md`),
 `src/app/admin/template.tsx`, `src/app/(elder)/template.tsx`, `src/app/design/**`,
-`src/app/icon.svg`, `src/shared/**`,
+`src/app/icon.svg`, `src/app/not-found.tsx`, `src/app/error.tsx`, `src/app/global-error.tsx`,
+`src/app/_system/**`, `src/shared/**`,
 `.github/**`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `docs/**` (except your module's docs),
 `.env.example`, `vercel.json`.
 
