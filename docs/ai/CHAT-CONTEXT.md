@@ -642,7 +642,9 @@ Every screen is built from the design system and nothing else. Hard rules:
    Example: "ยังไม่ถูกต้อง กรุณาลองอีกครั้ง".
 5. UI follows the design rules above: only `@/shared/ui` and tokens, one step at a time on
    the elderly side, every icon has a text label, never colour alone (add ✓ / ✕ / words),
-   confirm before anything irreversible.
+   confirm before anything irreversible. Elderly screens must work on every device (check
+   at 360px, 768px, 1280px and the largest text size); admin screens are for an iPad and a
+   computer (768px, 1024px, 1440px, usable by touch with no hover or right click).
 6. Never output secrets, real names or real phone numbers. Use fake data.
 7. Never log PINs, passwords, hashes, tokens or full phone numbers.
 8. Pure logic (scoring, validation, metrics, slot rules) gets Vitest unit tests.

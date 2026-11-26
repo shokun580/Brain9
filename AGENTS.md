@@ -153,6 +153,14 @@ open `/design` (local or staging) to see every component live. Hard rules:
   (`bg-red-500`, `text-white`, `text-2xl`, `rounded-xl`, `shadow-lg`, `animate-bounce`) are
   not part of the design either, and ESLint does not catch them: a passing lint is not
   approval. Never fix a size in px: sizes follow `data-size` and `data-contrast` on `<html>`.
+- **Devices:** the two sides are built for different devices.
+  - Elderly screens (`(auth)`, `(elder)`) must work well on every device: a small phone, a
+    tablet and a computer, by touch and with a mouse and keyboard. Check each screen at
+    360px, 768px and 1280px wide, and at the largest text size.
+  - Admin screens (`/admin`, `/admin/login`) are built for an iPad and a computer. Check
+    each at 768px (iPad upright), 1024px (iPad on its side) and 1440px. Staff use an iPad by
+    touch: nothing may need hover, a right click or a keyboard shortcut to be reached. A
+    phone is not a target: a screen must still open on one, but is not tuned for it.
 - **Pages follow a recipe** in the document; do not invent a layout.
   - Elderly screens (`(auth)`, `(elder)`): no cards, one primary button per screen, one
     step at a time with `StepProgress`, every icon has a text label, text never below
@@ -325,7 +333,8 @@ entry point. The repository is public: nothing may depend on being hidden.
 - [ ] Server-side authorization and Zod validation on every new entry point
 - [ ] The security checklist in `docs/security.md` §8 holds
 - [ ] UI built only from @/shared/ui and tokens, following a recipe in docs/design-system.md
-- [ ] Thai UI text; works at phone and tablet widths (admin: 900px and 1440px)
+- [ ] Thai UI text; elderly screens work at 360px, 768px and 1280px and at the largest text
+      size; admin screens at 768px, 1024px and 1440px
 - [ ] Schema change → migration committed, `docs/database.md` updated if tables changed
 - [ ] PR description says what changed, how it was tested, and what is not done
 

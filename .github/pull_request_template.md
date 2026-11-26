@@ -19,7 +19,8 @@ Closes #
 
 ## How I tested it
 
-<!-- Commands run, screens checked (phone + tablet width), cases tried. -->
+<!-- Commands run, screens checked (elderly: 360px, 768px, 1280px and the largest text size;
+     admin: 768px, 1024px, 1440px), cases tried. -->
 
 - [ ] `pnpm check` passes
 - [ ] `pnpm build` passes
