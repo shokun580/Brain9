@@ -128,12 +128,24 @@ home center. Nothing else without the lead's approval (PDPA data minimisation).
 
 **Center devices (kiosk mode)**
 
-- The login page has a "ตั้งเป็นเครื่องที่ศูนย์" entry. An ADMIN must authenticate, pick the
-  center and fill in the device details: label, type, brand, model, serial/asset tag,
-  OS, screen size, purchase year, plus auto-captured `maxTouchPoints`, screen size in px
-  and user-agent. Who registered/approved and when are recorded.
-- Approval sets `status = ACTIVE` and stores a device token cookie (hash in
-  `device_token_hash`). Revoking clears it.
+- A device becomes a center device by **pairing with a QR code** (`docs/decisions.md`,
+  2026-11-27). An ADMIN adds it in the admin area on their own device: center, label, and
+  the details that cannot be read automatically (type, brand, model, serial or asset tag,
+  purchase year). Staff never sign in on the shared device to do this, and `/login` has no
+  entry for it.
+- The admin screen shows a pairing code as a QR code and as a few characters to type. The
+  code works once, for one device, for 10 minutes; only its hash is stored. `center_devices`
+  has no place for it yet: the issue that builds pairing adds the hash and its expiry.
+- The shared device opens the pairing address. The server checks the code, sets
+  `status = ACTIVE`, stores the hash of a new device token in `device_token_hash`, sets the
+  token in an `HttpOnly`, `Secure`, `SameSite=Lax` cookie, and records `maxTouchPoints`, the
+  screen size in px and the user agent that the browser reports. Who made the code and when
+  are recorded (`registered_by_id`, `approved_by_id`, the timestamps), and the pairing is
+  audited.
+- The cookie is renewed and `last_seen_at` updated when the device is used. The admin list
+  shows "last seen" and warns when a device has been silent for a while: the server cannot
+  see that a browser's data was cleared. "Pair again" makes a new code and ends the old
+  token; "Revoke" sets `status = REVOKED` and the token is rejected from then on.
 - On an ACTIVE center device:
   1. anyone can still log in (it is shared) and walk-in sign-up is allowed;
   2. the phone number is never remembered and the session ends on idle and at slot end;
@@ -186,7 +198,7 @@ and sign-out"): build each screen from its recipe and nothing else.
 | Key   | What exists when it is done                                                                                                                                                                                                   |
 | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ID-14 | Centers: list, create, edit, remove (soft delete)                                                                                                                                                                             |
-| ID-15 | Center device: register from the login page, approve, revoke                                                                                                                                                                  |
+| ID-15 | Center device: add it in the admin area, pair it with a one-time QR code, see when it was last seen, pair again, revoke                                                                                                       |
 | ID-16 | Kiosk mode on an ACTIVE device: `CENTER` sessions, nothing remembered, sign-out on idle and at slot end, `getCenterDeviceContext()`, check-in through the booking lane, walk-in sign-up, and the sign-up rate-limit exemption |
 
 **Phase D — profile and privacy** (outline)

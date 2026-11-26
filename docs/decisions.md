@@ -3,6 +3,41 @@
 Short records of decisions that shape the code. Add a new entry at the top; do not rewrite
 old ones — supersede them.
 
+## 2026-11-27 — A center device is paired with a QR code (team lead)
+
+Supersedes "the login page has a 'ตั้งเป็นเครื่องที่ศูนย์' entry" in the foundation notes:
+`/login` now holds two buttons only, and staff must never type their own username and
+password on a device everyone shares.
+
+**Pairing.** An ADMIN adds the device in the admin area, on their own iPad or computer
+(center and label). The screen then shows a QR code, and the same code as a few characters
+to type when a camera is not available. The shared device scans it; its browser opens the
+address, receives the device token, and is in center mode from then on. Creating the code
+is the approval: there is no separate "pending approval" step for a person to do.
+
+**The code is used once and is short-lived.** It works for one device, one time, for 10
+minutes; after that a new one has to be made. Why: a code that stayed valid could be
+photographed and used to turn someone else's device into a center device.
+
+**The device describes itself.** At pairing the browser reports the screen size, touch
+points and user agent, so staff type only what cannot be read (label, asset tag, purchase
+year).
+
+**Staying paired.** The device token lives in an `HttpOnly` cookie; the database stores only
+its SHA-256. The cookie is renewed whenever the device is used. Clearing the browser's data,
+private browsing or another browser loses it, and the device must be paired again. An
+iPad's home-screen app keeps its data apart from Safari, so the device is paired from
+wherever it will be used.
+
+**What the admin area shows.** The server cannot know that a cookie was deleted; it knows
+when the device was last seen. The device list therefore shows "last seen …" and, once a
+device has been silent for a while, a warning that it may need pairing again. "Pair again"
+makes a new code for the same device and ends the old token. "Revoke" ends it for good.
+
+**A QR library may be added.** The lead approved one dependency for drawing the code. It
+must render in our own code (no request to another host) and carry an MIT, ISC or Apache
+licence; the issue that builds pairing names it.
+
 ## 2026-11-27 — Sign-in screens: the entry chooser and the staff door (team lead)
 
 Decided while reviewing the mock-ups for issue #27. Supersedes "Staff sign in on their own
