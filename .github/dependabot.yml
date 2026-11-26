@@ -1,0 +1,27 @@
+# Dependabot. OWNER: infra (team lead).
+#
+# - GitHub Actions: the workflows pin each action to a commit; this keeps the pins current.
+# - npm: no routine version bumps (a new dependency version needs the lead's approval,
+#   AGENTS.md §2). `open-pull-requests-limit: 0` leaves only security updates, which the
+#   repository setting "Dependabot security updates" opens when an advisory has a fix.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: staging
+    commit-message:
+      prefix: "chore(infra)"
+    labels:
+      - infra
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    commit-message:
+      prefix: "fix(infra)"
+    labels:
+      - infra

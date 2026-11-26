@@ -162,6 +162,32 @@ Optional, for stricter `staging`: a second ruleset `staging-up-to-date` targetin
 and _Require branches to be up to date_ ticked. Rulesets add up, so `staging` then needs
 an up-to-date branch while `main` does not.
 
+#### Security settings of the repository
+
+Turned on at **Settings → Advanced Security** (free for a public repository):
+
+| Setting                               | What it does                                                      |
+| ------------------------------------- | ----------------------------------------------------------------- |
+| Secret scanning, with push protection | Refuses a push that contains a recognised token                   |
+| Dependabot alerts                     | Tells the lead when a package we use has a known vulnerability    |
+| Dependabot security updates           | Opens a pull request with the fixed version when one exists       |
+| Code scanning, CodeQL default setup   | Scans the code and the workflows on every pull request and weekly |
+
+Three things follow from them:
+
+- **A Dependabot security pull request targets `main`,** because GitHub opens security
+  updates against the default branch only, and `target-guard` refuses it. The lead makes
+  the same version change on a `fix/infra-<package>` branch into `staging` (or a `hotfix/*`
+  branch when it cannot wait), then closes Dependabot's pull request. Routine version
+  bumps are off (`.github/dependabot.yml`): a new dependency version needs the lead.
+- **Workflow actions are pinned to a commit,** with the version in a comment
+  (`uses: actions/checkout@<sha> # v4.4.0`). Dependabot proposes the new pin into `staging`
+  once a week. Do not replace a pin with a tag.
+- **The `audit` job in CI is not a required check.** It runs
+  `pnpm audit --prod --audit-level high` and goes red when a runtime dependency has a known
+  high or critical vulnerability. A red `audit` does not block a merge; the lead reads it
+  and either fixes the version or records why it is accepted.
+
 ### 6. Staging branch, labels, environments
 
 Do these in order:
