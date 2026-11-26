@@ -661,7 +661,8 @@ Every screen is built from the design system and nothing else. Hard rules:
 ## Domain facts
 
 - Two roles: `USER` (elderly) and `ADMIN` (caregiver / center staff, sees everything).
-- Login: phone number + PIN (elderly) or long password (admin); bcrypt hashes.
+- Login: phone number + 4-digit PIN at `/login/pin` (elderly), or username + password at
+  `/admin/login` (staff); bcrypt hashes.
 - Usage contexts: `HOME`, or `CENTER` on a shared device an admin registered. On a center
   device nothing is remembered, sessions end automatically, and training requires a
   booking for the current time slot.
