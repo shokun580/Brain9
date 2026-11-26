@@ -1223,4 +1223,4 @@ factual; a destructive confirmation says what will happen.
   may not open it: the HTTP status is 200, the static admin menu frame is in the first HTML,
   and the admin page's own `<title>` stays in the first HTML and in the browser tab. Closing
   all three needs the check in `src/proxy.ts` before rendering, which waits for the identity
-  lane's sessions. Until then keep page titles generic.
+  lane's sessions.
