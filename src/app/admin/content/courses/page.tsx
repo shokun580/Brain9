@@ -1,37 +1,34 @@
-import { Suspense } from "react";
-import { CourseList, CreateCourseForm } from "@/modules/content/ui";
-import { Card } from "@/shared/ui";
+import { CourseList, CourseListSkeleton, CreateCourseForm } from "@/modules/content/ui";
+import { AdminSection, PageHeader, Reveal, TableCard } from "@/shared/ui";
 
-export const metadata = { title: "จัดการคอร์ส" };
+export const metadata = { title: "คอร์สและแบบฝึก" };
 
 /**
  * Reference page for the project. A route file stays thin:
  *   - no database or session access here
  *   - compose components exported from a module's `ui` entry point
- *   - wrap every component that reads data in <Suspense> with a fallback
+ *   - wrap every component that reads data in <Suspense> (here <Reveal>) with a fallback
  */
 export default function AdminCoursesPage() {
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-extrabold">จัดการคอร์ส</h1>
+    <>
+      <PageHeader
+        title="คอร์สและแบบฝึก"
+        breadcrumbs={[{ label: "เนื้อหาและผล" }, { label: "คอร์สและแบบฝึก" }]}
+        description="ดูคอร์สทั้งหมดและสร้างคอร์สใหม่"
+      />
 
-      <section aria-labelledby="course-list-heading" className="flex flex-col gap-3">
-        <h2 id="course-list-heading" className="text-xl font-bold">
-          คอร์สทั้งหมด
-        </h2>
-        <Suspense fallback={<p className="text-text-2">กำลังโหลดรายการคอร์ส…</p>}>
-          <CourseList />
-        </Suspense>
-      </section>
+      <AdminSection title="คอร์สทั้งหมด">
+        <Reveal fallback={<CourseListSkeleton />}>
+          <TableCard>
+            <CourseList />
+          </TableCard>
+        </Reveal>
+      </AdminSection>
 
-      <section aria-labelledby="course-create-heading">
-        <Card className="flex flex-col gap-4">
-          <h2 id="course-create-heading" className="text-xl font-bold">
-            สร้างคอร์สใหม่
-          </h2>
-          <CreateCourseForm />
-        </Card>
-      </section>
-    </div>
+      <AdminSection title="สร้างคอร์สใหม่">
+        <CreateCourseForm />
+      </AdminSection>
+    </>
   );
 }

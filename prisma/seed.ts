@@ -3,7 +3,10 @@
  *
  *   pnpm db:seed
  *
- * Idempotent: running it again updates the same rows instead of duplicating them.
+ * Idempotent: running it again keeps the same rows instead of duplicating them.
+ * Rows are looked up with `findFirst` + `deletedAt: null` rather than `upsert`, because a
+ * value such as a phone number or a center code is unique only among rows that are not
+ * soft-deleted (partial unique indexes — see docs/database.md).
  * It refuses to run against production. Each module owner may add their own demo rows
  * in the marked section for their module.
  */
@@ -38,50 +41,50 @@ const ADMIN_PHONE = "0800000001";
 const USER_PHONE = "0800000002";
 
 async function seedIdentity() {
-  const center = await db.center.upsert({
-    where: { code: "DEMO-01" },
-    update: {},
-    create: {
-      code: "DEMO-01",
-      name: "ศูนย์ชุมชนตัวอย่าง",
-      address: "ข้อมูลสมมติสำหรับการพัฒนา",
-      province: "ชลบุรี",
-    },
-  });
+  const center =
+    (await db.center.findFirst({ where: { code: "DEMO-01", deletedAt: null } })) ??
+    (await db.center.create({
+      data: {
+        code: "DEMO-01",
+        name: "ศูนย์ชุมชนตัวอย่าง",
+        address: "ข้อมูลสมมติสำหรับการพัฒนา",
+        province: "ชลบุรี",
+      },
+    }));
 
-  const admin = await db.user.upsert({
-    where: { phone: ADMIN_PHONE },
-    update: {},
-    create: {
-      phone: ADMIN_PHONE,
-      firstName: "ผู้ดูแล",
-      lastName: "ตัวอย่าง",
-      role: "ADMIN",
-      credentialType: "PASSWORD",
-      credentialHash: await bcrypt.hash(
-        demoSecret("SEED_ADMIN_PASSWORD", "brain9-local-admin"),
-        10,
-      ),
-      credentialUpdatedAt: new Date(),
-    },
-  });
+  const admin =
+    (await db.user.findFirst({ where: { phone: ADMIN_PHONE, deletedAt: null } })) ??
+    (await db.user.create({
+      data: {
+        phone: ADMIN_PHONE,
+        firstName: "ผู้ดูแล",
+        lastName: "ตัวอย่าง",
+        role: "ADMIN",
+        credentialType: "PASSWORD",
+        credentialHash: await bcrypt.hash(
+          demoSecret("SEED_ADMIN_PASSWORD", "brain9-local-admin"),
+          10,
+        ),
+        credentialUpdatedAt: new Date(),
+      },
+    }));
 
-  const elder = await db.user.upsert({
-    where: { phone: USER_PHONE },
-    update: {},
-    create: {
-      phone: USER_PHONE,
-      firstName: "สมศรี",
-      lastName: "ตัวอย่าง",
-      role: "USER",
-      credentialType: "PIN",
-      credentialHash: await bcrypt.hash(demoSecret("SEED_USER_PIN", "1234"), 10),
-      credentialUpdatedAt: new Date(),
-      birthDate: new Date("1955-04-12"),
-      gender: "FEMALE",
-      homeCenterId: center.id,
-    },
-  });
+  const elder =
+    (await db.user.findFirst({ where: { phone: USER_PHONE, deletedAt: null } })) ??
+    (await db.user.create({
+      data: {
+        phone: USER_PHONE,
+        firstName: "สมศรี",
+        lastName: "ตัวอย่าง",
+        role: "USER",
+        credentialType: "PIN",
+        credentialHash: await bcrypt.hash(demoSecret("SEED_USER_PIN", "1234"), 10),
+        credentialUpdatedAt: new Date(),
+        birthDate: new Date("1955-04-12"),
+        gender: "FEMALE",
+        homeCenterId: center.id,
+      },
+    }));
 
   const effectiveAt = new Date("2026-11-23T00:00:00+07:00");
   for (const policy of [
@@ -108,7 +111,9 @@ async function seedIdentity() {
 }
 
 async function seedContent(adminId: string) {
-  const existing = await db.course.findFirst({ where: { title: "คอร์สเริ่มต้น (ตัวอย่าง)" } });
+  const existing = await db.course.findFirst({
+    where: { title: "คอร์สเริ่มต้น (ตัวอย่าง)", deletedAt: null },
+  });
   if (existing) return;
 
   await db.course.create({
@@ -170,16 +175,12 @@ async function seedAnalytics() {
     { level: 4, name: "ดีมาก", minAccuracyPct: 90, maxAvgResponseTimeMs: 5000 },
   ];
   for (const criterion of levels) {
-    await db.performanceLevelCriterion.upsert({
-      where: {
-        level_difficultyLevel_effectiveFrom: {
-          level: criterion.level,
-          difficultyLevel: 0,
-          effectiveFrom,
-        },
-      },
-      update: {},
-      create: { ...criterion, difficultyLevel: 0, effectiveFrom },
+    const existing = await db.performanceLevelCriterion.findFirst({
+      where: { level: criterion.level, difficultyLevel: 0, effectiveFrom, deletedAt: null },
+    });
+    if (existing) continue;
+    await db.performanceLevelCriterion.create({
+      data: { ...criterion, difficultyLevel: 0, effectiveFrom },
     });
   }
 }
@@ -191,10 +192,10 @@ async function main() {
   // --- booking / engine demo rows: add here (module owners) ---
 
   const counts = {
-    users: await db.user.count(),
-    centers: await db.center.count(),
-    courses: await db.course.count(),
-    patterns: await db.pattern.count(),
+    users: await db.user.count({ where: { deletedAt: null } }),
+    centers: await db.center.count({ where: { deletedAt: null } }),
+    courses: await db.course.count({ where: { deletedAt: null } }),
+    patterns: await db.pattern.count({ where: { deletedAt: null } }),
   };
   console.log(`Seeded ${APP_ENV} database:`, counts);
 }

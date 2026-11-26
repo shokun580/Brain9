@@ -26,7 +26,10 @@ Changing these affects everyone, so only the lead changes them, on request:
   `prisma.config.ts`, `vercel.json`, `.env.example`
 - Shared code: `src/shared/**`, `src/proxy.ts`
 - App shell: `src/app/layout.tsx`, `src/app/globals.css`, `src/app/page.tsx`,
-  `src/app/(elder)/layout.tsx`, `src/app/admin/layout.tsx`, `src/app/admin/page.tsx`
+  `src/app/(elder)/layout.tsx`, `src/app/admin/layout.tsx`, `src/app/admin/page.tsx`,
+  `src/app/admin/template.tsx`, `src/app/(elder)/template.tsx`, `src/app/design/**`,
+  `src/app/icon.svg`, `src/app/not-found.tsx`, `src/app/error.tsx`,
+  `src/app/global-error.tsx`, `src/app/_system/**`
 - Database base: `prisma/schema/_base.prisma`, `prisma/seed.ts`
 - Automation and rules: `.github/**`, `scripts/**`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`,
   `docs/**`
@@ -39,15 +42,15 @@ Two deliberate exceptions, so nobody is blocked on the lead:
 
 ## Shared edges
 
-| Thing                                                  | Lives in | Used by                  | Rule                                                         |
-| ------------------------------------------------------ | -------- | ------------------------ | ------------------------------------------------------------ |
-| `getCurrentUser()` / `CurrentUser`                     | identity | everyone                 | Signature is frozen; changes need all lanes' approval        |
-| `PatternSteps` JSON                                    | content  | engine, analytics        | Versioned (`v`); see `docs/contracts/pattern-format.md`      |
-| `<PatternGrid />`                                      | engine   | content (Pattern Editor) | Props agreed in a cross-module issue                         |
-| `item_results` table                                   | engine   | analytics                | Column changes need analytics' approval                      |
-| `User` model back-relations                            | identity | everyone                 | Adding a relation field is fine; the identity owner approves |
-| Design tokens / UI kit                                 | infra    | everyone                 | Request additions with an `infra` issue                      |
-| Admin menu (`nav` array in `src/app/admin/layout.tsx`) | infra    | everyone                 | One-line PRs welcome, lead approves                          |
+| Thing                                              | Lives in | Used by                  | Rule                                                         |
+| -------------------------------------------------- | -------- | ------------------------ | ------------------------------------------------------------ |
+| `getCurrentUser()` / `CurrentUser`                 | identity | everyone                 | Signature is frozen; changes need all lanes' approval        |
+| `PatternSteps` JSON                                | content  | engine, analytics        | Versioned (`v`); see `docs/contracts/pattern-format.md`      |
+| `<PatternGrid />`                                  | engine   | content (Pattern Editor) | Props agreed in a cross-module issue                         |
+| `item_results` table                               | engine   | analytics                | Column changes need analytics' approval                      |
+| `User` model back-relations                        | identity | everyone                 | Adding a relation field is fine; the identity owner approves |
+| Design tokens / UI kit                             | infra    | everyone                 | Request additions with an `infra` issue                      |
+| Admin menu (`adminNav` in `src/app/admin/nav.tsx`) | infra    | everyone                 | One-line PRs welcome, lead approves                          |
 
 ## Requesting a change outside your lane
 

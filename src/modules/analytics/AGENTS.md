@@ -17,14 +17,16 @@ Turns recorded results into something an elderly user and an admin can understan
 
 - **Read-only towards other lanes.** Analytics reads `item_results`, `training_sessions`
   and content tables, and writes only its own tables. Everything it stores can be
-  recomputed from `item_results`.
+  recomputed from `item_results` — by updating rows in place or soft-deleting them, never
+  by deleting and re-inserting. `item_results` has no `deleted_at`: join
+  `training_sessions` and skip sessions that are soft-deleted.
 - Metrics (SRS §8): Accuracy, Response Time, Attempts, Difficulty Level, Progress Trend,
   Performance Level. **Test-mode** sessions are the primary source; training-mode data is
   shown separately and never mixed into the level.
 - Performance Level has 4 levels. Thresholds live in `performance_level_criteria` so they
   can be tuned without a deploy. The seeded values are placeholders — set the real ones
   with the Requirement Owner. `user_performance_levels` keeps history; exactly one row per
-  (user, difficulty) has `is_current = true` (partial unique index).
+  (user, difficulty) that is not soft-deleted has `is_current = true` (partial unique index).
 - Progress Trend = moving average + slope over time, compared with the previous period
   (prototype: last 3 sessions vs the 3 before). Report `INSUFFICIENT_DATA` rather than
   guessing from too few sessions.

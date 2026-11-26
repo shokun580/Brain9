@@ -95,7 +95,8 @@ More detail: [`docs/architecture.md`](docs/architecture.md).
 ## 4. How to write code here
 
 The reference implementation is the course feature — copy its shape:
-`src/modules/content/` and `src/app/admin/content/courses/page.tsx`.
+`src/modules/content/` and `src/app/admin/content/courses/page.tsx`. The UI of that
+reference follows the admin list-page recipe in `docs/design-system.md`.
 
 **Pages (`src/app/**/page.tsx`)** stay thin: no database or session access in the page
 function. Compose components from a module's `ui` entry point and wrap every component
@@ -123,11 +124,54 @@ the server. Client-side checks are for convenience only.
 **Naming** — code, identifiers, comments, commit messages, docs: **English**.
 User-facing text: **Thai**, polite and encouraging ("ไม่เป็นไรนะ ลองอีกครั้ง"), never blaming.
 
-**UI for elderly users** — use `@/shared/ui` and the tokens in `globals.css`:
-touch targets ≥ 64px, body text ≥ 20px (rem-based), every icon has a text label, never
-convey meaning by colour alone (pair with ✓ / ✕ / words), one step at a time with
-"ขั้นที่ X จาก Y", confirm before anything irreversible, respect `data-size` and
-`data-contrast` on `<html>`.
+**UI** — the design is closed: every screen is built from the design system and nothing
+else. Read [`docs/design-system.md`](docs/design-system.md) before building any screen, and
+open `/design` (local or staging) to see every component live. Hard rules:
+
+- **Components:** build only with `@/shared/ui`. Do not write your own button, field,
+  table, dialog, card, badge, tab, menu, skeleton or page frame, and do not restyle a
+  shared component through `className` (it is for layout only: width, margin, placement).
+- **Missing something?** Stop and open an `infra` issue that describes the screen and what
+  is missing. Do not hand-roll it and do not add a UI library.
+- **Tokens:** style only with the token utilities listed in the document. No raw colours
+  and no arbitrary colour or font-size values (`#0B7A75`, `bg-[#fff]`, `text-[19px]`):
+  ESLint rejects them. Tailwind's own palette, type sizes, radii, shadows and animations
+  (`bg-red-500`, `text-white`, `text-2xl`, `rounded-xl`, `shadow-lg`, `animate-bounce`) are
+  not part of the design either, and ESLint does not catch them: a passing lint is not
+  approval. Never fix a size in px: sizes follow `data-size` and `data-contrast` on `<html>`.
+- **Pages follow a recipe** in the document; do not invent a layout.
+  - Elderly screens (`(auth)`, `(elder)`): no cards, one primary button per screen, one
+    step at a time with `StepProgress`, every icon has a text label, text never below
+    17.5px, targets at least 48px.
+  - Admin screens (`/admin`): one column, `PageHeader` → `Tabs` when a record has several
+    views → `AdminSection`s. A form that creates something has its button under the
+    fields; a page that edits existing data ends with `SaveBar` inside the form. Tables in
+    `TableCard` + `Table`, figures in `StatTile`, status as `StatusDot` or `Tag`. Forms are
+    one column and never wrapped in a card. One primary action per page.
+- **Loading:** a component that reads data is wrapped in `Reveal` (or `Suspense`) with a
+  skeleton from `@/shared/ui`, never a line of text.
+- **Number entry (elderly screens):** a PIN is entered only with `PinPad` and a phone
+  number only with `PhonePad`. Those screens hold no field the user can focus or type
+  into (no `<input>`, visible, off-screen or transparent, and no `contenteditable`), so the
+  phone's keyboard never opens. The `type="hidden"` field `PhonePad` renders for a form
+  cannot take focus and is the one exception.
+- **Motion:** only the shared page fade exists. Add no animation, transition or
+  `ViewTransition` of your own; nothing inside a training exercise animates.
+- **Meaning:** correct and wrong always show ✓ / ✕ **and** words, never colour alone.
+- **Irreversible actions** are confirmed with `ConfirmDialog`, stating what will happen.
+- **System screens:** the 404 and error screens are shared (`src/app/not-found.tsx`,
+  `error.tsx`, `global-error.tsx`); a lane adds none of its own. A page the visitor may
+  not open answers with `notFound()`, exactly like a page that does not exist: never a
+  "no permission" screen, never a redirect that reveals the route. The one redirect is
+  `requireUser()` sending a signed-out visitor of an elderly page to `/login`.
+- **Logo:** `BrandMark` only; do not redraw or recolour it.
+- **Exception:** the 3x3 board (engine) and the Pattern Editor grid (content) are built by
+  their lanes, using only the cell states, tokens and fixed geometry listed in the
+  document's "The 3x3 board" section. That geometry is the one place arbitrary sizes are
+  allowed.
+- **Charts** (admin screens) are drawn only with `LineChart` and `BarChart` from
+  `@/shared/ui`. Do not import `recharts` in a lane, do not draw a chart by hand, and do
+  not add another chart library: a chart these two cannot draw is an `infra` issue.
 
 **Tests** — pure logic (scoring, validation, metrics, slot rules) must have Vitest unit
 tests next to the code (`*.test.ts`). Keep logic in pure functions so it is testable
@@ -147,9 +191,23 @@ without a database.
   That one-line edit is allowed, but the other owner must approve the PR.
 - CHECK constraints and partial unique indexes are hand-written SQL appended to the
   migration (Prisma cannot express them). Keep them when you touch those columns.
-- Append-only tables — `user_consents`, `audit_logs`, completed `item_results` /
-  `item_attempts` — are never updated or deleted by application code.
-- Content is soft-deleted (`deleted_at`); users are anonymized, not deleted.
+- **Soft delete only.** No row is ever physically deleted. Every table has `deleted_at`;
+  removing something sets it (`data: softDelete()` from `@/shared/lib/soft-delete`).
+  `db.<model>.delete()` / `.deleteMany()` are an ESLint error, raw SQL `DELETE` / `TRUNCATE`
+  is forbidden the same way, and no relation uses `onDelete: Cascade`.
+- **Read live rows by default.** Every query filters `deleted_at IS NULL`
+  (`where: notDeleted`), including nested relations and counts. Include deleted rows only
+  for a stated reason, and say why in a comment.
+- **Ledgers are the exception.** `user_consents`, `audit_logs`, `item_results` and
+  `item_attempts` are append-only: no `deleted_at`, never deleted, and never updated once
+  written (results: once the item is completed).
+- A value that must be reusable after a soft delete (a phone number, a center code) is
+  unique through a hand-written partial index `WHERE "deleted_at" IS NULL`, so there is no
+  `@unique` in the schema: look it up with `findFirst` + `notDeleted`, not `findUnique` /
+  `upsert`. A new model needs `deletedAt` and this decision for each of its unique rules.
+- **PDPA erasure overwrites, it does not delete.** The personal fields of the person's
+  rows are overwritten (anonymised) and every row is kept — see
+  [`src/modules/identity/AGENTS.md`](src/modules/identity/AGENTS.md) for the columns.
 - Table catalogue and ERD: [`docs/database.md`](docs/database.md).
 
 ## 6. Hot files — lead approval required
@@ -157,7 +215,11 @@ without a database.
 `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `next.config.ts`, `tsconfig.json`,
 `eslint.config.mjs`, `vitest.config.mts`, `prisma.config.ts`, `prisma/schema/_base.prisma`,
 `prisma/seed.ts` (outside your marked section), `src/app/layout.tsx`, `src/app/globals.css`,
-`src/app/page.tsx`, `src/app/(elder)/layout.tsx`, `src/app/admin/layout.tsx`, `src/shared/**`,
+`src/app/page.tsx`, `src/app/(elder)/layout.tsx`, `src/app/admin/layout.tsx`,
+`src/app/admin/nav.tsx` (one-line menu entries excepted, see `docs/ownership.md`),
+`src/app/admin/template.tsx`, `src/app/(elder)/template.tsx`, `src/app/design/**`,
+`src/app/icon.svg`, `src/app/not-found.tsx`, `src/app/error.tsx`, `src/app/global-error.tsx`,
+`src/app/_system/**`, `src/shared/**`,
 `.github/**`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `docs/**` (except your module's docs),
 `.env.example`, `vercel.json`.
 
@@ -225,7 +287,8 @@ Training results linked to a person may count as health-related sensitive data.
 - [ ] `pnpm check` and `pnpm build` pass locally
 - [ ] New logic has unit tests
 - [ ] Server-side authorization and Zod validation on every new entry point
-- [ ] Thai UI text, elderly-friendly sizing, works at phone and tablet widths
+- [ ] UI built only from @/shared/ui and tokens, following a recipe in docs/design-system.md
+- [ ] Thai UI text; works at phone and tablet widths (admin: 900px and 1440px)
 - [ ] Schema change → migration committed, `docs/database.md` updated if tables changed
 - [ ] PR description says what changed, how it was tested, and what is not done
 
@@ -233,7 +296,7 @@ Training results linked to a person may count as health-related sensitive data.
 
 Stop and ask your human. A wrong guess in a shared codebase costs four people time.
 Good questions to raise: "this needs a file outside my lane", "the issue does not define
-X", "this contract seems to need a change", "CI fails for a reason outside my change".
+X", "this contract seems to need a change", "CI fails for a reason outside my change", "the design system has no component for this".
 
 ---
 

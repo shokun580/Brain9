@@ -45,3 +45,6 @@ next-env.d.ts
 
 # env: commit only the example
 !.env.example
+
+# local design-discussion scratch files
+/.superpowers/
