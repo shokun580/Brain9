@@ -380,7 +380,7 @@ export function RecipesSection() {
       <Recipe
         id="elder-signin"
         importLine='import { Button, ElderHeader, Notice, PhonePad, PinPad, Section, StepProgress } from "@/shared/ui";'
-        note="สองขั้น แต่ละขั้นเป็นหน้าจอและ client component เล็ก ๆ ของตัวเองที่เป็นเจ้าของ value หรือ filled ขั้นที่ 1: ElderHeader → StepProgress → PhonePad → ปุ่มหลักหนึ่งปุ่ม (ถัดไป) ขั้นที่ 2: ElderHeader → StepProgress → PinPad ส่งเองเมื่อกดตัวสุดท้าย จึงไม่มีปุ่ม รหัสผิดแสดง Notice ด้วยคำให้กำลังใจ ทั้งสองหน้าไม่มี input ที่โฟกัสได้ แป้นพิมพ์มือถือจึงไม่ขึ้น ไม่มีการ์ด"
+        note="สองขั้น แต่ละขั้นเป็นหน้าจอและ client component เล็ก ๆ ของตัวเองที่เป็นเจ้าของ value หรือ filled ขั้นที่ 1: ElderHeader → StepProgress → PhonePad → ปุ่มหลักหนึ่งปุ่ม (ถัดไป) ขั้นที่ 2: ElderHeader → StepProgress → PinPad ส่งเองเมื่อกดตัวสุดท้าย จึงไม่มีปุ่ม รหัสผิดแสดง Notice ด้วยคำให้กำลังใจ ทั้งสองหน้าไม่มีช่องที่โฟกัสหรือพิมพ์ได้ (ไม่มี input ที่มองเห็น ซ่อนไว้นอกจอ หรือโปร่งใส และไม่มี contenteditable) แป้นพิมพ์มือถือจึงไม่ขึ้น มีเพียง input type=hidden ของ PhonePad ที่โฟกัสไม่ได้เป็นข้อยกเว้นเดียว ไม่มีการ์ด"
         code={signInCode}
       >
         <div className="flex flex-col gap-4">

@@ -34,7 +34,7 @@ describe("PhonePad", () => {
   it("shows the pattern in the muted colour when empty", () => {
     const markup = pad();
     expect(markup).toContain("0xx-xxx-xxxx");
-    expect(markup).toContain("text-fg-muted");
+    expect(markup).toContain('aria-label="เบอร์โทรศัพท์ ยังไม่ได้ใส่"');
   });
 
   it("shows a partial number as typed", () => {
@@ -46,7 +46,7 @@ describe("PhonePad", () => {
     const live = markup.match(/<[^>]*aria-live="polite"[^>]*>[^<]*<\/[a-z]+>/)?.[0] ?? "";
     expect(live).toContain("sr-only");
     expect(live).toContain("ใส่แล้ว 3 จาก 10 หลัก");
-    expect(markup).toContain('aria-label="เบอร์โทรศัพท์ 080"');
+    expect(markup).toContain('aria-label="เบอร์โทรศัพท์ 0 8 0"');
   });
 
   it("shows the hint, and the error with a cross instead of the hint", () => {

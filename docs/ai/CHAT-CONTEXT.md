@@ -376,9 +376,6 @@ Brand
 
 - `BrandMark` — `className?` (size), `label?`
 
-Number entry on elderly screens: a PIN only with `PinPad`, a phone number only with `PhonePad`.
-Those screens hold no focusable `<input>` (not even hidden), so the phone's keyboard never opens.
-
 Client components (`"use client"`): `ConfirmDialog`, `PhonePad`, `PinPad`, `DisplaySettings`, `TabBar`,
 `TabBarView`, `AdminShell`. A Server Component must not pass them function props: put
 `open`, handlers and Server Action calls in a small `"use client"` component of your own
@@ -417,6 +414,11 @@ Every screen is built from the design system and nothing else. Hard rules:
     sample above). One primary action per page.
 - **Loading:** a component that reads data is wrapped in `Reveal` (or `Suspense`) with a
   skeleton from `@/shared/ui`, never a line of text.
+- **Number entry (elderly screens):** a PIN is entered only with `PinPad` and a phone
+  number only with `PhonePad`. Those screens hold no field the user can focus or type
+  into (no `<input>`, visible, off-screen or transparent, and no `contenteditable`), so the
+  phone's keyboard never opens. The `type="hidden"` field `PhonePad` renders for a form
+  cannot take focus and is the one exception.
 - **Motion:** only the shared page fade exists. Add no animation, transition or
   `ViewTransition` of your own; nothing inside a training exercise animates.
 - **Meaning:** correct and wrong always show ✓ / ✕ **and** words, never colour alone.

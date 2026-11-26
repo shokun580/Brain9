@@ -39,10 +39,10 @@ export function PhonePad({ label, value, onChange, name, hint, error, disabled }
       </p>
       <div
         role="img"
-        aria-label={`${label} ${digits || "ยังไม่ได้ใส่"}`}
+        aria-label={`${label} ${digits ? digits.split("").join(" ") : "ยังไม่ได้ใส่"}`}
         aria-describedby={wiring.describedBy}
         className={cn(
-          "flex min-h-control w-full items-center justify-center rounded-field border-[length:var(--b9-border)] bg-surface px-4 text-title font-bold",
+          "flex min-h-control w-full items-center justify-center rounded-field border-[length:var(--b9-border)] bg-surface px-2 text-heading font-bold tabular-nums whitespace-nowrap",
           wiring.hasError ? "border-danger" : "border-line-strong",
           disabled && "opacity-60",
           digits ? "text-fg" : "text-fg-muted",
