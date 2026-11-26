@@ -44,7 +44,7 @@ export function SystemScreen({
           {secondaryAction}
         </div>
         <p className="mt-2 w-full border-t-[length:var(--b9-border)] border-line pt-4 text-body text-fg-2">
-          ต้องการความช่วยเหลือ แจ้งเจ้าหน้าที่ศูนย์ได้เลย
+          หากต้องการความช่วยเหลือ กรุณาแจ้งเจ้าหน้าที่ศูนย์
         </p>
         {reference ? <p className="text-small text-fg-muted">{reference}</p> : null}
       </main>

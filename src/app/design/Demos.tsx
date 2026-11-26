@@ -100,7 +100,7 @@ export function PhonePadDemo({ initial = "", error }: { initial?: string; error?
       label="เบอร์โทรศัพท์"
       value={value}
       onChange={setValue}
-      hint="กดตัวเลขทีละตัว ไม่ต้องรีบนะ"
+      hint="กดตัวเลขทีละตัว ใช้เวลาได้ตามสะดวก"
       error={error}
     />
   );

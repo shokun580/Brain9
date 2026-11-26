@@ -38,13 +38,7 @@ export function ElderStatus() {
       >
         <ElderScope>
           <div className="flex flex-col gap-6">
-            <Meter
-              label="สัปดาห์นี้"
-              value={3}
-              max={5}
-              segments
-              valueText="ฝึกแล้ว 3 จาก 5 วัน เก่งมากเลยนะ"
-            />
+            <Meter label="สัปดาห์นี้" value={3} max={5} segments valueText="ฝึกแล้ว 3 จาก 5 วัน" />
             <Meter label="ความคืบหน้าของคอร์ส" value={40} max={100} valueText="ทำไปแล้วร้อยละ 40" />
           </div>
         </ElderScope>
@@ -57,8 +51,8 @@ export function ElderStatus() {
       >
         <ElderScope>
           <div className="flex flex-col gap-4">
-            <ResultBanner tone="success" title="ถูกต้อง เก่งมาก" detail="ตอบถูก 4 จาก 5 ข้อ" />
-            <ResultBanner tone="danger" title="ไม่เป็นไรนะ ลองอีกครั้ง" detail="ค่อย ๆ ดูอีกรอบได้เลย" />
+            <ResultBanner tone="success" title="ถูกต้อง ทำได้ดีมาก" detail="ตอบถูก 4 จาก 5 ข้อ" />
+            <ResultBanner tone="danger" title="ยังไม่ถูกต้อง" detail="กรุณาดูลำดับอีกรอบแล้วลองอีกครั้ง" />
           </div>
         </ElderScope>
       </Example>
@@ -77,7 +71,7 @@ export function ElderStatus() {
               ผลการฝึกของวันนี้ถูกเก็บไว้เรียบร้อย
             </Notice>
             <Notice tone="danger" title="ยังบันทึกไม่ได้">
-              สัญญาณอินเทอร์เน็ตขาดหาย ลองอีกครั้งในอีกสักครู่นะ
+              สัญญาณอินเทอร์เน็ตขาดหาย กรุณาลองอีกครั้งในอีกสักครู่
             </Notice>
             <Notice tone="attention" title="โปรดทราบ">
               ช่องนี้ต้องแตะสองนิ้วพร้อมกัน
@@ -110,7 +104,7 @@ export function ElderStatus() {
         <ElderScope>
           <EmptyState
             title="ยังไม่มีผลการฝึก"
-            description="เริ่มฝึกครั้งแรกได้เลย ใช้เวลาไม่ถึง 5 นาที"
+            description="เริ่มฝึกครั้งแรกได้ทันที ใช้เวลาไม่ถึง 5 นาที"
             action={<Button href="#elder">เริ่มฝึก</Button>}
           />
           <ComingSoon title="ผลลัพธ์ของฉัน" owner="analytics" />

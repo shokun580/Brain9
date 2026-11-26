@@ -88,16 +88,16 @@ describe("Meter", () => {
 
 describe("ResultBanner", () => {
   it("pairs icon and words for both tones", () => {
-    const ok = html(<ResultBanner tone="success" title="ถูกต้อง เก่งมาก" />);
+    const ok = html(<ResultBanner tone="success" title="ถูกต้อง ทำได้ดีมาก" />);
     expect(ok).toContain("<svg");
-    expect(ok).toContain("ถูกต้อง เก่งมาก");
+    expect(ok).toContain("ถูกต้อง ทำได้ดีมาก");
     expect(ok).toContain('role="status"');
     const bad = html(
-      <ResultBanner tone="danger" title="ไม่เป็นไรนะ ลองอีกครั้ง" detail="ค่อย ๆ ทำได้เลย" />,
+      <ResultBanner tone="danger" title="ยังไม่ถูกต้อง" detail="กรุณาดูลำดับอีกรอบแล้วลองอีกครั้ง" />,
     );
     expect(bad).toContain("<svg");
     expect(bad).toContain('role="status"');
-    expect(bad).toContain("ค่อย ๆ ทำได้เลย");
+    expect(bad).toContain("กรุณาดูลำดับอีกรอบแล้วลองอีกครั้ง");
   });
 });
 
@@ -261,9 +261,9 @@ describe("PinPad keys and announcements", () => {
 
 describe("ResultBanner heading", () => {
   it("is a paragraph by default and a heading on request", () => {
-    expect(html(<ResultBanner tone="success" title="เก่งมาก" />)).not.toMatch(/<h[1-3]/);
-    expect(html(<ResultBanner tone="success" title="เก่งมาก" headingLevel={1} />)).toMatch(
-      /<h1[^>]*>เก่งมาก<\/h1>/,
+    expect(html(<ResultBanner tone="success" title="ทำได้ดีมาก" />)).not.toMatch(/<h[1-3]/);
+    expect(html(<ResultBanner tone="success" title="ทำได้ดีมาก" headingLevel={1} />)).toMatch(
+      /<h1[^>]*>ทำได้ดีมาก<\/h1>/,
     );
   });
 });

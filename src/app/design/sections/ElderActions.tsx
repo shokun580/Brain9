@@ -32,7 +32,7 @@ export function ElderActions() {
           <div className="flex flex-wrap gap-3">
             <Button variant="primary">เริ่มฝึก</Button>
             <Button variant="secondary">ดูผลลัพธ์</Button>
-            <Button variant="quiet">ไว้ทีหลัง</Button>
+            <Button variant="quiet">ไว้ภายหลัง</Button>
             <Button variant="danger">ยกเลิกการจอง</Button>
           </div>
         </ElderScope>

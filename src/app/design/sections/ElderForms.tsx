@@ -61,7 +61,7 @@ export function ElderForms() {
               hint="แจ้งเตือนเวลา 9:00 น."
               defaultChecked
             />
-            <Checkbox label="ฉันยอมรับเงื่อนไข" name="e-accept" errors={["กรุณาติ๊กเพื่อไปต่อ"]} />
+            <Checkbox label="ฉันยอมรับเงื่อนไข" name="e-accept" errors={["กรุณาเลือกช่องนี้ก่อนไปต่อ"]} />
           </div>
         </ElderScope>
       </Example>
@@ -110,7 +110,7 @@ export function ElderForms() {
       <Example
         title="PinPad"
         importLine='import { PinPad } from "@/shared/ui";'
-        note="ลองกดได้ ปุ่มแจ้งว่ากดตัวเลขใด แต่หน้าจอไม่เก็บและไม่โชว์ตัวเลข มีแค่จุดบอกความคืบหน้า (4 หรือ 6 หลัก)"
+        note="ลองกดได้ ปุ่มแจ้งว่ากดตัวเลขใด แต่หน้าจอไม่เก็บและไม่แสดงตัวเลข มีแค่จุดบอกความคืบหน้า (4 หรือ 6 หลัก)"
       >
         <ElderScope>
           <PinPadDemo />
@@ -125,7 +125,7 @@ export function ElderForms() {
         <ElderScope>
           <div className="flex flex-col gap-8">
             <PhonePadDemo />
-            <PhonePadDemo initial="08000" error="เบอร์โทรศัพท์ต้องมี 10 หลัก ลองเพิ่มอีกนิดนะ" />
+            <PhonePadDemo initial="08000" error="เบอร์โทรศัพท์ต้องมี 10 หลัก กรุณาใส่ให้ครบ" />
           </div>
         </ElderScope>
       </Example>

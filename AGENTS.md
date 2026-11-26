@@ -122,7 +122,11 @@ the server. Client-side checks are for convenience only.
 **TypeScript** — `strict` is on. No `any`, no non-null `!` on values you have not checked.
 
 **Naming** — code, identifiers, comments, commit messages, docs: **English**.
-User-facing text: **Thai**, polite and encouraging ("ไม่เป็นไรนะ ลองอีกครั้ง"), never blaming.
+User-facing text: **Thai**, semi-formal and respectful, never blaming: short, complete
+sentences that say what happened and what to do next. "กรุณา" marks a request (never on a
+button). No sentence-final particles ("นะ", "เลย", "ได้เลย", "ครับ", "ค่ะ") and no
+"ไม่เป็นไร". Example: "ยังไม่ถูกต้อง กรุณาลองอีกครั้ง". Full rule: `docs/design-system.md`
+section 10.
 
 **UI** — the design is closed: every screen is built from the design system and nothing
 else. Read [`docs/design-system.md`](docs/design-system.md) before building any screen, and
