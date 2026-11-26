@@ -62,6 +62,7 @@
   --b9-border: 1px;
   --b9-shadow-cell: 0 2px 6px rgb(20 32 43 / 0.08);
   --b9-shadow-cell-lit: 0 6px 16px rgb(11 122 117 / 0.35);
+  --b9-shadow-dock: 0 8px 24px rgb(20 32 43 / 0.14);
   --b9-shadow-overlay: 0 24px 60px rgb(20 32 43 / 0.28);
   color-scheme: light;
 }
@@ -152,6 +153,7 @@ html[data-contrast="high"] [data-ui="elder"] {
   --b9-border: 2px;
   --b9-shadow-cell: none;
   --b9-shadow-cell-lit: none;
+  --b9-shadow-dock: none;
   --b9-shadow-overlay: none;
   color-scheme: dark;
 }
@@ -218,6 +220,7 @@ html[data-contrast="high"] [data-ui="elder"] {
 
   --shadow-cell: var(--b9-shadow-cell);
   --shadow-cell-lit: var(--b9-shadow-cell-lit);
+  --shadow-dock: var(--b9-shadow-dock);
   --shadow-overlay: var(--b9-shadow-overlay);
 
   --font-sans: var(--font-line-seed), "Noto Sans Thai", Thonburi, system-ui, sans-serif;
