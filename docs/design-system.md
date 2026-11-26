@@ -352,7 +352,7 @@ export async function ThingList() {
   const things = await listThingsForAdmin();
 
   if (things.length === 0) {
-    return <EmptyState title="ยังไม่มีรายการ" description="เริ่มเพิ่มรายการแรกได้เลย" />;
+    return <EmptyState title="ยังไม่มีรายการ" description="เริ่มเพิ่มรายการแรกได้ทันที" />;
   }
 
   return (
@@ -457,7 +457,7 @@ export async function ThingPagedList({
   const things = await listThingsPage({ skip: r.from === 0 ? 0 : r.from - 1, take: PAGE_SIZE });
 
   if (total === 0) {
-    return <EmptyState title="ยังไม่มีรายการ" description="เริ่มเพิ่มรายการแรกได้เลย" />;
+    return <EmptyState title="ยังไม่มีรายการ" description="เริ่มเพิ่มรายการแรกได้ทันที" />;
   }
 
   return (
@@ -875,10 +875,10 @@ export function ExampleStep() {
       <Section>
         <ChoiceList
           name="mode"
-          legend="วันนี้อยากฝึกแบบไหน"
+          legend="วันนี้ต้องการฝึกแบบใด"
           defaultValue="training"
           options={[
-            { value: "training", title: "ฝึกเบา ๆ", description: "มีคำใบ้ ลองได้ไม่จำกัด" },
+            { value: "training", title: "ฝึก", description: "มีคำใบ้ ฝึกได้ไม่จำกัดครั้ง" },
             { value: "test", title: "ทดสอบ", description: "ไม่มีคำใบ้ มีจำนวนครั้งจำกัด" },
           ]}
         />
@@ -898,7 +898,7 @@ export function ExampleStep() {
 Sign-in is two steps, each its own screen and its own small `"use client"` component that
 owns its state. Step 1: `ElderHeader`, `StepProgress`, `PhonePad` and one primary `Button`
 (`ถัดไป`). Step 2: `ElderHeader`, `StepProgress`, `PinPad`; it submits when the last digit
-arrives, so it has no button, and a wrong PIN shows a `Notice` in encouraging words. Both
+arrives, so it has no button, and a wrong PIN shows a `Notice` in the voice of section 10. Both
 screens hold no field the user can focus or type into (the rule in section 4, "Notes on the
 easy-to-misuse ones"), so the phone's keyboard never opens. No cards, no second primary. The sample imports only from `@/shared/ui`; `onNext` and
 `checkPin` come from the identity lane (a PIN never leaves the browser except in that call).
@@ -927,7 +927,7 @@ export function PhoneStep({ onNext }: { onNext: (phone: string) => void }) {
             setPhone(next);
             setError(undefined);
           }}
-          hint="กดตัวเลขทีละตัว ไม่ต้องรีบนะ"
+          hint="กดตัวเลขทีละตัว ใช้เวลาได้ตามสะดวก"
           error={error}
         />
       </Section>
@@ -936,7 +936,7 @@ export function PhoneStep({ onNext }: { onNext: (phone: string) => void }) {
           fullWidth
           onClick={() => {
             if (phone.length === 10) onNext(phone);
-            else setError("เบอร์โทรศัพท์ต้องมี 10 หลัก ลองเพิ่มอีกนิดนะ");
+            else setError("เบอร์โทรศัพท์ต้องมี 10 หลัก กรุณาใส่ให้ครบ");
           }}
         >
           ถัดไป
@@ -987,7 +987,7 @@ export function PinStep({ checkPin }: { checkPin: (pin: string) => Promise<boole
       </Section>
       <Section>
         <div className="flex flex-col gap-4">
-          {wrong ? <Notice tone="danger">ไม่เป็นไรนะ รหัสยังไม่ตรง ลองใส่อีกครั้งได้เลย</Notice> : null}
+          {wrong ? <Notice tone="danger">รหัสยังไม่ถูกต้อง กรุณาใส่อีกครั้ง</Notice> : null}
           <PinPad
             length={PIN_LENGTH}
             filled={pin.length}
@@ -1106,7 +1106,7 @@ export async function ExerciseResult() {
         <ResultBanner
           tone={result.passed ? "success" : "danger"}
           headingLevel={2}
-          title={result.passed ? "ถูกต้อง เก่งมากเลย" : "ไม่เป็นไรนะ ลองอีกครั้ง"}
+          title={result.passed ? "ถูกต้อง ทำได้ดีมาก" : "ยังไม่ถูกต้อง"}
           detail={`ถูก ${result.correct} จาก ${result.total} ข้อ`}
         />
       </Section>
@@ -1165,13 +1165,13 @@ from a recipe. The page fades on navigation only if its section has its own `tem
 `SkeletonRegion`). Never a line of text.
 
 **Show an empty state.** `EmptyState` with a title that says what is missing and a
-description that says what to do next ("ยังไม่มีคอร์ส", "เริ่มสร้างคอร์สแรกได้เลย"). An
+description that says what to do next ("ยังไม่มีคอร์ส", "เริ่มสร้างคอร์สแรกได้จากแบบฟอร์มด้านล่าง"). An
 `action` is a `Button`. No illustration.
 
 **Show an error.** An error is shown where it happened: `errors` on the field it belongs to
 (the `Field` error text), or a `Notice tone="danger"` next to the form or the button that
 failed. A failed read: `Notice tone="danger"` with a calm next step
-("ลองโหลดหน้านี้อีกครั้งนะ"). `Toast` is for a success or neutral confirmation only, never
+("กรุณาโหลดหน้านี้อีกครั้ง"). `Toast` is for a success or neutral confirmation only, never
 the only place an error appears. Never show a stack trace, a code or a secret.
 
 **Show a system screen (not found, error).** These are shared and a lane adds none:
@@ -1376,16 +1376,36 @@ off and stills the skeleton.
 
 ## 10. Voice
 
-Thai, polite, short, encouraging, never blaming. Buttons are verbs. Numbers are digits.
-No English on the elderly side except unavoidable proper nouns. Admin text is plain and
-factual; a destructive confirmation says what will happen.
+Thai, semi-formal and respectful, never blaming: short, complete sentences that say what
+happened and what to do next. "กรุณา" marks a request (never on a button). No
+sentence-final particles ("นะ", "เลย", "ได้เลย", "ครับ", "ค่ะ") and no "ไม่เป็นไร".
 
-| Instead of                           | Write                              |
-| ------------------------------------ | ---------------------------------- |
-| "ผิด"                                 | "ไม่เป็นไรนะ ลองอีกครั้ง"               |
-| "Error 500"                          | "มีบางอย่างขัดข้อง ลองอีกครั้งนะ"         |
-| "OK"                                 | "เสร็จแล้ว" / the verb of the action |
-| buttons: "เริ่มฝึก", "จองคิว", "ระงับบัญชี" | (verbs, as written)                |
+The same rule in practice:
+
+- **Never blaming.** A wrong answer is "ยังไม่ถูกต้อง", never "ผิด". When the system
+  fails, the system apologises ("ขออภัยในความไม่สะดวก"); the message never suggests the
+  person did something wrong.
+- **Formal, not cold.** The reader is an elderly person: plain everyday words, no
+  bureaucratic or technical terms, no codes. A hint may still reassure
+  ("ใช้เวลาได้ตามสะดวก").
+- **Praise is measured.** "ถูกต้อง ทำได้ดีมาก" at most, and only on a result; a progress
+  line states the fact ("ฝึกแล้ว 3 จาก 5 วัน").
+- **Titles stay short.** A `ResultBanner` or screen title is a few words ("ยังไม่ถูกต้อง",
+  "ไม่พบหน้านี้"); the request ("กรุณา…") goes in the line under it.
+- **Questions** in a confirmation end with "หรือไม่" ("ต้องการออกจากระบบหรือไม่"), not "ไหม".
+- Buttons are verbs. Numbers are digits. No English on the elderly side except
+  unavoidable proper nouns. Admin text is plain and factual; a destructive confirmation
+  says what will happen.
+
+| Instead of                           | Write                                                          |
+| ------------------------------------ | -------------------------------------------------------------- |
+| "ผิด"                                 | "ยังไม่ถูกต้อง กรุณาลองอีกครั้ง"                                       |
+| "ไม่เป็นไรนะ รหัสยังไม่ตรง"               | "รหัสยังไม่ถูกต้อง กรุณาใส่อีกครั้ง"                                     |
+| "Error 500"                          | "ระบบขัดข้องชั่วคราว" + "ขออภัยในความไม่สะดวก กรุณารอสักครู่แล้วลองอีกครั้ง" |
+| "เก่งมากเลยนะ"                        | "ถูกต้อง ทำได้ดีมาก"                                               |
+| "ออกจากระบบไหม"                      | "ต้องการออกจากระบบหรือไม่"                                        |
+| "OK"                                 | "เสร็จแล้ว" / the verb of the action                             |
+| buttons: "เริ่มฝึก", "จองคิว", "ระงับบัญชี" | (verbs, as written, without "กรุณา")                            |
 
 ## 11. Do / Don't
 

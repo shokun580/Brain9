@@ -137,7 +137,7 @@ export function DoDontSection() {
               <div className="flex flex-col gap-2">
                 <Button fullWidth>เริ่มฝึก</Button>
                 <Button fullWidth variant="quiet">
-                  ไว้ทีหลัง
+                  ไว้ภายหลัง
                 </Button>
               </div>
             </Side>

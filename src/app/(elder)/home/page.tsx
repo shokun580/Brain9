@@ -25,7 +25,7 @@ export default function Page() {
 
       <Section>
         {/* TODO(analytics): training days this week for the signed-in person. */}
-        <Meter label="สัปดาห์นี้" value={3} max={5} segments valueText="ฝึกแล้ว 3 จาก 5 วัน เก่งมากเลยนะ" />
+        <Meter label="สัปดาห์นี้" value={3} max={5} segments valueText="ฝึกแล้ว 3 จาก 5 วัน" />
       </Section>
 
       <Section>

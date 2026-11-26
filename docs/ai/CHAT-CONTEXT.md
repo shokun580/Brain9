@@ -163,10 +163,10 @@ export default function Page() {
         <Section>
           <ChoiceList
             name="mode"
-            legend="วันนี้อยากฝึกแบบไหน"
+            legend="วันนี้ต้องการฝึกแบบใด"
             defaultValue="training"
             options={[
-              { value: "training", title: "ฝึกเบา ๆ", description: "มีคำใบ้ ลองได้ไม่จำกัด" },
+              { value: "training", title: "ฝึก", description: "มีคำใบ้ ฝึกได้ไม่จำกัดครั้ง" },
               { value: "test", title: "ทดสอบ", description: "ไม่มีคำใบ้" },
             ]}
           />
@@ -295,7 +295,7 @@ until that lane delivers it, with whatever props that lane defines.
 
 // result (inside the engine lane's async component, in the same Suspense)
 <Section first>
-  <ResultBanner tone="success" headingLevel={2} title="ถูกต้อง เก่งมากเลย" detail="ถูก 4 จาก 5 ข้อ" />
+  <ResultBanner tone="success" headingLevel={2} title="ถูกต้อง ทำได้ดีมาก" detail="ถูก 4 จาก 5 ข้อ" />
 </Section>
 <Section><PatternGrid /></Section> {/* the board in its final states */}
 <Section><Meter label="คะแนนรอบนี้" value={4} max={5} segments valueText="ถูก 4 จาก 5 ข้อ" /></Section>
@@ -489,7 +489,10 @@ Every screen is built from the design system and nothing else. Hard rules:
    only their own data. Only ADMIN reads others', and that calls `recordAudit()`.
 3. Validate all input with Zod on the server.
 4. Code, comments, commit messages in **English**. Text shown to users in **Thai**,
-   polite and encouraging, never blaming.
+   semi-formal and respectful, never blaming: short, complete sentences that say what
+   happened and what to do next. "กรุณา" marks a request (never on a button). No
+   sentence-final particles ("นะ", "เลย", "ได้เลย", "ครับ", "ค่ะ") and no "ไม่เป็นไร".
+   Example: "ยังไม่ถูกต้อง กรุณาลองอีกครั้ง".
 5. UI follows the design rules above: only `@/shared/ui` and tokens, one step at a time on
    the elderly side, every icon has a text label, never colour alone (add ✓ / ✕ / words),
    confirm before anything irreversible.

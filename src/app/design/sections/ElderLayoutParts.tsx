@@ -90,8 +90,8 @@ export function ElderLayoutParts() {
         <ElderScope>
           <div className="flex flex-col gap-4">
             <ConfirmDialogDemo
-              triggerLabel="เริ่มฝึกเลย"
-              title="เริ่มฝึกตอนนี้ไหม"
+              triggerLabel="เริ่มฝึก"
+              title="ต้องการเริ่มฝึกตอนนี้หรือไม่"
               confirmLabel="เริ่มฝึก"
               tone="primary"
             >
@@ -99,11 +99,11 @@ export function ElderLayoutParts() {
             </ConfirmDialogDemo>
             <ConfirmDialogDemo
               triggerLabel="ออกจากระบบ"
-              title="ออกจากระบบไหม"
+              title="ต้องการออกจากระบบหรือไม่"
               confirmLabel="ออกจากระบบ"
               tone="primary"
             >
-              <p>ถ้าออก ต้องเข้าสู่ระบบใหม่ด้วยเบอร์โทรและรหัสผ่านอีกครั้ง</p>
+              <p>หากออกจากระบบ ต้องเข้าสู่ระบบใหม่ด้วยเบอร์โทรและรหัสผ่านอีกครั้ง</p>
             </ConfirmDialogDemo>
           </div>
         </ElderScope>

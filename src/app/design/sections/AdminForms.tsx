@@ -63,7 +63,7 @@ export function AdminForms() {
           <div className="flex flex-col gap-3">
             <Notice tone="primary">ข้อมูลที่แก้ไขจะมีผลกับผู้ใช้ทันที</Notice>
             <Notice tone="success">สร้างคอร์สเรียบร้อยแล้ว</Notice>
-            <Notice tone="danger">บันทึกไม่สำเร็จ ลองอีกครั้ง</Notice>
+            <Notice tone="danger">บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง</Notice>
             <Notice tone="attention" title="ยังไม่ได้เผยแพร่">
               คอร์สนี้ยังเป็นฉบับร่าง ผู้ใช้จะยังไม่เห็น
             </Notice>
@@ -80,7 +80,7 @@ export function AdminForms() {
         <AdminScope>
           <ConfirmDialogDemo
             triggerLabel="ระงับบัญชีตัวอย่าง"
-            title="ระงับบัญชีนี้ไหม"
+            title="ต้องการระงับบัญชีนี้หรือไม่"
             confirmLabel="ระงับบัญชี"
             tone="danger"
           >

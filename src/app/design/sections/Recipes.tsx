@@ -168,7 +168,7 @@ const stepCode = `<ElderHeader title="เลือกแบบฝึก" backHre
     <StepProgress current={1} total={3} />
   </Section>
   <Section>
-    <ChoiceList name="mode" legend="วันนี้อยากฝึกแบบไหน" defaultValue="training" options={[…]} />
+    <ChoiceList name="mode" legend="วันนี้ต้องการฝึกแบบใด" defaultValue="training" options={[…]} />
   </Section>
   <Section>
     <Button type="submit" fullWidth>ไปต่อ</Button> {/* ปุ่มหลักหนึ่งปุ่ม */}
@@ -179,15 +179,15 @@ const signInCode = `{/* ขั้นที่ 1: "use client" ของตัว
 <ElderHeader title="เข้าสู่ระบบ" />
 <Section first><StepProgress current={1} total={2} /></Section>
 <Section>
-  <PhonePad label="เบอร์โทรศัพท์" value={phone} onChange={setPhone} hint="กดตัวเลขทีละตัว ไม่ต้องรีบนะ" error={error} />
+  <PhonePad label="เบอร์โทรศัพท์" value={phone} onChange={setPhone} hint="กดตัวเลขทีละตัว ใช้เวลาได้ตามสะดวก" error={error} />
 </Section>
 <Section><Button fullWidth onClick={next}>ถัดไป</Button></Section> {/* ปุ่มหลักหนึ่งปุ่ม */}
 
-{/* ขั้นที่ 2: "use client" ของตัวเอง เป็นเจ้าของ pin กดตัวสุดท้ายแล้วส่งเลย ไม่มีปุ่ม */}
+{/* ขั้นที่ 2: "use client" ของตัวเอง เป็นเจ้าของ pin กดตัวสุดท้ายแล้วส่งทันที ไม่มีปุ่ม */}
 <ElderHeader title="เข้าสู่ระบบ" backHref="/login" />
 <Section first><StepProgress current={2} total={2} /></Section>
 <Section>
-  {wrong ? <Notice tone="danger">ไม่เป็นไรนะ รหัสยังไม่ตรง ลองใส่อีกครั้งได้เลย</Notice> : null}
+  {wrong ? <Notice tone="danger">รหัสยังไม่ถูกต้อง กรุณาใส่อีกครั้ง</Notice> : null}
   <PinPad length={4} filled={pin.length} disabled={checking} onDigit={press} onDelete={back} />
 </Section>`;
 
@@ -211,7 +211,7 @@ const playCode = `{/* หน้าเล่น: เส้นทางของ�
 
 {/* หน้าผล: ExerciseResult (async ของทีม engine) ใน Suspense เดียวกัน */}
 <Section first>
-  <ResultBanner tone="success" headingLevel={2} title="ถูกต้อง เก่งมากเลย" detail="ถูก 4 จาก 5 ข้อ" />
+  <ResultBanner tone="success" headingLevel={2} title="ถูกต้อง ทำได้ดีมาก" detail="ถูก 4 จาก 5 ข้อ" />
 </Section>
 <Section><PatternGrid /></Section> {/* สถานะสุดท้ายของกระดาน */}
 <Section><Meter label="คะแนนรอบนี้" value={4} max={5} segments valueText="ถูก 4 จาก 5 ข้อ" /></Section>
@@ -365,10 +365,10 @@ export function RecipesSection() {
             <Section>
               <ChoiceList
                 name="r-step-mode"
-                legend="วันนี้อยากฝึกแบบไหน"
+                legend="วันนี้ต้องการฝึกแบบใด"
                 defaultValue="training"
                 options={[
-                  { value: "training", title: "ฝึกเบา ๆ", description: "มีคำใบ้ ลองได้ไม่จำกัด" },
+                  { value: "training", title: "ฝึก", description: "มีคำใบ้ ฝึกได้ไม่จำกัดครั้ง" },
                   { value: "test", title: "ทดสอบ", description: "ไม่มีคำใบ้ มีจำนวนครั้งจำกัด" },
                 ]}
               />
@@ -408,7 +408,7 @@ export function RecipesSection() {
             </Section>
             <Section>
               <div className="flex flex-col gap-4">
-                <Notice tone="danger">ไม่เป็นไรนะ รหัสยังไม่ตรง ลองใส่อีกครั้งได้เลย</Notice>
+                <Notice tone="danger">รหัสยังไม่ถูกต้อง กรุณาใส่อีกครั้ง</Notice>
                 <PinPadDemo />
               </div>
             </Section>
@@ -477,7 +477,7 @@ export function RecipesSection() {
               <ResultBanner
                 tone="success"
                 headingLevel={2}
-                title="ถูกต้อง เก่งมากเลย"
+                title="ถูกต้อง ทำได้ดีมาก"
                 detail="ถูก 4 จาก 5 ข้อ"
               />
             </Section>
@@ -519,8 +519,8 @@ export function RecipesSection() {
           <div className="overflow-hidden rounded-panel border-[length:var(--b9-border)] border-line">
             <SystemScreen
               embedded
-              title="ยังหาหน้านี้ไม่เจอ"
-              description="ไม่เป็นไรนะ กลับไปหน้าหลักแล้วเริ่มใหม่ได้เลย"
+              title="ไม่พบหน้านี้"
+              description="กรุณากลับไปหน้าหลักแล้วเริ่มใหม่อีกครั้ง"
               action={
                 <Button fullWidth href="#recipe-system-screens">
                   กลับหน้าหลัก
@@ -531,8 +531,8 @@ export function RecipesSection() {
           <div className="overflow-hidden rounded-panel border-[length:var(--b9-border)] border-line">
             <SystemScreen
               embedded
-              title="ระบบของเรามีปัญหาชั่วคราว"
-              description="ไม่ใช่ความผิดของคุณนะ รอสักครู่แล้วลองอีกครั้งได้เลย"
+              title="ระบบขัดข้องชั่วคราว"
+              description="ขออภัยในความไม่สะดวก กรุณารอสักครู่แล้วลองอีกครั้ง"
               action={
                 <Button fullWidth href="#recipe-system-screens">
                   ลองอีกครั้ง

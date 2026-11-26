@@ -11,8 +11,8 @@ export const metadata: Metadata = { title: "ไม่พบหน้านี้
 export default function NotFound() {
   return (
     <SystemScreen
-      title="ยังหาหน้านี้ไม่เจอ"
-      description="ไม่เป็นไรนะ กลับไปหน้าหลักแล้วเริ่มใหม่ได้เลย"
+      title="ไม่พบหน้านี้"
+      description="กรุณากลับไปหน้าหลักแล้วเริ่มใหม่อีกครั้ง"
       action={
         <Button fullWidth href="/">
           กลับหน้าหลัก
