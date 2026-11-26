@@ -13,6 +13,7 @@ export { Notice, type NoticeProps } from "./Notice";
 export { Meter, type MeterProps } from "./Meter";
 export { NumberField, type NumberFieldProps } from "./NumberField";
 export { PinPad, type PinPadProps } from "./PinPad";
+export { PhonePad, type PhonePadProps } from "./PhonePad";
 export { ResultBanner, type ResultBannerProps } from "./ResultBanner";
 export { Section, type SectionProps } from "./Section";
 export { Select, type SelectProps } from "./Select";

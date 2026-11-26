@@ -128,6 +128,7 @@ meant to be used; shared ones adapt to the scope they sit in.
 | `ChoiceList`       | large single choice (2 to 6 options) | elder | `name`, `legend`, `options` (`title`, `description`, `badge`, `disabled`), `defaultValue`, `onValueChange`       |
 | `SegmentedControl` | compact single choice (2–3 options)  | admin | `name`, `legend`, `defaultValue`, `options`, `onValueChange`                                                     |
 | `PinPad`           | PIN entry                            | elder | `length` (4 or 6), `filled`, `onDigit`, `onDelete`, `disabled`                                                   |
+| `PhonePad`         | phone number entry, no keyboard      | elder | `label`, `value`, `onChange`, `name` (adds a hidden field), `hint`, `error`, `disabled`                          |
 | `DisplaySettings`  | text size and high-contrast dialog   | elder | `triggerLabel`; place it in `ElderHeader`'s `action`                                                             |
 
 Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.title}`.
@@ -210,7 +211,7 @@ Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.ti
 
 A page and a module's data components are Server Components. These shared components are
 client components (`"use client"`): `AdminShell`, `ConfirmDialog`, `DisplaySettings`,
-`PinPad`, `TabBar` and `TabBarView`. A Server Component may render a client component, but
+`PhonePad`, `PinPad`, `TabBar` and `TabBarView`. A Server Component may render a client component, but
 may not pass it a function (a Server Action is the one exception). `ChoiceList` and
 `SegmentedControl` also take a function prop (`onValueChange`), so use that prop only inside
 your own `"use client"` component; without it both work as plain native radios. Everything
@@ -228,6 +229,11 @@ your lane's `ui/` (recipes in section 6).
   Copy the pattern from the JSDoc in `src/shared/lib/pagination.ts` and `Pagination.tsx`.
 - **`ChoiceList`**: a disabled option must explain itself in `description`
   ("ยังไม่เปิดให้ใช้งาน"), never just grey out.
+- **`PinPad` / `PhonePad`**: no focusable input on the same screen, so the phone's keyboard
+  never opens. Other numbers on elderly screens (a count, an age) still use `NumberField`;
+  admin forms use `TextField`. `PhonePad` shows the digits (a phone number is not secret),
+  does not validate (the server does, with Zod), and with `name` posts them through a
+  hidden field.
 - **`ConfirmDialog`** for anything irreversible. `children` states what will happen, as a
   short list. Cancel is first and focused; the confirm button names the action.
 - **`RowActions`**: one text link plus a "more" menu of links. It needs a `rowLabel`
@@ -874,6 +880,107 @@ export function ExampleStep() {
         </Button>
       </Section>
     </form>
+  );
+}
+```
+
+### Elderly sign-in steps
+
+Sign-in is two steps, each its own screen and its own small `"use client"` component that
+owns its state. Step 1: `ElderHeader`, `StepProgress`, `PhonePad` and one primary `Button`
+(`ถัดไป`). Step 2: `ElderHeader`, `StepProgress`, `PinPad`; it submits when the last digit
+arrives, so it has no button, and a wrong PIN shows a `Notice` in encouraging words. Both
+screens hold no `<input>` the user can focus, so the phone's keyboard never opens. No
+cards, no second primary. The sample imports only from `@/shared/ui`; `onNext` and
+`checkPin` come from the identity lane (a PIN never leaves the browser except in that call).
+
+```tsx
+// src/modules/<lane>/ui/PhoneStep.tsx
+"use client";
+
+import { useState } from "react";
+import { Button, ElderHeader, PhonePad, Section, StepProgress } from "@/shared/ui";
+
+export function PhoneStep({ onNext }: { onNext: (phone: string) => void }) {
+  const [phone, setPhone] = useState("");
+  const [error, setError] = useState<string>();
+  return (
+    <>
+      <ElderHeader title="เข้าสู่ระบบ" />
+      <Section first>
+        <StepProgress current={1} total={2} />
+      </Section>
+      <Section>
+        <PhonePad
+          label="เบอร์โทรศัพท์"
+          value={phone}
+          onChange={(next) => {
+            setPhone(next);
+            setError(undefined);
+          }}
+          hint="กดตัวเลขทีละตัว ไม่ต้องรีบนะ"
+          error={error}
+        />
+      </Section>
+      <Section>
+        <Button
+          fullWidth
+          onClick={() => {
+            if (phone.length === 10) onNext(phone);
+            else setError("เบอร์โทรศัพท์ต้องมี 10 หลัก ลองเพิ่มอีกนิดนะ");
+          }}
+        >
+          ถัดไป
+        </Button>
+      </Section>
+    </>
+  );
+}
+```
+
+```tsx
+// src/modules/<lane>/ui/PinStep.tsx
+"use client";
+
+import { useState } from "react";
+import { ElderHeader, Notice, PinPad, Section, StepProgress } from "@/shared/ui";
+
+export function PinStep({ checkPin }: { checkPin: (pin: string) => Promise<boolean> }) {
+  const [pin, setPin] = useState("");
+  const [wrong, setWrong] = useState(false);
+  const [checking, setChecking] = useState(false);
+
+  async function press(digit: string) {
+    const next = pin + digit;
+    setWrong(false);
+    if (next.length < 4) {
+      setPin(next);
+      return;
+    }
+    setChecking(true); // the last digit submits: there is no button on this step
+    const correct = await checkPin(next);
+    setChecking(false);
+    setPin("");
+    setWrong(!correct);
+  }
+
+  return (
+    <>
+      <ElderHeader title="เข้าสู่ระบบ" backHref="/login" />
+      <Section first>
+        <StepProgress current={2} total={2} />
+      </Section>
+      <Section>
+        {wrong ? <Notice tone="danger">ไม่เป็นไรนะ รหัสยังไม่ตรง ลองใส่อีกครั้งได้เลย</Notice> : null}
+        <PinPad
+          length={4}
+          filled={pin.length}
+          disabled={checking}
+          onDigit={press}
+          onDelete={() => setPin((current) => current.slice(0, -1))}
+        />
+      </Section>
+    </>
   );
 }
 ```

@@ -150,6 +150,9 @@ open `/design` (local or staging) to see every component live. Hard rules:
     one column and never wrapped in a card. One primary action per page.
 - **Loading:** a component that reads data is wrapped in `Reveal` (or `Suspense`) with a
   skeleton from `@/shared/ui`, never a line of text.
+- **Number entry (elderly screens):** a PIN is entered only with `PinPad` and a phone
+  number only with `PhonePad`. Those screens hold no `<input>` the user can focus (not
+  even a hidden or off-screen one), so the phone's keyboard never opens.
 - **Motion:** only the shared page fade exists. Add no animation, transition or
   `ViewTransition` of your own; nothing inside a training exercise animates.
 - **Meaning:** correct and wrong always show ✓ / ✕ **and** words, never colour alone.

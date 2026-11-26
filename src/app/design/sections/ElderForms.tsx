@@ -1,5 +1,5 @@
 import { Badge, Checkbox, ChoiceList, NumberField, Select, TextField, Textarea } from "@/shared/ui";
-import { PinPadDemo } from "../Demos";
+import { PhonePadDemo, PinPadDemo } from "../Demos";
 import { ElderScope, SubHeading } from "../chrome";
 import { Example } from "../Example";
 
@@ -114,6 +114,19 @@ export function ElderForms() {
       >
         <ElderScope>
           <PinPadDemo />
+        </ElderScope>
+      </Example>
+
+      <Example
+        title="PhonePad"
+        importLine='import { PhonePad } from "@/shared/ui";'
+        note="กรอกเบอร์โทรด้วยปุ่มของเราเอง แป้นพิมพ์มือถือไม่ขึ้น แสดงตัวเลขเป็น 080-000-0000 เพราะเบอร์โทรไม่ใช่ความลับ ไม่ตรวจความถูกต้อง (ฝั่งเซิร์ฟเวอร์ตรวจ) ตัวอย่างบน: ว่าง ลองกดได้ ตัวอย่างล่าง: มีข้อความผิดพลาด"
+      >
+        <ElderScope>
+          <div className="flex flex-col gap-8">
+            <PhonePadDemo />
+            <PhonePadDemo initial="08000" error="เบอร์โทรศัพท์ต้องมี 10 หลัก ลองเพิ่มอีกนิดนะ" />
+          </div>
         </ElderScope>
       </Example>
     </>

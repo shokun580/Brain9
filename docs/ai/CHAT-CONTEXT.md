@@ -323,6 +323,7 @@ Forms
 - `ChoiceList` — elder, 2 to 6 options (more than 6 → an `infra` issue); `name`, `legend`, `options: {value,title,description?,badge?,disabled?}[]` (a disabled option explains itself in `description`), `defaultValue`, `hint`, `errors`, `required`, `onValueChange`
 - `SegmentedControl` — admin, 2–3 options; `name`, `legend`, `defaultValue`, `options: {value,label,icon?}[]`, `onValueChange`
 - `PinPad` — elder, client; `length` (4|6), `filled`, `onDigit`, `onDelete`, `disabled`
+- `PhonePad` — elder, client; `label`, `value` (digits), `onChange`, `name?` (hidden field), `hint`, `error`, `disabled`; shows `080-000-0000`, does not validate
 - `DisplaySettings` — elder, client; `triggerLabel`; put it in `ElderHeader`'s `action`
 
 Feedback
@@ -375,7 +376,10 @@ Brand
 
 - `BrandMark` — `className?` (size), `label?`
 
-Client components (`"use client"`): `ConfirmDialog`, `PinPad`, `DisplaySettings`, `TabBar`,
+Number entry on elderly screens: a PIN only with `PinPad`, a phone number only with `PhonePad`.
+Those screens hold no focusable `<input>` (not even hidden), so the phone's keyboard never opens.
+
+Client components (`"use client"`): `ConfirmDialog`, `PhonePad`, `PinPad`, `DisplaySettings`, `TabBar`,
 `TabBarView`, `AdminShell`. A Server Component must not pass them function props: put
 `open`, handlers and Server Action calls in a small `"use client"` component of your own
 module's `ui/`. `ChoiceList` and `SegmentedControl` also take a function prop
