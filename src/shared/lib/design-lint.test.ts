@@ -42,6 +42,8 @@ describe("ESLint: design tokens only in feature code", () => {
 
   it.each([
     wrapJsx('<p className="bg-primary text-body max-w-[560px]" />'),
+    // The chart colours of docs/design-system.md section 8.
+    wrapJsx('<rect className="fill-[var(--chart-1)] stroke-[var(--chart-4)]" />'),
     'export const t = "ข้อ #2";\n',
   ])(
     "allows %s",

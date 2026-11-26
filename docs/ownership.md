@@ -26,7 +26,9 @@ Changing these affects everyone, so only the lead changes them, on request:
   `prisma.config.ts`, `vercel.json`, `.env.example`
 - Shared code: `src/shared/**`, `src/proxy.ts`
 - App shell: `src/app/layout.tsx`, `src/app/globals.css`, `src/app/page.tsx`,
-  `src/app/(elder)/layout.tsx`, `src/app/admin/layout.tsx`, `src/app/admin/page.tsx`
+  `src/app/(elder)/layout.tsx`, `src/app/admin/layout.tsx`, `src/app/admin/page.tsx`,
+  `src/app/admin/template.tsx`, `src/app/(elder)/template.tsx`, `src/app/design/**`,
+  `src/app/icon.svg`
 - Database base: `prisma/schema/_base.prisma`, `prisma/seed.ts`
 - Automation and rules: `.github/**`, `scripts/**`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`,
   `docs/**`
