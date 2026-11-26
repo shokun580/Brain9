@@ -32,6 +32,19 @@ A lane never sets `data-ui` itself.
 | `elder` | `(auth)` and `(elder)` layouts | 20px      | 64px (sm: 48px) | 48px           | 17.5px    | apply (set on `<html>`)       |
 | `admin` | `AdminShell`, `StaffAuthShell` | 14.5px    | 36px (sm: 30px) | 30px           | 12.5px    | ignored                       |
 
+**Devices.** The elderly side must work well on every device: a small phone, a tablet and a
+computer, by touch and with a mouse and keyboard; its content sits in one column of at most
+640px, centred on a wider screen. The admin side is built for an iPad and a computer; a
+phone is not a target (a screen must still open on one, but is not tuned for it).
+
+| Side    | Check at                                                | Also                                                          |
+| ------- | ------------------------------------------------------- | ------------------------------------------------------------- |
+| elderly | 360px (small phone), 768px (tablet), 1280px (computer)  | the largest text size; no sideways scrolling                  |
+| admin   | 768px (iPad upright), 1024px (iPad on its side), 1440px | usable by touch: nothing needs hover, right click or shortcut |
+
+Below 1024px the admin shell hides its page list until the menu button is pressed, so an
+upright iPad keeps the full column for the page.
+
 Elder text scales by `data-size` 1 / 2 / 3 (x1.0, x1.2, x1.4); icons do not scale. High
 contrast (`data-contrast="high"`) turns the page black, borders white and 2px thick, and
 removes shadows. Never fix a size in px: use the type and size utilities below.
