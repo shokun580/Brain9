@@ -9,7 +9,7 @@ import { adminNav } from "./nav";
 // approves. Keep this file free of data access outside <Suspense>.
 
 /**
- * Redirects non-admins away. A layout is NOT a security boundary — it does not re-run on
+ * Answers "not found" to anyone who is not an admin. A layout is NOT a security boundary — it does not re-run on
  * every navigation — so each page, query and Server Action must still authorize itself.
  */
 async function AdminGate({ children }: { children: React.ReactNode }) {
@@ -20,7 +20,7 @@ async function AdminGate({ children }: { children: React.ReactNode }) {
 /** Name and role only: no phone number or other personal field reaches the top bar. */
 async function AdminUser() {
   const user = await getCurrentUser();
-  // A non-admin is about to be redirected by AdminGate: never label them as an admin.
+  // A non-admin is about to get "not found" from AdminGate: never label them as an admin.
   if (!user || user.role !== "ADMIN") return null;
   return (
     <div className="min-w-0 leading-tight">
