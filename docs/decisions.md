@@ -3,6 +3,70 @@
 Short records of decisions that shape the code. Add a new entry at the top; do not rewrite
 old ones — supersede them.
 
+## 2026-11-26 — Sign-in, sign-up and abuse protection (team lead)
+
+**No SMS anywhere.** The system sends no SMS and no OTP. Why: no provider is free beyond a
+trial, sender names must be registered every year, and a flood of sign-ups would cost money
+for every code sent. Consequences: a phone number is not verified at sign-up, and a PIN
+reset is confirmed by a phone call from staff instead of a code sent by the system.
+
+**PIN is exactly 4 digits.** `PinPad` submits on the last digit, so the length is one fixed
+value. Four identical digits, `1234` and `4321` are refused. This closes open question 3.
+
+**A forgotten PIN is reset online, after staff call back.** Brain9 is used at home as well
+as at a center, so a reset must not need a visit. The person asks for a reset on the site
+with their phone number. Staff see the request, call the number registered on the account,
+and confirm that the person asked. Staff then press "allow a new PIN": every open session
+of the account ends, and for 24 hours the browser that made the request is taken straight
+to the screen where the person sets a new PIN on our own pad. Answering the registered
+number is the proof of identity, the same proof an SMS code would give. The site answers a
+request the same way whether or not the number has an account. Only the browser that asked
+can set the PIN: knowing the phone number is not enough. Every approval, refusal and reset
+is audited. The reset is one step ("prove who you are") followed by a fixed one ("set the
+new PIN"), so another proof (LINE, SMS) can be added later without rebuilding it.
+
+**At a center, staff can also reset a PIN with the person present:** the person types the
+new PIN on the pad, so staff never learn it.
+
+**Lockout.** Five wrong attempts for one phone number within 15 minutes block sign-in for
+that number for 15 minutes, whether or not an account exists, so the message never reveals
+that. Twenty failed attempts from one IP address within 15 minutes block that address the
+same way.
+
+**Sessions.** On a personal device a `USER` session lasts 30 days and is extended while it
+is used. An `ADMIN` session lasts 12 hours and is not extended. Center devices get their own
+rule with kiosk mode (open question 4).
+
+**Staff sign in on their own page.** `/login/staff` (phone number and a password of 12 to
+72 characters, typed with the keyboard), linked from `/login` as a small text link. An
+admin's phone number entered on the elderly sign-in fails like any wrong PIN.
+
+**Sign-up asks for the minimum.** Phone number → PIN (typed twice) → first and last name →
+consent. Birth date, gender, emergency contact and home center are filled in later on the
+profile screen. All three consents (`TERMS_OF_USE`, `PERSONAL_DATA`, `COGNITIVE_DATA`) are
+required to create an account, each ticked separately and none pre-ticked: the service
+cannot run without storing training results. Signing up with a number that already has an
+account says so and points to sign-in; without SMS this cannot be hidden, so sign-up is
+rate-limited instead.
+
+**Abuse protection has three layers.**
+
+1. Edge (infra): a rate-limit rule in the Vercel firewall on the sign-in and sign-up routes,
+   and a written emergency procedure.
+2. Application (identity): every sign-in and sign-up action runs validate → rate limit →
+   database, so a refused request never reaches bcrypt. Counters live in PostgreSQL; no new
+   dependency. At most five new accounts per IP address per hour; registered center devices
+   will be exempt once kiosk mode exists.
+3. Damage limit (booking): an account that has never been checked in at a center may hold
+   one upcoming booking at a time. The first check-in lifts the limit: staff have then seen
+   the person. An ADMIN can cancel bookings and suspend accounts.
+
+A human check (CAPTCHA) on sign-up is held in reserve and added only if layers 1 and 2 are
+not enough.
+
+**The first production ADMIN** is created by a one-off, guarded script run by the lead.
+After that, admins create admins on the admin users page.
+
 ## 2026-11-26 — Soft delete everywhere; erasure anonymises in place (team lead)
 
 **Every table is soft-delete only.** Application code never physically deletes a row; it
@@ -86,7 +150,7 @@ Prisma stays on 7.x while 8 is a release candidate.
 | --- | -------------------------------------------------------------------------- | ----------------------------- |
 | 1   | Real thresholds for Performance Levels 1–4                                 | analytics + Requirement Owner |
 | 2   | Final text of the privacy notice and terms of use                          | identity                      |
-| 3   | PIN length (4 or 6 digits) and lockout policy                              | identity                      |
+| 3   | ~~PIN length and lockout policy~~ — decided 2026-11-26 (see above)         | identity                      |
 | 4   | Idle timeout on center devices                                             | identity                      |
 | 5   | How far ahead time slots are generated and bookable                        | booking                       |
 | 6   | Is "one booking per day" per center or across all centers (currently: all) | booking                       |
@@ -94,3 +158,4 @@ Prisma stays on 7.x while 8 is a release candidate.
 | 8   | Data retention period for results of inactive accounts                     | lead                          |
 | 9   | On erasure, also clear IP / user agent on the person's `auth_sessions`?    | lead + identity               |
 | 10  | On erasure, keep a coarse birth year / gender for statistics? (now: no)    | lead + analytics              |
+| 11  | How many upcoming bookings a checked-in account may hold at once           | booking                       |
