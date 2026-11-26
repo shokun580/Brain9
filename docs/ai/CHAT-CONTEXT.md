@@ -425,6 +425,11 @@ Every screen is built from the design system and nothing else. Hard rules:
 - **Errors** are shown where they happened: `errors` on the field, or a `Notice tone="danger"`
   next to the form. `Toast` is for a success or neutral confirmation only, never the only
   place an error appears.
+- **System screens** (404, error) are shared: `src/app/not-found.tsx`, `error.tsx`,
+  `global-error.tsx`. A lane adds none. A page the visitor may not open answers with
+  `notFound()`, exactly like a page that does not exist: never a "no permission" screen,
+  never a redirect that reveals the route. The one redirect is `requireUser()` sending a
+  signed-out visitor of an elderly page to `/login`.
 - **Irreversible actions** are confirmed with `ConfirmDialog`, stating what will happen.
 - **Logo:** `BrandMark` only; do not redraw or recolour it.
 - **Exception:** the 3x3 board (engine) and the Pattern Editor grid (content) are built by

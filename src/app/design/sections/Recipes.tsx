@@ -18,6 +18,7 @@ import {
   Tabs,
 } from "@/shared/ui";
 import { Activity, CalendarDays, Play, Users } from "lucide-react";
+import { SystemScreen } from "../../_system/SystemScreen";
 import { CourseTable } from "../CourseTable";
 import { AdminScope, ElderScope, Part } from "../chrome";
 import { ConfirmDialogDemo, EditFormDemo, PhonePadDemo, PinPadDemo } from "../Demos";
@@ -43,6 +44,7 @@ export const RECIPES = [
     name: "Elderly play and result screens",
     title: "หน้าเล่นและหน้าผลของผู้สูงอายุ",
   },
+  { id: "system-screens", name: "System screens", title: "หน้าระบบ (ไม่พบหน้า และข้อผิดพลาด)" },
 ] as const;
 
 type RecipeId = (typeof RECIPES)[number]["id"];
@@ -195,6 +197,9 @@ const elderListCode = `<ElderHeader title="แบบฝึกของฉัน"
     <MyExerciseRows /> {/* async: <ListRow href=… icon=… title=… subtitle=… /> ต่อหนึ่งแบบฝึก */}
   </Reveal>
 </Section>`;
+
+const systemCode = `// A page the visitor may not open answers like a page that does not exist.
+if (!allowed) notFound();`;
 
 const playCode = `{/* หน้าเล่น: เส้นทางของการฝึก ใช้ Suspense ห้ามใช้ Reveal และไม่มีอะไรเคลื่อนไหว */}
 <ElderHeader title="ฝึกจำลำดับ" />
@@ -502,6 +507,45 @@ export function RecipesSection() {
               </Button>
             </Section>
           </ElderScope>
+        </div>
+      </Recipe>
+      <Recipe
+        id="system-screens"
+        importLine='import { notFound } from "next/navigation";'
+        note="หน้าไม่พบหน้าและหน้าข้อผิดพลาดใช้ SystemScreen ร่วมกัน ข้อความล้วน ไม่มีการ์ด ไม่มีภาพประกอบ และไม่มีเลขรหัส หน้าที่ผู้เข้าชมไม่มีสิทธิ์เปิดต้องเรียก notFound() ให้ได้หน้าเดียวกับหน้าที่ไม่มีอยู่จริง ห้ามมีหน้าไม่มีสิทธิ์และห้ามเปลี่ยนเส้นทางที่บอกว่ามีหน้านี้ ตัวอย่างนี้เป็นภาพนิ่ง ปุ่มไม่ทำงาน"
+        code={systemCode}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="overflow-hidden rounded-panel border-[length:var(--b9-border)] border-line">
+            <SystemScreen
+              embedded
+              title="ยังหาหน้านี้ไม่เจอ"
+              description="ไม่เป็นไรนะ กลับไปหน้าหลักแล้วเริ่มใหม่ได้เลย"
+              action={
+                <Button fullWidth href="#recipe-system-screens">
+                  กลับหน้าหลัก
+                </Button>
+              }
+            />
+          </div>
+          <div className="overflow-hidden rounded-panel border-[length:var(--b9-border)] border-line">
+            <SystemScreen
+              embedded
+              title="ระบบของเรามีปัญหาชั่วคราว"
+              description="ไม่ใช่ความผิดของคุณนะ รอสักครู่แล้วลองอีกครั้งได้เลย"
+              action={
+                <Button fullWidth href="#recipe-system-screens">
+                  ลองอีกครั้ง
+                </Button>
+              }
+              secondaryAction={
+                <Button fullWidth variant="secondary" href="#recipe-system-screens">
+                  กลับหน้าหลัก
+                </Button>
+              }
+              reference="รหัสอ้างอิง 1a2b3c"
+            />
+          </div>
         </div>
       </Recipe>
     </Part>

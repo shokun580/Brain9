@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { db } from "@/shared/lib/db";
 import { env } from "@/shared/lib/env";
 import type { CurrentUser } from "../contracts";
@@ -38,10 +38,13 @@ export async function requireUser(): Promise<CurrentUser> {
   return user;
 }
 
-/** For admin pages: an ADMIN, or a redirect away. */
+/**
+ * For admin pages: an ADMIN, or a 404. Signed out and not-an-admin answer the same way, and
+ * neither redirects: a redirect to /login or / would reveal that the route exists.
+ */
 export async function requireAdmin(): Promise<CurrentUser> {
-  const user = await requireUser();
-  if (user.role !== "ADMIN") redirect("/");
+  const user = await getCurrentUser();
+  if (!user || user.role !== "ADMIN") notFound();
   return user;
 }
 
