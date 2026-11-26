@@ -220,7 +220,8 @@ without a database.
 `src/app/admin/template.tsx`, `src/app/(elder)/template.tsx`, `src/app/design/**`,
 `src/app/icon.svg`, `src/app/not-found.tsx`, `src/app/error.tsx`, `src/app/global-error.tsx`,
 `src/app/_system/**`, `src/shared/**`,
-`.github/**`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `docs/**` (except your module's docs),
+`.github/**`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `SECURITY.md`, `docs/**` (except your
+module's docs),
 `.env.example`, `vercel.json`.
 
 Need a change there? Open an issue labelled `infra` describing what and why.
@@ -282,6 +283,24 @@ Training results linked to a person may count as health-related sensitive data.
 - Consent is a ledger: granting and withdrawing each insert a row in `user_consents`.
 - Credentials are bcrypt hashes; session and device tokens are stored only as SHA-256.
 
+**Security rules for every lane** — the full list, the threats behind it and the pull
+request checklist are in [`docs/security.md`](docs/security.md). Read it before writing an
+entry point. The repository is public: nothing may depend on being hidden.
+
+- An id from the request is checked against the signed-in person before it is used. Not
+  found and not allowed answer the same way.
+- An action open to a signed-out visitor runs validate → rate limit → database.
+- Nothing personal in a URL, a log, an error or browser storage.
+- No script, style, font or image from another host and no browser request to one: the
+  Content Security Policy blocks them. No `<iframe>`.
+- No `dangerouslySetInnerHTML`, no `eval`, no SQL built from strings (`$queryRawUnsafe`):
+  ESLint rejects them.
+- A redirect goes to a fixed internal path, never to a URL from input.
+- A new environment variable, cookie, file upload or external service is an `infra` issue
+  first.
+- A vulnerability or a leaked secret is told to the lead in private, never written in an
+  issue or a pull request.
+
 ## 11. Definition of done
 
 - [ ] Meets the issue's acceptance criteria, and nothing beyond its scope
@@ -289,6 +308,7 @@ Training results linked to a person may count as health-related sensitive data.
 - [ ] `pnpm check` and `pnpm build` pass locally
 - [ ] New logic has unit tests
 - [ ] Server-side authorization and Zod validation on every new entry point
+- [ ] The security checklist in `docs/security.md` §8 holds
 - [ ] UI built only from @/shared/ui and tokens, following a recipe in docs/design-system.md
 - [ ] Thai UI text; works at phone and tablet widths (admin: 900px and 1440px)
 - [ ] Schema change → migration committed, `docs/database.md` updated if tables changed
