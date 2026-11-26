@@ -183,7 +183,7 @@ const playCode = `{/* หน้าเล่น: เส้นทางของ�
 <ElderHeader title="ฝึกจำลำดับ" />
 <Section first>
   <Suspense fallback={<SkeletonRegion label="กำลังเตรียมแบบฝึก"><SkeletonLine width="lg" text="title" /></SkeletonRegion>}>
-    <PatternGrid /> {/* ของทีม engine จาก "@/modules/engine/ui" */}
+    <PatternGrid /> {/* ของทีม engine จาก "@/modules/engine/ui" ตอนนี้เป็นชื่อแทนไว้ก่อนจนกว่าทีม engine จะส่งมอบ props เป็นไปตามที่ทีม engine กำหนด */}
   </Suspense>
 </Section>
 
@@ -388,7 +388,7 @@ export function RecipesSection() {
       <Recipe
         id="elder-play"
         importLine='import { Button, ElderHeader, Meter, Notice, ResultBanner, Section } from "@/shared/ui";'
-        note="หน้าเล่น: ElderHeader → กระดานของทีม engine (PatternGrid) ใน Section first คำบอกสองนิ้วเป็น Notice โทน attention เหนือกระดาน ไม่มีอะไรเคลื่อนไหว อ่านข้อมูลใน Suspense ห้ามใช้ Reveal หน้าผล: ResultBanner (✓ หรือ ✕ และคำ) → กระดานในสถานะสุดท้าย → Meter ถ้ามีคะแนน → ปุ่มหลักหนึ่งปุ่ม กระดานในภาพเป็นภาพนิ่ง"
+        note="หน้าเล่น: ElderHeader → กระดานของทีม engine (PatternGrid) ใน Section first คำบอกสองนิ้วเป็น Notice โทน attention เหนือกระดาน ไม่มีอะไรเคลื่อนไหว อ่านข้อมูลใน Suspense ห้ามใช้ Reveal หน้าผล: ResultBanner (✓ หรือ ✕ และคำ) → กระดานในสถานะสุดท้าย → Meter ถ้ามีคะแนน → ปุ่มหลักหนึ่งปุ่ม กระดานในภาพเป็นภาพนิ่ง PatternGrid เป็นคอมโพเนนต์ของทีม engine ในตัวอย่างนี้เป็นชื่อแทนไว้ก่อนจนกว่าทีม engine จะส่งมอบ และใช้ props ตามที่ทีม engine กำหนด"
         code={playCode}
       >
         <div className="flex flex-col gap-4">

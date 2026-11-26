@@ -143,10 +143,11 @@ open `/design` (local or staging) to see every component live. Hard rules:
   - Elderly screens (`(auth)`, `(elder)`): no cards, one primary button per screen, one
     step at a time with `StepProgress`, every icon has a text label, text never below
     17.5px, targets at least 48px.
-  - Admin screens (`/admin`): one column, `PageHeader` → `AdminSection`s → optional
-    `SaveBar`. Tables in `TableCard` + `Table`, figures in `StatTile`, status as
-    `StatusDot` or `Tag`. Forms are one column and never wrapped in a card. One primary
-    action per page.
+  - Admin screens (`/admin`): one column, `PageHeader` → `Tabs` when a record has several
+    views → `AdminSection`s. A form that creates something has its button under the
+    fields; a page that edits existing data ends with `SaveBar` inside the form. Tables in
+    `TableCard` + `Table`, figures in `StatTile`, status as `StatusDot` or `Tag`. Forms are
+    one column and never wrapped in a card. One primary action per page.
 - **Loading:** a component that reads data is wrapped in `Reveal` (or `Suspense`) with a
   skeleton from `@/shared/ui`, never a line of text.
 - **Motion:** only the shared page fade exists. Add no animation, transition or

@@ -59,26 +59,21 @@ export function ConfirmDialogDemo({
   );
 }
 
-/** Shows a Toast in flow (the real one is placed by the screen that uses it). */
+/** Shows a Toast in flow (the real one is placed by the screen that uses it). Success and
+ *  neutral confirmations only: an error is shown beside the form, never only in a toast. */
 export function ToastDemo() {
-  const [toast, setToast] = useState<{ message: string; tone: "success" | "danger" } | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   return (
     <div className="flex flex-col items-start gap-3">
       <div className="flex flex-wrap gap-3">
-        <Button
-          variant="secondary"
-          onClick={() => setToast({ message: "บันทึกแล้ว", tone: "success" })}
-        >
+        <Button variant="secondary" onClick={() => setMessage("บันทึกแล้ว")}>
           แสดงข้อความสำเร็จ
         </Button>
-        <Button
-          variant="secondary"
-          onClick={() => setToast({ message: "บันทึกไม่สำเร็จ ลองอีกครั้งนะ", tone: "danger" })}
-        >
-          แสดงข้อความไม่สำเร็จ
+        <Button variant="secondary" onClick={() => setMessage("คัดลอกรหัสศูนย์แล้ว")}>
+          แสดงข้อความยืนยันทั่วไป
         </Button>
       </div>
-      {toast ? <Toast message={toast.message} tone={toast.tone} /> : null}
+      {message ? <Toast message={message} /> : null}
     </div>
   );
 }

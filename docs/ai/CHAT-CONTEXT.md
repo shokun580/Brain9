@@ -38,7 +38,9 @@ rules exactly. If a request conflicts with them, say so instead of complying.
   - chart colours are the CSS variables `--chart-1` to `--chart-4`
 
   Sizes come from the scope on the layout root, `data-ui="elder" | "admin"`; never
-  hard-code colours or sizes. Vitest.
+  hard-code colours or sizes. Elder (`(auth)`, `(elder)`): body text 20px, controls 64px
+  high (`size="sm"` 48px), smallest target 48px, text never below 17.5px. Admin: body text
+  14.5px, controls 36px high (`size="sm"` 30px), smallest target 30px. Vitest.
 
 ## Lanes — work in exactly one
 
@@ -271,15 +273,16 @@ component that reads it renders the header too; the page is only
     </dl>
   </AdminSection>
   <AdminSection title="เก็บเข้าคลัง" description="รายการจะไม่แสดงในรายการหลัก ผู้ดูแลระบบขอคืนได้">
-    <ArchiveThingButton thingId={thing.id} thingName={thing.name} />{" "}
-    {/* danger Button → ConfirmDialog */}
+    {/* ArchiveThingButton: a danger Button that opens ConfirmDialog */}
+    <ArchiveThingButton thingId={thing.id} thingName={thing.name} />
   </AdminSection>
 </>
 ```
 
 Elderly play and result screens (engine). A training route: read data inside `Suspense`,
 never `Reveal`; nothing animates. The board is the engine lane's `PatternGrid` from
-`@/modules/engine/ui`.
+`@/modules/engine/ui`. `PatternGrid` is the engine lane's component: here it is a placeholder
+until that lane delivers it, with whatever props that lane defines.
 
 ```tsx
 // play
@@ -325,7 +328,7 @@ Forms
 Feedback
 
 - `Notice` — `tone` (`primary|success|danger|attention`), `title?`, children
-- `Toast` — `message`, `tone` (`success|danger`); the caller decides when to show it; for a success, never the only place an error appears
+- `Toast` — `message`, `tone` (`success|danger`; danger is not for errors that need action); the caller decides when to show it; an error is shown beside the form, never only in a toast
 - `ConfirmDialog` — client; `open`, `title`, children (what will happen), `confirmLabel`, `cancelLabel?`, `tone` (`primary|danger`), `onConfirm`, `onCancel`
 - `ResultBanner` — elder; `tone` (`success|danger`), `title`, `detail?`, `headingLevel?`
 - `Badge` — elder; `tone` (`neutral|primary|success|danger|attention`), children
@@ -373,8 +376,11 @@ Brand
 - `BrandMark` — `className?` (size), `label?`
 
 Client components (`"use client"`): `ConfirmDialog`, `PinPad`, `DisplaySettings`, `TabBar`,
-`AdminShell`. A Server Component must not pass them function props: put `open`, handlers and
-Server Action calls in a small `"use client"` component of your own module's `ui/`.
+`TabBarView`, `AdminShell`. A Server Component must not pass them function props: put
+`open`, handlers and Server Action calls in a small `"use client"` component of your own
+module's `ui/`. `ChoiceList` and `SegmentedControl` also take a function prop
+(`onValueChange`): use it only inside your own `"use client"` component; without it both
+work as plain native radios.
 
 ## Design rules (the design is closed)
 
@@ -421,8 +427,8 @@ Every screen is built from the design system and nothing else. Hard rules:
   - Play board (elder): container `grid grid-cols-3`, square (`aspect-square`),
     `bg-primary-soft`, `rounded-panel` (26px), 14px padding (`p-3.5`), 12px gap (`gap-3`),
     no shadow, as large as the screen allows with every cell at least 20mm wide on a phone.
-    Cell: square, 20px radius (`rounded-[20px]`), `border-[length:var(--b9-border)]
-border-edge`, glyph `text-title font-bold`. At rest `bg-surface` + `shadow-cell`; shown
+    Cell: square, 20px radius (`rounded-[20px]`), the high-contrast border
+    `border-[length:var(--b9-border)] border-edge`, glyph `text-title font-bold`. At rest `bg-surface` + `shadow-cell`; shown
     `bg-primary-tint`; lit `bg-primary` + `shadow-cell-lit`; tapped in order `bg-primary`
     with the order number in `text-on-primary`; correct `bg-success` with the order number
     or ✓ in `text-on-primary`; wrong `bg-danger` with ✕ in `text-on-danger` (the words are

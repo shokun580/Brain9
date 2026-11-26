@@ -53,6 +53,9 @@ Defined in `src/app/globals.css`. Style only with these utility families, nothin
   `grid`, `grid-cols-…`), `gap-…`, padding, margin, width and max-width, on Tailwind's spacing
   scale; `list-disc` for a list in a dialog; and the two fixed values this document writes
   out: `max-w-[35rem]` for an admin form and the `StatTile` grid class in section 5.
+- **Charts, inside a chart's SVG only:** `fill-[var(--chart-1)]` … `fill-[var(--chart-4)]`
+  and `stroke-[var(--chart-1)]` … `stroke-[var(--chart-4)]` (section 8). ESLint lets them
+  through, like every value it does not reject; that does not approve them anywhere else.
 
 ESLint rejects raw colours and arbitrary colour or font-size values (`#0B7A75`, `bg-[#fff]`,
 `text-[19px]`). It does not catch Tailwind's own palette, type sizes, radii, shadows and
@@ -136,7 +139,7 @@ Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.ti
 | Component       | Use it for                            | Scope | Key props                                                                                       |
 | --------------- | ------------------------------------- | ----- | ----------------------------------------------------------------------------------------------- |
 | `Notice`        | inline message in a page              | both  | `tone` (`primary` `success` `danger` `attention`), `title`                                      |
-| `Toast`         | a success after an action             | both  | `message`, `tone` (`success` `danger`); never the only place an error appears                   |
+| `Toast`         | a success after an action             | both  | `message`, `tone` (`success` `danger`: not for errors that need action)                         |
 | `ConfirmDialog` | anything irreversible                 | both  | `open`, `title`, `children` (what will happen), `confirmLabel`, `tone`, `onConfirm`, `onCancel` |
 | `ResultBanner`  | outcome of an answer                  | elder | `tone` (`success` `danger`), `title`, `detail`, `headingLevel`                                  |
 | `Badge`         | status pill on the elderly side       | elder | `tone` (`neutral` `primary` `success` `danger` `attention`)                                     |
@@ -212,8 +215,8 @@ may not pass it a function (a Server Action is the one exception). `ChoiceList` 
 `SegmentedControl` also take a function prop (`onValueChange`), so use that prop only inside
 your own `"use client"` component; without it both work as plain native radios. Everything
 else in the catalogue works in either kind. Anything that needs state, an `onClick` or a
-Server Action call (a dialog's `open`, a toast)
-goes in a small `"use client"` component in your lane's `ui/` (recipes in section 6).
+Server Action call (a dialog's `open`, a toast) goes in a small `"use client"` component in
+your lane's `ui/` (recipes in section 6).
 
 ### Notes on the easy-to-misuse ones
 
@@ -934,6 +937,8 @@ The engine lane's main screens (spec §6.1 and §8). A training route: data is r
 - **Play:** `ElderHeader`, then the board in a `Section first`. The board is the engine
   lane's `PatternGrid` from `@/modules/engine/ui`, built from section 7; its two-finger cue
   is a `Notice tone="attention"` above it. No other button competes with the board.
+- `PatternGrid` is the engine lane's component: in these samples it is a placeholder until
+  that lane delivers it, with whatever props that lane defines.
 - **Result:** `ElderHeader`, then `ResultBanner` (✓ or ✕ and words, `headingLevel={2}`), the
   board in its final states, `Meter` if a score is shown, and one primary `Button`.
 
