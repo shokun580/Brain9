@@ -20,7 +20,7 @@ import {
 import { Activity, CalendarDays, Play, Users } from "lucide-react";
 import { CourseTable } from "../CourseTable";
 import { AdminScope, ElderScope, Part } from "../chrome";
-import { ConfirmDialogDemo, EditFormDemo } from "../Demos";
+import { ConfirmDialogDemo, EditFormDemo, PhonePadDemo, PinPadDemo } from "../Demos";
 import { courseColumns } from "../fake-courses";
 import { Example } from "../Example";
 import { Cell } from "./ElderBoard";
@@ -36,6 +36,7 @@ export const RECIPES = [
   { id: "admin-overview", name: "Admin overview with figures", title: "หน้าภาพรวมของผู้ดูแล" },
   { id: "admin-loading", name: "Admin page while loading", title: "หน้าระหว่างโหลด" },
   { id: "elder-step", name: "Elderly step screen", title: "หน้าจอผู้สูงอายุทีละขั้น" },
+  { id: "elder-signin", name: "Elderly sign-in steps", title: "ขั้นตอนเข้าสู่ระบบของผู้สูงอายุ" },
   { id: "elder-list", name: "Elderly list screen", title: "หน้ารายการของผู้สูงอายุ" },
   {
     id: "elder-play",
@@ -171,6 +172,22 @@ const stepCode = `<ElderHeader title="เลือกแบบฝึก" backHre
     <Button type="submit" fullWidth>ไปต่อ</Button> {/* ปุ่มหลักหนึ่งปุ่ม */}
   </Section>
 </form>`;
+
+const signInCode = `{/* ขั้นที่ 1: "use client" ของตัวเอง เป็นเจ้าของ phone */}
+<ElderHeader title="เข้าสู่ระบบ" />
+<Section first><StepProgress current={1} total={2} /></Section>
+<Section>
+  <PhonePad label="เบอร์โทรศัพท์" value={phone} onChange={setPhone} hint="กดตัวเลขทีละตัว ไม่ต้องรีบนะ" error={error} />
+</Section>
+<Section><Button fullWidth onClick={next}>ถัดไป</Button></Section> {/* ปุ่มหลักหนึ่งปุ่ม */}
+
+{/* ขั้นที่ 2: "use client" ของตัวเอง เป็นเจ้าของ pin กดตัวสุดท้ายแล้วส่งเลย ไม่มีปุ่ม */}
+<ElderHeader title="เข้าสู่ระบบ" backHref="/login" />
+<Section first><StepProgress current={2} total={2} /></Section>
+<Section>
+  {wrong ? <Notice tone="danger">ไม่เป็นไรนะ รหัสยังไม่ตรง ลองใส่อีกครั้งได้เลย</Notice> : null}
+  <PinPad length={4} filled={pin.length} disabled={checking} onDigit={press} onDelete={back} />
+</Section>`;
 
 const elderListCode = `<ElderHeader title="แบบฝึกของฉัน" />
 <Section first title="แบบฝึกทั้งหมด">
@@ -358,6 +375,40 @@ export function RecipesSection() {
             </Section>
           </form>
         </ElderScope>
+      </Recipe>
+
+      <Recipe
+        id="elder-signin"
+        importLine='import { Button, ElderHeader, Notice, PhonePad, PinPad, Section, StepProgress } from "@/shared/ui";'
+        note="สองขั้น แต่ละขั้นเป็นหน้าจอและ client component เล็ก ๆ ของตัวเองที่เป็นเจ้าของ value หรือ filled ขั้นที่ 1: ElderHeader → StepProgress → PhonePad → ปุ่มหลักหนึ่งปุ่ม (ถัดไป) ขั้นที่ 2: ElderHeader → StepProgress → PinPad ส่งเองเมื่อกดตัวสุดท้าย จึงไม่มีปุ่ม รหัสผิดแสดง Notice ด้วยคำให้กำลังใจ ทั้งสองหน้าไม่มีช่องที่โฟกัสหรือพิมพ์ได้ (ไม่มี input ที่มองเห็น ซ่อนไว้นอกจอ หรือโปร่งใส และไม่มี contenteditable) แป้นพิมพ์มือถือจึงไม่ขึ้น มีเพียง input type=hidden ของ PhonePad ที่โฟกัสไม่ได้เป็นข้อยกเว้นเดียว ไม่มีการ์ด"
+        code={signInCode}
+      >
+        <div className="flex flex-col gap-4">
+          <ElderScope>
+            <ElderHeader title="เข้าสู่ระบบ" />
+            <Section first>
+              <StepProgress current={1} total={2} />
+            </Section>
+            <Section>
+              <PhonePadDemo />
+            </Section>
+            <Section>
+              <Button fullWidth>ถัดไป</Button>
+            </Section>
+          </ElderScope>
+          <ElderScope>
+            <ElderHeader title="เข้าสู่ระบบ" backHref="#recipe-elder-signin" />
+            <Section first>
+              <StepProgress current={2} total={2} />
+            </Section>
+            <Section>
+              <div className="flex flex-col gap-4">
+                <Notice tone="danger">ไม่เป็นไรนะ รหัสยังไม่ตรง ลองใส่อีกครั้งได้เลย</Notice>
+                <PinPadDemo />
+              </div>
+            </Section>
+          </ElderScope>
+        </div>
       </Recipe>
 
       <Recipe

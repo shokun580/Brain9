@@ -122,6 +122,16 @@ describe("PinPad", () => {
   });
 });
 
+describe("PinPad never opens the phone keyboard", () => {
+  it("holds no text field, textarea, contenteditable or inputmode", () => {
+    const markup = html(<PinPad length={4} filled={2} onDigit={() => {}} onDelete={() => {}} />);
+    expect(markup).not.toContain("<input");
+    expect(markup).not.toContain("<textarea");
+    expect(markup.toLowerCase()).not.toContain("contenteditable");
+    expect(markup.toLowerCase()).not.toContain("inputmode");
+  });
+});
+
 describe("ChoiceList onValueChange", () => {
   const options = [
     { value: "a", title: "ตัวเลือก ก" },

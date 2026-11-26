@@ -5,6 +5,7 @@ import {
   AdminSection,
   Button,
   ConfirmDialog,
+  PhonePad,
   PinPad,
   SaveBar,
   Select,
@@ -87,6 +88,20 @@ export function PinPadDemo() {
       filled={filled}
       onDigit={() => setFilled((count) => Math.min(count + 1, 4))}
       onDelete={() => setFilled((count) => Math.max(count - 1, 0))}
+    />
+  );
+}
+
+/** A working phone pad: empty, typing, and an error state side by side. */
+export function PhonePadDemo({ initial = "", error }: { initial?: string; error?: string }) {
+  const [value, setValue] = useState(initial);
+  return (
+    <PhonePad
+      label="เบอร์โทรศัพท์"
+      value={value}
+      onChange={setValue}
+      hint="กดตัวเลขทีละตัว ไม่ต้องรีบนะ"
+      error={error}
     />
   );
 }
