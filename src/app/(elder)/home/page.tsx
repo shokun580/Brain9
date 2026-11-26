@@ -5,8 +5,10 @@ export const metadata = { title: "หน้าหลัก" };
 
 const rowIcon = { className: "size-icon text-primary-press" } as const;
 
-// OWNER: infra for the layout of this screen; every placeholder value below is replaced by
-// the lane named in its TODO. Static on purpose: no data or session access in a page.
+// OWNER: infra. A shared screen (AGENTS.md §1): infra designs and builds it, and no other
+// lane edits it. Each TODO names the lane whose export will replace that placeholder; infra
+// asks for the export in a cross-module request and places it here.
+// Static on purpose: no data or session access in a page.
 export default function Page() {
   return (
     <>

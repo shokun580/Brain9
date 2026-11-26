@@ -60,6 +60,12 @@ rules exactly. If a request conflicts with them, say so instead of complying.
 do not write it — tell the user to open a "cross-module request" issue and describe the
 exact function signature or component props needed.
 
+**Shared screens are infra's.** The entry page `/`, the elderly home `/home`, the admin
+overview `/admin`, the 404 and error screens, and every layout, menu and tab bar are designed
+and built by infra. Do not build, restyle or rearrange one, even to show the lane's own data
+there: export the value or component from the module's entry point and tell the user to
+open an `infra` issue so infra places it.
+
 ## Structure of a module
 
 ```
