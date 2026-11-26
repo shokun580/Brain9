@@ -1,4 +1,5 @@
 import { Badge, Checkbox, ChoiceList, NumberField, Select, TextField, Textarea } from "@/shared/ui";
+import { LabelledPinPadDemo } from "../AuthDemos";
 import { PhonePadDemo, PinPadDemo } from "../Demos";
 import { ElderScope, SubHeading } from "../chrome";
 import { Example } from "../Example";
@@ -42,7 +43,7 @@ export function ElderForms() {
       <Example
         title="NumberField, Select, Checkbox"
         importLine='import { Checkbox, NumberField, Select } from "@/shared/ui";'
-        note="NumberField มีหน่วยต่อท้ายในกรอบเดียวกัน (unit) Select และ Checkbox ใช้ตัวควบคุมของเบราว์เซอร์ที่ปรับแต่งแล้ว ทั้งแถวของ Checkbox กดได้"
+        note="NumberField มีหน่วยต่อท้ายในกรอบเดียวกัน (unit) Select ใช้ตัวควบคุมของเบราว์เซอร์ที่ปรับแต่งแล้ว Checkbox วาดกล่องเอง: มุมมน ขอบแบบเดียวกับช่องกรอก เมื่อเลือกแล้วพื้นเป็นสีหลักพร้อมเครื่องหมาย ✓ กล่องโตตามขนาดตัวอักษร ทั้งแถวกดได้ และยังเป็น input checkbox จริง จึงใช้แป้นพิมพ์และโปรแกรมอ่านหน้าจอได้"
       >
         <ElderScope>
           <div className="flex flex-col gap-5">
@@ -110,10 +111,13 @@ export function ElderForms() {
       <Example
         title="PinPad"
         importLine='import { PinPad } from "@/shared/ui";'
-        note="ลองกดได้ ปุ่มแจ้งว่ากดตัวเลขใด แต่หน้าจอไม่เก็บและไม่แสดงตัวเลข มีแค่จุดบอกความคืบหน้า (4 หรือ 6 หลัก)"
+        note="ลองกดได้ ปุ่มแจ้งว่ากดตัวเลขใด แต่หน้าจอไม่เก็บและไม่แสดงตัวเลข มีแค่จุดบอกความคืบหน้า (4 หรือ 6 หลัก) ใส่ label และ hint เพื่อบอกเหนือจุดว่าให้ใส่รหัสใด เช่น ตั้งรหัส 4 หลัก หรือ ใส่รหัสเดิมอีกครั้ง"
       >
         <ElderScope>
-          <PinPadDemo />
+          <div className="flex flex-col gap-8">
+            <PinPadDemo />
+            <LabelledPinPadDemo label="ตั้งรหัส 4 หลัก" hint="เลือกเลขที่จำได้ง่าย" />
+          </div>
         </ElderScope>
       </Example>
 

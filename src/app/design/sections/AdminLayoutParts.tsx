@@ -13,6 +13,7 @@ import {
   PageHeader,
   SaveBar,
   SegmentedControl,
+  StaffAuthShell,
   StatTile,
   Tabs,
 } from "@/shared/ui";
@@ -186,6 +187,20 @@ export function AdminLayoutParts() {
             </SaveBar>
           </div>
         </AdminScope>
+      </Example>
+
+      <SubHeading>โครงหน้าเข้าสู่ระบบของผู้ดูแล</SubHeading>
+
+      <Example
+        title="StaffAuthShell"
+        importLine='import { StaffAuthShell } from "@/shared/ui";'
+        note="โครงของหน้า /admin/login: โลโก้ คอลัมน์แคบกลางหน้าบนพื้นขาว เส้นคั่น และบรรทัดท้ายแบบเดียวกับหน้าผู้ดูแล ไม่มีเมนูและไม่มีการ์ด ใช้ใน layout ของกลุ่ม (staff) เท่านั้น ซึ่งเป็นของ infra ทีมอื่นไม่ต้องเรียกเอง หน้าที่อยู่ข้างในมีแค่ PageHeader กับฟอร์ม ดูแบบ หน้าเข้าสู่ระบบของผู้ดูแล ในส่วนแบบหน้าจอที่อนุมัติ"
+      >
+        <div className="overflow-hidden rounded-panel border-[length:var(--b9-border)] border-line">
+          <StaffAuthShell brand="Brain9" roleLabel="สำหรับผู้ดูแล" environmentLabel="staging" embedded>
+            <p className="text-body text-fg-2">เนื้อหาของหน้า: PageHeader และฟอร์มเข้าสู่ระบบ</p>
+          </StaffAuthShell>
+        </div>
       </Example>
     </>
   );
