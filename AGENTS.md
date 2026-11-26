@@ -27,10 +27,19 @@ If anything here conflicts with a request, stop and ask your human before contin
 | `content`   | Apinan (66160107)  | `@shokun580`  | courses, exercises, patterns, Pattern Editor, training settings                                                      |
 | `engine`    | Supanat (66160239) | `@Pxrch`      | 3x3 grid component, playing patterns, two-finger input, timing, training/test modes, saving results                  |
 | `analytics` | Saruta (66160375)  | `@ptxsm`      | metrics, progress trend, performance level, charts, recommendations, admin dashboard                                 |
-| `infra`     | Apinan (team lead) | `@shokun580`  | CI/CD, config, dependencies, `src/shared`, root layouts, design tokens, this file                                    |
+| `infra`     | Apinan (team lead) | `@shokun580`  | CI/CD, config, dependencies, `src/shared`, root layouts, design tokens, the shared screens, this file                |
 
 Exact paths per lane: [`docs/ownership.md`](docs/ownership.md). GitHub enforces it through
 [`.github/CODEOWNERS`](.github/CODEOWNERS).
+
+**Shared screens belong to infra; every other lane works on its own screens only.** A
+screen that is not under one lane's routes is designed and built by infra (the team lead):
+the entry page `/`, the elderly home `/home`, the admin overview `/admin`, the 404 and
+error screens, and every layout, menu and tab bar. Do not build, restyle or rearrange one,
+even to show your own data on it. When a shared screen needs something from your lane (a
+value, a list, a component), infra asks for it in a cross-module request (§7); you export
+it from your module's entry point and infra places it on the screen. If you think a shared
+screen should change, open an `infra` issue.
 
 ## 2. Hard rules
 
