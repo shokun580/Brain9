@@ -169,7 +169,7 @@ describe("design tokens", () => {
 
   it("removes shadows in high contrast and keeps them elsewhere", () => {
     const high = block('html[data-contrast="high"] [data-ui="elder"]');
-    for (const name of ["cell", "cell-lit", "overlay"]) {
+    for (const name of ["cell", "cell-lit", "dock", "overlay"]) {
       expect(high).toContain(`--b9-shadow-${name}: none;`);
       expect(root).toMatch(new RegExp(`--b9-shadow-${name}: [^n;][^;]*;`));
       expect(block("@theme inline")).toContain(`--shadow-${name}: var(--b9-shadow-${name});`);

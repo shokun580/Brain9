@@ -48,7 +48,7 @@ Defined in `src/app/globals.css`. Style only with these utility families, nothin
 - **Size:** `h-control` `min-h-control` `h-control-sm` `min-h-control-sm` `size-icon`
   `size-icon-sm`.
 - **Radius:** `rounded-control` `rounded-field` `rounded-panel` `rounded-dialog`.
-- **Shadow:** `shadow-cell` `shadow-cell-lit` `shadow-overlay`.
+- **Shadow:** `shadow-cell` `shadow-cell-lit` `shadow-dock` `shadow-overlay`.
 - **Layout (Tailwind's own):** flex and grid (`flex`, `flex-col`, `items-…`, `justify-…`,
   `grid`, `grid-cols-…`), `gap-…`, padding, margin, width and max-width, on Tailwind's spacing
   scale; `list-disc` for a list in a dialog; and the two fixed values this document writes
@@ -93,15 +93,15 @@ Pairing rules:
 
 ### Type, sizes, radii, shadows
 
-| Group   | Utilities                                                                     | Notes                                                                                                            |
-| ------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Type    | `text-title` `text-heading` `text-lead` `text-body` `text-small` `text-micro` | elder 35 / 27 / 22 / 20 / 17.5 / 17.5px, admin 22 / 17 / 15.5 / 14.5 / 13 / 12.5px                               |
-| Weight  | regular and `font-bold` only                                                  | admin: bold only for the page title, section headings, a stat figure, buttons                                    |
-| Control | `h-control` `min-h-control` `h-control-sm` `min-h-control-sm`                 | height of buttons and fields in the active scope                                                                 |
-| Icon    | `size-icon` `size-icon-sm`                                                    | lucide icons, `aria-hidden` next to a label. Never set `strokeWidth`: the scope sets it (2.4 elderly, 1.9 admin) |
-| Radius  | `rounded-control` `rounded-field` `rounded-panel` `rounded-dialog`            | elder 18 / 14 / 26 / 26px, admin 8 / 8 / 10 / 12px                                                               |
-| Shadow  | `shadow-cell` `shadow-cell-lit` `shadow-overlay`                              | cells of the board and overlays only; admin pages have no shadows                                                |
-| Width   | `max-w-admin`                                                                 | set by `AdminShell`; do not repeat it                                                                            |
+| Group   | Utilities                                                                     | Notes                                                                                                                    |
+| ------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Type    | `text-title` `text-heading` `text-lead` `text-body` `text-small` `text-micro` | elder 35 / 27 / 22 / 20 / 17.5 / 17.5px, admin 22 / 17 / 15.5 / 14.5 / 13 / 12.5px                                       |
+| Weight  | regular and `font-bold` only                                                  | admin: bold only for the page title, section headings, a stat figure, buttons                                            |
+| Control | `h-control` `min-h-control` `h-control-sm` `min-h-control-sm`                 | height of buttons and fields in the active scope                                                                         |
+| Icon    | `size-icon` `size-icon-sm`                                                    | lucide icons, `aria-hidden` next to a label. Never set `strokeWidth`: the scope sets it (2.4 elderly, 1.9 admin)         |
+| Radius  | `rounded-control` `rounded-field` `rounded-panel` `rounded-dialog`            | elder 18 / 14 / 26 / 26px, admin 8 / 8 / 10 / 12px                                                                       |
+| Shadow  | `shadow-cell` `shadow-cell-lit` `shadow-dock` `shadow-overlay`                | cells of the board, the elderly tab bar (`shadow-dock`, used by `TabBar` only) and overlays; admin pages have no shadows |
+| Width   | `max-w-admin`                                                                 | set by `AdminShell`; do not repeat it                                                                                    |
 
 ### Chart colours
 
@@ -151,14 +151,14 @@ Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.ti
 
 ### Elderly layout
 
-| Component      | Use it for                                            | Scope | Key props                                                        |
-| -------------- | ----------------------------------------------------- | ----- | ---------------------------------------------------------------- |
-| `ElderHeader`  | top of every elderly screen (its `h1`)                | elder | `title` or `greeting` + `name`, `backHref` or `onBack`, `action` |
-| `StepProgress` | "ขั้นที่ X จาก Y"                                         | elder | `current`, `total`                                               |
-| `Section`      | a block of a screen: space and a thin line            | elder | `eyebrow`, `title`, `action`, `first`                            |
-| `ListRow`      | a whole row that is a link                            | elder | `href`, `title`, `subtitle`, `icon`, `badge`                     |
-| `TabBar`       | bottom navigation (the `(elder)` layout only)         | elder | `items`, `hideOn`                                                |
-| `TabBarView`   | the same bar without router hooks (Suspense fallback) | elder | `items`, `pathname`, `hideOn`                                    |
+| Component      | Use it for                                                                                      | Scope | Key props                                                        |
+| -------------- | ----------------------------------------------------------------------------------------------- | ----- | ---------------------------------------------------------------- |
+| `ElderHeader`  | top of every elderly screen (its `h1`)                                                          | elder | `title` or `greeting` + `name`, `backHref` or `onBack`, `action` |
+| `StepProgress` | "ขั้นที่ X จาก Y"                                                                                   | elder | `current`, `total`                                               |
+| `Section`      | a block of a screen: space and a thin line                                                      | elder | `eyebrow`, `title`, `action`, `first`                            |
+| `ListRow`      | a whole row that is a link                                                                      | elder | `href`, `title`, `subtitle`, `icon`, `badge`                     |
+| `TabBar`       | bottom navigation, a floating bar whose current tab is a soft block (the `(elder)` layout only) | elder | `items`, `hideOn`                                                |
+| `TabBarView`   | the same bar without router hooks (Suspense fallback)                                           | elder | `items`, `pathname`, `hideOn`                                    |
 
 ### Admin layout
 

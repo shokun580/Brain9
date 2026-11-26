@@ -35,7 +35,7 @@ rules exactly. If a request conflicts with them, say so instead of complying.
   - icons come from `lucide-react`, sized with `size-icon` / `size-icon-sm`; never set
     `strokeWidth` (the scope sets it)
   - radii `rounded-control|field|panel|dialog`; shadows `shadow-cell`, `shadow-cell-lit`,
-    `shadow-overlay`
+    `shadow-overlay` (`shadow-dock` belongs to the tab bar: do not use it)
   - a border that must thicken in high contrast is `border-[length:var(--b9-border)]`
   - chart colours (`--chart-1` to `--chart-4`) belong to `LineChart` / `BarChart`; you never write them
 
