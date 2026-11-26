@@ -18,9 +18,11 @@ a phone number, and not in the elderly look. The address is `/admin/login`. It i
 linked from `/login`**: staff open the address themselves. A staff account is created only
 from the menu inside the admin area; there is no sign-up for staff.
 
-**Still open (before issue #22 is built):** what a username may contain, whether case
-matters, how it stays unique among live accounts, and the `users` column that holds it.
-Issue #22 and `src/modules/identity/AGENTS.md` still describe a phone number and a password.
+**A username** is 3 to 30 characters, starts with a letter, and uses lower-case letters,
+digits, dot, hyphen and underscore. It is stored in lower case, so capitals typed at sign-in
+make no difference. It lives in a new column `users.username`, empty for elderly accounts
+and unique among live accounts. A staff account does not need a phone number, and a phone
+number never signs staff in. (Decided 2026-11-27; issue #22 builds it.)
 
 ## 2026-11-26 — Sign-in, sign-up and abuse protection (team lead)
 
@@ -56,7 +58,7 @@ same way.
 is used. An `ADMIN` session lasts 12 hours and is not extended. Center devices get their own
 rule with kiosk mode (open question 4).
 
-**Staff sign in on their own page.** `/login/staff` (phone number and a password of 12 to
+_(Superseded on 2026-11-27: see the entry above.)_ **Staff sign in on their own page.** `/login/staff` (phone number and a password of 12 to
 72 characters, typed with the keyboard), linked from `/login` as a small text link. An
 admin's phone number entered on the elderly sign-in fails like any wrong PIN.
 

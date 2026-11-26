@@ -42,14 +42,22 @@ To add: sign-up, login, logout, consent, device registration (as Server Actions 
   Elderly users use a PIN of exactly 4 digits (four identical digits, `1234` and `4321`
   are refused); admins use a password of 12 to 72 characters. Both are stored as bcrypt
   hashes in `credential_hash`.
-- Elderly people sign in on `/login` with `PhonePad` then `PinPad` (recipe "Elderly sign-in
-  steps" in `docs/design-system.md`). Staff sign in on `/login/staff` with the keyboard. An
-  admin's number entered on `/login` fails like any wrong PIN.
-- Lockout: 5 wrong attempts for one phone number within 15 minutes block that number for
-  15 minutes, whether or not an account exists; 20 failed attempts from one IP address
-  within 15 minutes block that address. Also keep `failed_login_count` / `locked_until` on
+- `/login` is a chooser: sign in (to `/login/pin`) or sign up (to `/signup`). Elderly people
+  sign in at `/login/pin` with `PhonePad` then `PinPad` (recipe "Elderly sign-in steps" in
+  `docs/design-system.md`). An admin's phone number entered there fails like any wrong PIN.
+- Staff sign in at `/admin/login` with a username and a password typed on the keyboard, on a
+  screen with the admin look (recipe "Staff sign-in"). `/login` does not link to it and
+  there is no sign-up for staff: a staff account is created from the admin area.
+- A username is 3 to 30 characters, starts with a letter, and uses lower-case letters,
+  digits, dot, hyphen and underscore (`^[a-z][a-z0-9._-]{2,29}$` after trimming and
+  lower-casing). It is stored in `users.username`, empty for elderly accounts and unique
+  among live accounts through a partial unique index, so find staff with
+  `findFirst({ where: { username, ...notDeleted } })`. A staff account needs no phone number.
+- Lockout: 5 wrong attempts for one phone number (or, for staff, one username) within 15
+  minutes block it for 15 minutes, whether or not an account exists; 20 failed attempts
+  from one IP address within 15 minutes block that address. Also keep `failed_login_count` / `locked_until` on
   a real account so staff can see it. Messages must not reveal whether a phone number
-  exists; a suspended account is named only after the correct PIN.
+  or a username exists; a suspended account is named only after the correct PIN.
 - Session = random token in an HttpOnly, Secure, SameSite=Lax cookie (`brain9_session`);
   the database stores only its SHA-256 (`auth_sessions.token_hash`). Lifetime on a personal
   device: `USER` 30 days, extended while in use; `ADMIN` 12 hours, not extended.
@@ -152,15 +160,16 @@ this order)
 | ---- | ----- | ------------------------------------------------------------------------------------------------------- | ---------------- |
 | ID-1 | #19   | Real sessions: `getCurrentUser()` reads a session; create and end a session                             | —                |
 | ID-2 | #20   | Rate-limit counters for sign-in, sign-up and PIN reset, as a pure rule                                  | —                |
-| ID-3 | #21   | Elderly sign-in on `/login` (phone + PIN), lockout, generic messages                                    | ID-1, ID-2, DS-1 |
-| ID-4 | #22   | Staff sign-in on `/login/staff` (phone + password)                                                      | ID-3, DS-1       |
-| ID-5 | #23   | Sign-out for elderly people and for staff                                                               | ID-1, DS-1       |
-| ID-6 | #24   | Sign-up with consent on `/signup`                                                                       | ID-3, DS-1       |
-| ID-7 | #25   | Forgotten PIN, the person's side: ask for a reset on `/login/forgot`, set a new PIN once staff allow it | ID-3, ID-6, DS-1 |
+| ID-3 | #21   | Elderly sign-in: the `/login` chooser and the steps at `/login/pin` (phone + PIN), lockout              | ID-1, ID-2       |
+| ID-4 | #22   | Staff sign-in on `/admin/login` (username + password), the `users.username` column                      | ID-1, ID-2, ID-3 |
+| ID-5 | #23   | Sign-out for elderly people and for staff                                                               | ID-1             |
+| ID-6 | #24   | Sign-up with consent on `/signup`                                                                       | ID-3             |
+| ID-7 | #25   | Forgotten PIN, the person's side: ask for a reset on `/login/forgot`, set a new PIN once staff allow it | ID-3, ID-6       |
 | ID-8 | #26   | Forgotten PIN, the staff side: the request list in the admin area, allow or refuse after calling back   | ID-4, ID-7       |
 
-`DS-1` is infra's (#27): the design-system recipes for these screens. The server part of ID-3 to
-ID-7 can be written before it lands; the screens cannot.
+The recipes for all of these screens are in `docs/design-system.md` §5 ("Elderly sign-in
+steps", "Staff sign-in", "Elderly sign-up steps", "Forgotten PIN screens", "Elderly profile
+and sign-out"): build each screen from its recipe and nothing else.
 
 **Phase B — staff manage accounts** (outline)
 
