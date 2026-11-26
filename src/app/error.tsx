@@ -14,8 +14,8 @@ export default function ErrorScreen({ error, retry }: { error: unknown; retry: (
   // Never render the message or a stack: they can leak details to the visitor.
   return (
     <SystemScreen
-      title="ระบบของเรามีปัญหาชั่วคราว"
-      description="ไม่ใช่ความผิดของคุณนะ รอสักครู่แล้วลองอีกครั้งได้เลย"
+      title="ระบบขัดข้องชั่วคราว"
+      description="ขออภัยในความไม่สะดวก กรุณารอสักครู่แล้วลองอีกครั้ง"
       action={
         <Button fullWidth onClick={() => retry()}>
           ลองอีกครั้ง

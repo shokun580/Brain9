@@ -3,8 +3,8 @@ import { html } from "../../../test/render";
 import { SystemScreen } from "./SystemScreen";
 
 const base = {
-  title: "ยังหาหน้านี้ไม่เจอ",
-  description: "ไม่เป็นไรนะ ลองอีกครั้ง",
+  title: "ไม่พบหน้านี้",
+  description: "กรุณาลองอีกครั้ง",
   action: <button type="button">กลับหน้าหลัก</button>,
 };
 
@@ -12,11 +12,11 @@ describe("SystemScreen", () => {
   it("renders exactly one h1 carrying the title", () => {
     const out = html(<SystemScreen {...base} />);
     expect(out.match(/<h1\b/g)).toHaveLength(1);
-    expect(out).toMatch(/<h1[^>]*>ยังหาหน้านี้ไม่เจอ<\/h1>/);
+    expect(out).toMatch(/<h1[^>]*>ไม่พบหน้านี้<\/h1>/);
   });
 
   it("always shows the fixed help line", () => {
-    expect(html(<SystemScreen {...base} />)).toContain("ต้องการความช่วยเหลือ แจ้งเจ้าหน้าที่ศูนย์ได้เลย");
+    expect(html(<SystemScreen {...base} />)).toContain("หากต้องการความช่วยเหลือ กรุณาแจ้งเจ้าหน้าที่ศูนย์");
   });
 
   it("shows the reference only when given", () => {

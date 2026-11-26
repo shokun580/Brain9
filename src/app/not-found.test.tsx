@@ -6,8 +6,8 @@ describe("not-found screen", () => {
   const out = html(<NotFound />);
 
   it("has the Thai copy and a primary link to the home page", () => {
-    expect(out).toContain("ยังหาหน้านี้ไม่เจอ");
-    expect(out).toContain("ไม่เป็นไรนะ กลับไปหน้าหลักแล้วเริ่มใหม่ได้เลย");
+    expect(out).toContain("ไม่พบหน้านี้");
+    expect(out).toContain("กรุณากลับไปหน้าหลักแล้วเริ่มใหม่อีกครั้ง");
     expect(out).toMatch(/<a[^>]*href="\/"[^>]*>กลับหน้าหลัก<\/a>/);
     expect(metadata.title).toBe("ไม่พบหน้านี้");
   });

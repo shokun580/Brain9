@@ -48,7 +48,7 @@ export function Keypad({ onDigit, onDelete, disabled }: KeypadProps) {
         className={`${keyClass} text-body`}
         onClick={onDelete}
       >
-        <Delete aria-hidden="true" strokeWidth={1.9} className="size-icon-sm shrink-0" />
+        <Delete aria-hidden="true" className="size-icon-sm shrink-0" />
         ลบ
       </button>
     </div>

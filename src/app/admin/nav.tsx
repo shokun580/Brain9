@@ -13,7 +13,7 @@ import type { AdminNavSection } from "@/shared/ui";
 // Menu of the admin area. OWNER: infra (team lead).
 // A lane changes only its own lines here, through a PR the lead approves, and adds the same
 // href to nav.test.tsx. The owning lane is named above each group.
-const icon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon" } as const;
+const icon = { "aria-hidden": true, className: "size-icon" } as const;
 
 export const adminNav: AdminNavSection[] = [
   {

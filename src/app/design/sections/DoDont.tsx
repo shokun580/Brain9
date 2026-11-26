@@ -22,7 +22,7 @@ function Pair({ children }: { children: ReactNode }) {
   return <div className="grid gap-4 md:grid-cols-2">{children}</div>;
 }
 
-const icon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon shrink-0" } as const;
+const icon = { "aria-hidden": true, className: "size-icon shrink-0" } as const;
 
 // DON'T: a hand-made button with a raw colour and Tailwind's own sizes. It exists only as the
 // bad half of a Do / Don't pair; never copy it. Every button is `Button` from @/shared/ui.
@@ -137,7 +137,7 @@ export function DoDontSection() {
               <div className="flex flex-col gap-2">
                 <Button fullWidth>เริ่มฝึก</Button>
                 <Button fullWidth variant="quiet">
-                  ไว้ทีหลัง
+                  ไว้ภายหลัง
                 </Button>
               </div>
             </Side>

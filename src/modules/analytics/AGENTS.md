@@ -36,7 +36,8 @@ Turns recorded results into something an elderly user and an admin can understan
   calls `recordAudit()`. If the user withdrew `COGNITIVE_DATA` consent, do not compute or
   show analytics for them.
 - Charts use Recharts (already installed), must have a text alternative (a table or a
-  sentence), large labels, and must not rely on colour alone. Wording is encouraging.
+  sentence), large labels, and must not rely on colour alone. Wording follows the voice in
+  `docs/design-system.md` section 10.
 
 ## Public API to provide (`index.ts`)
 

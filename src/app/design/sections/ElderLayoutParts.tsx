@@ -16,10 +16,9 @@ import { Example } from "../Example";
 
 const rowIcon = {
   "aria-hidden": true,
-  strokeWidth: 1.9,
   className: "size-icon text-primary-press",
 } as const;
-const tabIcon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon" } as const;
+const tabIcon = { "aria-hidden": true, className: "size-icon" } as const;
 
 const tabs: TabBarItem[] = [
   { href: "/home", label: "หน้าหลัก", icon: <House {...tabIcon} /> },
@@ -73,7 +72,7 @@ export function ElderLayoutParts() {
       <Example
         title="TabBarView"
         importLine='import { TabBarView } from "@/shared/ui";'
-        note="แถบเมนูล่าง 4 เมนู ตัวจริง (TabBar) อยู่ใน layout ของฝั่งผู้สูงอายุ และติดอยู่ล่างจอ ที่นี่แสดงในแนวไหลปกติ โดยให้หน้าหลักเป็นเมนูปัจจุบัน"
+        note="แถบเมนูล่างแบบลอย 4 เมนู เมนูปัจจุบันเป็นบล็อกสีอ่อนทั้งช่อง ตัวจริง (TabBar) อยู่ใน layout ของฝั่งผู้สูงอายุ และติดอยู่ล่างจอ ที่นี่แสดงในแนวไหลปกติ โดยให้หน้าหลักเป็นเมนูปัจจุบัน"
       >
         <ElderScope>
           <div className="[&>nav]:static">
@@ -90,8 +89,8 @@ export function ElderLayoutParts() {
         <ElderScope>
           <div className="flex flex-col gap-4">
             <ConfirmDialogDemo
-              triggerLabel="เริ่มฝึกเลย"
-              title="เริ่มฝึกตอนนี้ไหม"
+              triggerLabel="เริ่มฝึก"
+              title="ต้องการเริ่มฝึกตอนนี้หรือไม่"
               confirmLabel="เริ่มฝึก"
               tone="primary"
             >
@@ -99,11 +98,11 @@ export function ElderLayoutParts() {
             </ConfirmDialogDemo>
             <ConfirmDialogDemo
               triggerLabel="ออกจากระบบ"
-              title="ออกจากระบบไหม"
+              title="ต้องการออกจากระบบหรือไม่"
               confirmLabel="ออกจากระบบ"
               tone="primary"
             >
-              <p>ถ้าออก ต้องเข้าสู่ระบบใหม่ด้วยเบอร์โทรและรหัสผ่านอีกครั้ง</p>
+              <p>หากออกจากระบบ ต้องเข้าสู่ระบบใหม่ด้วยเบอร์โทรและรหัสผ่านอีกครั้ง</p>
             </ConfirmDialogDemo>
           </div>
         </ElderScope>

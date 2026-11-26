@@ -7,7 +7,7 @@ const pad = (props: Partial<PhonePadProps> = {}) =>
 
 describe("PhonePad", () => {
   it("has no visible text field, textarea or contenteditable", () => {
-    for (const markup of [pad(), pad({ value: "0800000000", error: "ลองอีกครั้งนะ" })]) {
+    for (const markup of [pad(), pad({ value: "0800000000", error: "กรุณาลองอีกครั้ง" })]) {
       expect(markup).not.toContain("<input");
       expect(markup).not.toContain("<textarea");
       expect(markup.toLowerCase()).not.toContain("contenteditable");
@@ -51,8 +51,8 @@ describe("PhonePad", () => {
 
   it("shows the hint, and the error with a cross instead of the hint", () => {
     expect(pad({ hint: "เบอร์ 10 หลัก" })).toContain("เบอร์ 10 หลัก");
-    const withError = pad({ hint: "เบอร์ 10 หลัก", error: "เบอร์ยังไม่ครบ ลองอีกครั้งนะ" });
-    expect(withError).toContain("✕ เบอร์ยังไม่ครบ ลองอีกครั้งนะ");
+    const withError = pad({ hint: "เบอร์ 10 หลัก", error: "เบอร์ยังไม่ครบ กรุณาใส่ให้ครบ" });
+    expect(withError).toContain("✕ เบอร์ยังไม่ครบ กรุณาใส่ให้ครบ");
     expect(withError).toContain('role="alert"');
     expect(withError).not.toContain("เบอร์ 10 หลัก");
     expect(withError).toContain("border-danger");

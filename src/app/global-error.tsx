@@ -29,10 +29,10 @@ export default function GlobalError({ error, retry }: { error: unknown; retry: (
     <html lang="th" className={`${lineSeed.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="flex min-h-full flex-col font-sans">
         <DisplayPrefsScript />
-        <title>ระบบมีปัญหาชั่วคราว · Brain9</title>
+        <title>ระบบขัดข้องชั่วคราว · Brain9</title>
         <SystemScreen
-          title="ระบบของเรามีปัญหาชั่วคราว"
-          description="ไม่ใช่ความผิดของคุณนะ รอสักครู่แล้วลองอีกครั้งได้เลย"
+          title="ระบบขัดข้องชั่วคราว"
+          description="ขออภัยในความไม่สะดวก กรุณารอสักครู่แล้วลองอีกครั้ง"
           action={
             <Button fullWidth onClick={() => retry()}>
               ลองอีกครั้ง

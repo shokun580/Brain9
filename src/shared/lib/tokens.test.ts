@@ -156,9 +156,20 @@ describe("design tokens", () => {
     expect(high).toContain("--b9-on-primary: #000000;");
   });
 
+  it("keeps the default focus ring in the base layer, so a utility can switch it off", () => {
+    expect(css).toMatch(/@layer base \{\s*:focus-visible \{\s*outline: 3px solid var\(--b9-focus/);
+  });
+
+  it("sets the lucide stroke width per scope and applies it to every lucide icon", () => {
+    // The first `[data-ui="elder"] {` in the file is the `:root, [data-ui="elder"]` sizes block.
+    expect(block('[data-ui="elder"]')).toContain("--b9-icon-stroke: 2.4;");
+    expect(block('[data-ui="admin"]')).toContain("--b9-icon-stroke: 1.9;");
+    expect(css).toMatch(/svg\.lucide \{\s*stroke-width: var\(--b9-icon-stroke\);\s*\}/);
+  });
+
   it("removes shadows in high contrast and keeps them elsewhere", () => {
     const high = block('html[data-contrast="high"] [data-ui="elder"]');
-    for (const name of ["cell", "cell-lit", "overlay"]) {
+    for (const name of ["cell", "cell-lit", "dock", "overlay"]) {
       expect(high).toContain(`--b9-shadow-${name}: none;`);
       expect(root).toMatch(new RegExp(`--b9-shadow-${name}: [^n;][^;]*;`));
       expect(block("@theme inline")).toContain(`--shadow-${name}: var(--b9-shadow-${name});`);

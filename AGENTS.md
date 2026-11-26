@@ -27,10 +27,19 @@ If anything here conflicts with a request, stop and ask your human before contin
 | `content`   | Apinan (66160107)  | `@shokun580`  | courses, exercises, patterns, Pattern Editor, training settings                                                      |
 | `engine`    | Supanat (66160239) | `@Pxrch`      | 3x3 grid component, playing patterns, two-finger input, timing, training/test modes, saving results                  |
 | `analytics` | Saruta (66160375)  | `@ptxsm`      | metrics, progress trend, performance level, charts, recommendations, admin dashboard                                 |
-| `infra`     | Apinan (team lead) | `@shokun580`  | CI/CD, config, dependencies, `src/shared`, root layouts, design tokens, this file                                    |
+| `infra`     | Apinan (team lead) | `@shokun580`  | CI/CD, config, dependencies, `src/shared`, root layouts, design tokens, the shared screens, this file                |
 
 Exact paths per lane: [`docs/ownership.md`](docs/ownership.md). GitHub enforces it through
 [`.github/CODEOWNERS`](.github/CODEOWNERS).
+
+**Shared screens belong to infra; every other lane works on its own screens only.** A
+screen that is not under one lane's routes is designed and built by infra (the team lead):
+the entry page `/`, the elderly home `/home`, the admin overview `/admin`, the 404 and
+error screens, and every layout, menu and tab bar. Do not build, restyle or rearrange one,
+even to show your own data on it. When a shared screen needs something from your lane (a
+value, a list, a component), infra asks for it in a cross-module request (§7); you export
+it from your module's entry point and infra places it on the screen. If you think a shared
+screen should change, open an `infra` issue.
 
 ## 2. Hard rules
 
@@ -59,6 +68,7 @@ One Next.js app (App Router, TypeScript, Server Components) + PostgreSQL through
 src/
   app/                 routes only — thin files that compose module UI
     (auth)/            login, sign-up                          → identity
+    (staff)/           staff sign-in (/admin/login)            → identity (layout: infra)
     (elder)/           elderly-facing screens                  → engine, analytics, booking, identity
     admin/             admin screens                           → each module's own subfolder
     api/               route handlers                          → /api/<module>/…
@@ -122,7 +132,11 @@ the server. Client-side checks are for convenience only.
 **TypeScript** — `strict` is on. No `any`, no non-null `!` on values you have not checked.
 
 **Naming** — code, identifiers, comments, commit messages, docs: **English**.
-User-facing text: **Thai**, polite and encouraging ("ไม่เป็นไรนะ ลองอีกครั้ง"), never blaming.
+User-facing text: **Thai**, semi-formal and respectful, never blaming: short, complete
+sentences that say what happened and what to do next. "กรุณา" marks a request (never on a
+button). No sentence-final particles ("นะ", "เลย", "ได้เลย", "ครับ", "ค่ะ") and no
+"ไม่เป็นไร". Example: "ยังไม่ถูกต้อง กรุณาลองอีกครั้ง". Full rule: `docs/design-system.md`
+section 10.
 
 **UI** — the design is closed: every screen is built from the design system and nothing
 else. Read [`docs/design-system.md`](docs/design-system.md) before building any screen, and
@@ -215,7 +229,8 @@ without a database.
 `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `next.config.ts`, `tsconfig.json`,
 `eslint.config.mjs`, `vitest.config.mts`, `prisma.config.ts`, `prisma/schema/_base.prisma`,
 `prisma/seed.ts` (outside your marked section), `src/app/layout.tsx`, `src/app/globals.css`,
-`src/app/page.tsx`, `src/app/(elder)/layout.tsx`, `src/app/admin/layout.tsx`,
+`src/app/page.tsx`, `src/app/(elder)/layout.tsx`, `src/app/(staff)/layout.tsx`,
+`src/app/admin/layout.tsx`,
 `src/app/admin/nav.tsx` (one-line menu entries excepted, see `docs/ownership.md`),
 `src/app/admin/template.tsx`, `src/app/(elder)/template.tsx`, `src/app/design/**`,
 `src/app/icon.svg`, `src/app/not-found.tsx`, `src/app/error.tsx`, `src/app/global-error.tsx`,

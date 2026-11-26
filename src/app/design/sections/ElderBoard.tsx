@@ -50,7 +50,6 @@ const legend: { state: CellState; word: string; token: string; glyph?: string }[
 
 const iconProp = {
   "aria-hidden": true,
-  strokeWidth: 1.9,
   className: "size-icon text-primary-press",
 } as const;
 
@@ -139,18 +138,12 @@ export function ElderBoard() {
           <Section first eyebrow="แบบฝึกวันนี้" title="จำลำดับ 3 ช่อง">
             <p className="mb-4 text-small text-fg-muted">คอร์สเริ่มต้น · ประมาณ 5 นาที</p>
             <Button href="#elder" fullWidth>
-              <Play aria-hidden="true" strokeWidth={1.9} className="size-icon shrink-0" />
+              <Play aria-hidden="true" className="size-icon shrink-0" />
               เริ่มฝึก
             </Button>
           </Section>
           <Section>
-            <Meter
-              label="สัปดาห์นี้"
-              value={3}
-              max={5}
-              segments
-              valueText="ฝึกแล้ว 3 จาก 5 วัน เก่งมากเลยนะ"
-            />
+            <Meter label="สัปดาห์นี้" value={3} max={5} segments valueText="ฝึกแล้ว 3 จาก 5 วัน" />
           </Section>
           <Section>
             <ListRow

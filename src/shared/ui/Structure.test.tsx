@@ -6,6 +6,26 @@ import { ListRow } from "./ListRow";
 import { Section } from "./Section";
 
 describe("ElderHeader", () => {
+  it("renders the back control as a button for a step kept in state", () => {
+    const out = html(<ElderHeader title="สมัครสมาชิก" onBack={() => {}} />);
+    expect(out).toMatch(/<button type="button"[^>]*>.*ย้อนกลับ<\/button>/);
+    expect(out).not.toContain("<a ");
+  });
+  it("gives the button and the link the same look", () => {
+    const classOf = (markup: string, tag: string) =>
+      markup.match(new RegExp(`<${tag} [^>]*class="([^"]*)"`))?.[1];
+    const link = html(<ElderHeader title="t" backHref="/home" />);
+    const button = html(<ElderHeader title="t" onBack={() => {}} />);
+    expect(classOf(button, "button")).toBe(classOf(link, "a"));
+  });
+  it("keeps the back control clear of the title under it", () => {
+    const out = html(<ElderHeader title="t" backHref="/home" />);
+    expect(out.match(/<a [^>]*class="([^"]*)"/)?.[1]).toContain("mb-3");
+  });
+  it("prefers the link when both are given, and shows no back control without either", () => {
+    expect(html(<ElderHeader title="t" backHref="/home" onBack={() => {}} />)).toContain("<a ");
+    expect(html(<ElderHeader title="t" />)).not.toContain("ย้อนกลับ");
+  });
   it("shows a back link with its text label", () => {
     const out = html(<ElderHeader title="คอร์ส" backHref="/home" />);
     expect(out).toContain("ย้อนกลับ");

@@ -3,6 +3,25 @@
 Short records of decisions that shape the code. Add a new entry at the top; do not rewrite
 old ones — supersede them.
 
+## 2026-11-27 — Sign-in screens: the entry chooser and the staff door (team lead)
+
+Decided while reviewing the mock-ups for issue #27. Supersedes "Staff sign in on their own
+page" in the 2026-11-26 entry below; everything else in that entry stands.
+
+**`/login` is a chooser.** The first screen a signed-out person sees offers two things: sign
+in or sign up. Each of the two flows then offers a way into the other. The phone and PIN
+steps therefore move to `/login/pin` (the address is infra's call, so that signed-out
+visitors keep landing on `/login` and sign-up can link straight to sign-in).
+
+**Staff sign in with a username and a password, on a screen with the admin look.** Not with
+a phone number, and not in the elderly look. The address is `/admin/login`. It is **not
+linked from `/login`**: staff open the address themselves. A staff account is created only
+from the menu inside the admin area; there is no sign-up for staff.
+
+**Still open (before issue #22 is built):** what a username may contain, whether case
+matters, how it stays unique among live accounts, and the `users` column that holds it.
+Issue #22 and `src/modules/identity/AGENTS.md` still describe a phone number and a password.
+
 ## 2026-11-26 — Sign-in, sign-up and abuse protection (team lead)
 
 **No SMS anywhere.** The system sends no SMS and no OTP. Why: no provider is free beyond a

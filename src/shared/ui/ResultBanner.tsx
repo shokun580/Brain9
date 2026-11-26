@@ -31,7 +31,7 @@ export function ResultBanner({ tone, title, detail, headingLevel }: ResultBanner
           tone === "success" ? "bg-success text-on-primary" : "bg-danger text-on-danger",
         )}
       >
-        <Icon aria-hidden="true" strokeWidth={2.4} className="size-8" />
+        <Icon aria-hidden="true" className="size-8" />
       </span>
       <div className="min-w-0">
         <Title className="text-title font-bold text-fg">{title}</Title>

@@ -1,9 +1,9 @@
 import { Play, RotateCcw } from "lucide-react";
-import { Button, DisplaySettings, ElderHeader } from "@/shared/ui";
+import { Button, DisplaySettings, ElderHeader, TextLink } from "@/shared/ui";
 import { ElderScope, SubHeading } from "../chrome";
 import { Example } from "../Example";
 
-const icon = { "aria-hidden": true, strokeWidth: 1.9, className: "size-icon shrink-0" } as const;
+const icon = { "aria-hidden": true, className: "size-icon shrink-0" } as const;
 
 export function ElderActions() {
   return (
@@ -13,7 +13,7 @@ export function ElderActions() {
       <Example
         title="ElderHeader"
         importLine='import { DisplaySettings, ElderHeader } from "@/shared/ui";'
-        note="ใช้ title อย่างเดียว หรือ greeting กับ name คู่กัน ตัวหัวข้อคือ h1 ของหน้า มีปุ่มย้อนกลับ (backHref) และปุ่มรูปแคปซูลได้หนึ่งปุ่ม (action) ซึ่งคือ DisplaySettings ปุ่มตั้งขนาดตัวอักษรและสีตัดกันสูง กดแล้วทุกตัวอย่างฝั่งผู้สูงอายุในหน้านี้เปลี่ยนตามจริง และจำค่าไว้ในเบราว์เซอร์นี้"
+        note="ใช้ title อย่างเดียว หรือ greeting กับ name คู่กัน ตัวหัวข้อคือ h1 ของหน้า มีปุ่มย้อนกลับ (backHref เมื่อย้อนไปอีกที่อยู่หนึ่ง หรือ onBack เมื่อขั้นก่อนหน้าเก็บอยู่ใน state ของ client component) ปุ่มย้อนกลับเว้นระยะจากหัวข้อด้านล่าง และปุ่มรูปแคปซูลได้หนึ่งปุ่ม (action) ซึ่งคือ DisplaySettings ปุ่มตั้งขนาดตัวอักษรและสีตัดกันสูง กดแล้วทุกตัวอย่างฝั่งผู้สูงอายุในหน้านี้เปลี่ยนตามจริง และจำค่าไว้ในเบราว์เซอร์นี้"
       >
         <ElderScope>
           <ElderHeader title="คอร์สของฉัน" backHref="#elder" action={<DisplaySettings />} />
@@ -32,7 +32,7 @@ export function ElderActions() {
           <div className="flex flex-wrap gap-3">
             <Button variant="primary">เริ่มฝึก</Button>
             <Button variant="secondary">ดูผลลัพธ์</Button>
-            <Button variant="quiet">ไว้ทีหลัง</Button>
+            <Button variant="quiet">ไว้ภายหลัง</Button>
             <Button variant="danger">ยกเลิกการจอง</Button>
           </div>
         </ElderScope>
@@ -77,6 +77,22 @@ export function ElderActions() {
             </Button>
           </div>
           <p className="mt-3 text-small text-fg-muted">ปุ่ม “ปิดใช้งาน” ยังกดไม่ได้ เพราะยังไม่ได้เลือกข้อมูล</p>
+        </ElderScope>
+      </Example>
+
+      <Example
+        title="TextLink"
+        importLine='import { TextLink } from "@/shared/ui";'
+        note="ทางไปอีกหน้าจอที่ต้องเบากว่าปุ่มของหน้า เช่น ลืมรหัส หรือทางจากหน้าเข้าสู่ระบบไปหน้าสมัครสมาชิก เป็นคำที่ขีดเส้นใต้เสมอ ไม่ใช้ไอคอนอย่างเดียว พื้นที่กดสูงเท่าปุ่มขนาดเล็ก ใส่ href เพื่อให้เป็นลิงก์ หรือ onClick (ใน client component) เพื่อให้เป็นปุ่ม ไม่ใช้แทน Button: การกระทำของหน้าจอยังเป็น Button"
+      >
+        <ElderScope>
+          <div className="flex flex-col items-start gap-2">
+            <TextLink href="#elder">ลืมรหัส</TextLink>
+            <div className="flex flex-wrap items-center gap-x-2">
+              <span className="text-body text-fg-2">ยังไม่มีบัญชี</span>
+              <TextLink href="#elder">สมัครสมาชิก</TextLink>
+            </div>
+          </div>
         </ElderScope>
       </Example>
     </>
