@@ -32,6 +32,13 @@ Lets elderly users without a device at home reserve a seat at a community center
 - Statuses: `BOOKED → CHECKED_IN → COMPLETED`, or `CANCELLED`, or `NO_SHOW`.
   Sources: `SELF`, `ADMIN`, `WALK_IN` (admin adds a walk-in when a seat is free).
 - Elderly users see only their own bookings. Admins see the day list for any center.
+- **Damage limit against fake accounts (team lead, 2026-11-26):** an account that has never
+  been checked in at a center may hold one upcoming ACTIVE booking at a time, across all
+  centers. Its first `CHECKED_IN` booking lifts the limit, because staff have then seen the
+  person. Refuse the second booking with `fail("CONFLICT", …)` and a friendly Thai message
+  that says to come to the first visit before booking the next. Keep the rule as a pure
+  function with unit tests. How many upcoming bookings a checked-in account may hold is
+  open question 11 in `docs/decisions.md`.
 
 ## Public API to provide (`index.ts`)
 
@@ -49,3 +56,26 @@ Lets elderly users without a device at home reserve a seat at a community center
 
 Slot generation from templates + exceptions (including time-zone handling), and the
 booking rules as pure functions.
+
+## Work map
+
+Every line becomes one GitHub issue with acceptance criteria; work on a line only through
+its issue. These are outlines: the issues are written at sprint planning, after identity's
+Phase A (`src/modules/identity/AGENTS.md`) and after open questions 5, 6 and 11 in
+`docs/decisions.md` are decided. Do not start a line from this list alone. BK-1 is pure
+logic and can start at any time.
+
+| Key  | What exists when it is done                                                                                                                                               | Needs             |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| BK-1 | Slot rules as pure functions: slots from a weekly template and its exceptions, in the center's time zone; the booking rules (one per slot, one per day, the damage limit) | —                 |
+| BK-2 | Admin schedule: the weekly template of a center (list, add, edit, switch off)                                                                                             | ID-1              |
+| BK-3 | Admin schedule exceptions: a closure, or a day with a different capacity                                                                                                  | BK-2              |
+| BK-4 | Slots are generated ahead from the template (how far: open question 5)                                                                                                    | BK-1, BK-2, infra |
+| BK-5 | `listAvailableSlots()` and the elderly booking screen: choose a slot and book it                                                                                          | BK-4, ID-3        |
+| BK-6 | Elderly "my bookings": see them and cancel one                                                                                                                            | BK-5              |
+| BK-7 | Admin day list of a center: who is coming, add a walk-in, cancel, mark a no-show                                                                                          | BK-5              |
+| BK-8 | `getActiveBookingForNow()` and `checkInBooking()` for identity's kiosk mode (ID-16), agreed in a cross-module issue; a checked-in booking becomes `COMPLETED` at slot end | BK-5              |
+
+BK-4 needs something that runs on a schedule; that is an `infra` issue (`vercel.json` is a
+hot file). The booking screens need recipes the design system may not have yet: check
+`docs/design-system.md` first and open an `infra` issue for what is missing.

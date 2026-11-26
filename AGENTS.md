@@ -274,7 +274,9 @@ Training results linked to a person may count as health-related sensitive data.
 - Collect only the fields the schema already defines. A new personal field needs the lead's
   approval and an update to the privacy notice.
 - Never log, return to the browser, or expose in an error message: PINs, passwords,
-  credential hashes, session or device tokens, full phone numbers.
+  credential hashes, session or device tokens, full phone numbers. The one exception: an
+  admin screen may show an ADMIN the full phone number of a person staff have to call, when
+  its issue says so, and that read is audited.
 - Only ADMIN may read another person's data, and every such read or change calls
   `recordAudit()`.
 - Consent is a ledger: granting and withdrawing each insert a row in `user_consents`.
