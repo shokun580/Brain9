@@ -73,7 +73,7 @@ export function ElderLayoutParts() {
       <Example
         title="TabBarView"
         importLine='import { TabBarView } from "@/shared/ui";'
-        note="แถบเมนูล่าง 4 เมนู ตัวจริง (TabBar) อยู่ใน layout ของฝั่งผู้สูงอายุ และติดอยู่ล่างจอ ที่นี่แสดงในแนวไหลปกติ โดยให้หน้าหลักเป็นเมนูปัจจุบัน"
+        note="แถบเมนูล่างแบบลอย 4 เมนู เมนูปัจจุบันเป็นบล็อกสีอ่อนทั้งช่อง ตัวจริง (TabBar) อยู่ใน layout ของฝั่งผู้สูงอายุ และติดอยู่ล่างจอ ที่นี่แสดงในแนวไหลปกติ โดยให้หน้าหลักเป็นเมนูปัจจุบัน"
       >
         <ElderScope>
           <div className="[&>nav]:static">

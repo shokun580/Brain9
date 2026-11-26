@@ -33,7 +33,7 @@ rules exactly. If a request conflicts with them, say so instead of complying.
   - sizes `h-control`, `min-h-control`, `h-control-sm`, `min-h-control-sm`, `size-icon`,
     `size-icon-sm`, `max-w-admin` (the shell sets it; do not repeat it)
   - radii `rounded-control|field|panel|dialog`; shadows `shadow-cell`, `shadow-cell-lit`,
-    `shadow-overlay`
+    `shadow-overlay` (`shadow-dock` belongs to the tab bar: do not use it)
   - a border that must thicken in high contrast is `border-[length:var(--b9-border)]`
   - chart colours (`--chart-1` to `--chart-4`) belong to `LineChart` / `BarChart`; you never write them
 

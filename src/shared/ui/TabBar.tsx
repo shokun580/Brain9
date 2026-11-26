@@ -16,10 +16,15 @@ export type TabBarProps = {
 };
 
 /**
- * Bottom navigation of the elderly screens. It sits in the document flow with
- * `position: sticky; bottom: 0` at the end of a `min-h-dvh` flex column, so it stays at the
- * bottom of the viewport yet always takes its real height: at the largest text size the labels
- * wrap inside equal-width columns and the bar grows, never clipping and never covering content.
+ * Bottom navigation of the elderly screens: a floating bar, rounded and raised, whose current
+ * tab is a soft block covering the whole tab (never colour alone).
+ *
+ * The strip around the bar sits in the document flow with `position: sticky; bottom: 0` at the
+ * end of a `min-h-dvh` flex column, so it stays at the bottom of the viewport yet always takes
+ * its real height: at the largest text size the labels wrap inside equal-width columns and the
+ * bar grows and never clips. The strip has no background and lets taps through, so the page
+ * shows and stays usable around the bar while it scrolls behind it; because the strip is in
+ * the flow, the end of the page always comes to rest above the bar, never under it.
  */
 export function TabBar(props: TabBarProps) {
   // `null` outside a router (and while a dynamic route is unresolved): show the bar, no active tab.
@@ -36,39 +41,34 @@ export function TabBarView({ items, pathname, hideOn = [] }: TabBarViewProps) {
     <nav
       aria-label="เมนูหลัก"
       // Named so the bar stays put while the page area fades (see globals.css).
-      style={{
-        gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))`,
-        viewTransitionName: "elder-tabbar",
-      }}
-      className="sticky bottom-0 z-10 grid border-t-[length:var(--b9-border)] border-line bg-surface px-1.5 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      style={{ viewTransitionName: "elder-tabbar" }}
+      className="pointer-events-none sticky bottom-0 z-10 px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
     >
-      {items.map((item) => {
-        const active = pathname !== null && isActivePath(pathname, item.href);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            transitionTypes={[NAV_TYPES.tab]}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "flex min-h-12 min-w-0 flex-col items-center gap-1 rounded-control px-0.5 text-center text-micro leading-tight font-bold [overflow-wrap:anywhere]",
-              active ? "text-primary" : "text-fg-2",
-            )}
-          >
-            <span
+      <div
+        style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
+        className="pointer-events-auto grid gap-0.5 rounded-panel border-[length:var(--b9-border)] border-line-strong bg-surface p-2 shadow-dock"
+      >
+        {items.map((item) => {
+          const active = pathname !== null && isActivePath(pathname, item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              transitionTypes={[NAV_TYPES.tab]}
+              aria-current={active ? "page" : undefined}
               className={cn(
-                "grid h-9 w-16 shrink-0 place-items-center rounded-full",
-                active ? "bg-primary-soft text-primary-press" : "",
+                "flex min-h-12 min-w-0 flex-col items-center gap-0.5 rounded-control pt-2 pb-2.5 text-center text-micro leading-tight font-bold [overflow-wrap:anywhere]",
+                active ? "bg-primary-soft text-primary-press" : "text-fg-2",
               )}
             >
-              <span aria-hidden="true" className="grid size-icon place-items-center">
-                {item.icon}
+              <span aria-hidden="true" className="grid h-8 shrink-0 place-items-center">
+                <span className="grid size-icon place-items-center">{item.icon}</span>
               </span>
-            </span>
-            {item.label}
-          </Link>
-        );
-      })}
+              {item.label}
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }
