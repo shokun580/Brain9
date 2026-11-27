@@ -8,14 +8,16 @@ All Server Actions return `ActionResult<T>` from `@/shared/lib/action-result`.
 
 ## identity → everyone
 
-| Export                                           | Status        | Used for                                                         |
-| ------------------------------------------------ | ------------- | ---------------------------------------------------------------- |
-| `getCurrentUser(): Promise<CurrentUser \| null>` | ✅ (dev stub) | Authorize every query and action                                 |
-| `requireUser()`, `requireAdmin()`                | ✅            | Pages that need a signed-in user / admin                         |
-| `recordAudit(entry)`                             | ✅            | Admin changes, access to other people's data                     |
-| `CurrentUser` type                               | ✅            | `{ id, role, firstName, lastName, context, centerId, deviceId }` |
-| `hasActiveConsent(userId, purpose)`              | planned       | analytics skips users who withdrew `COGNITIVE_DATA`              |
-| `getUserDisplay(userIds)`                        | planned       | Names for admin lists in other modules (audited)                 |
+| Export                                           | Status        | Used for                                                             |
+| ------------------------------------------------ | ------------- | -------------------------------------------------------------------- |
+| `getCurrentUser(): Promise<CurrentUser \| null>` | ✅ (dev stub) | Authorize every query and action                                     |
+| `requireUser()`, `requireAdmin()`                | ✅            | Pages that need a signed-in user / admin                             |
+| `recordAudit(entry)`                             | ✅            | Admin changes, access to other people's data                         |
+| `CurrentUser` type                               | ✅            | `{ id, role, firstName, lastName, context, centerId, deviceId }`     |
+| `hasActiveConsent(userId, purpose)`              | planned       | analytics skips users who withdrew `COGNITIVE_DATA`                  |
+| `getUserDisplay(userIds)`                        | planned       | Names for admin lists in other modules (audited)                     |
+| `getDisplayPrefs()`                              | planned (#50) | The signed-in person's own text size and contrast; `null` signed out |
+| `saveDisplayPrefsAction(prefs)`                  | planned (#50) | Saves the signed-in person's own text size and contrast              |
 
 ## booking → identity, engine
 

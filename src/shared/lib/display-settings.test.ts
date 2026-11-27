@@ -1,14 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
   applyDisplayPrefs,
+  clearDisplayPrefs,
   DEFAULT_DISPLAY_PREFS,
   DISPLAY_PREFS_KEY,
+  DISPLAY_PREFS_RESET_SCRIPT,
   DISPLAY_PREFS_SCRIPT,
   loadDisplayPrefs,
+  resetDisplayPrefs,
   saveDisplayPrefs,
   parseDisplayPrefs,
   readAppliedDisplayPrefs,
   serializeDisplayPrefs,
+  syncDisplayPrefs,
+  toDisplayPrefs,
 } from "./display-settings";
 
 const defaults = { size: 1, contrast: "normal" };
@@ -183,5 +188,138 @@ describe("saveDisplayPrefs", () => {
         { size: 2, contrast: "high" },
       ),
     ).toBe(false);
+  });
+});
+
+describe("toDisplayPrefs", () => {
+  it("normalises an unknown value field by field", () => {
+    expect(toDisplayPrefs(undefined)).toEqual(defaults);
+    expect(toDisplayPrefs("high")).toEqual(defaults);
+    expect(toDisplayPrefs([3, "high"])).toEqual(defaults);
+    expect(toDisplayPrefs({ size: 3, contrast: "x" })).toEqual({ size: 3, contrast: "normal" });
+    expect(toDisplayPrefs({ size: 2, contrast: "high", extra: 1 })).toEqual({
+      size: 2,
+      contrast: "high",
+    });
+  });
+});
+
+/** A fake localStorage holding one value; `blocked` makes every call throw. */
+function fakeStorage(initial: string | null, blocked = false) {
+  const state = { value: initial };
+  const guard = () => {
+    if (blocked) throw new Error("blocked");
+  };
+  return {
+    state,
+    getItem(key: string): string | null {
+      guard();
+      return key === DISPLAY_PREFS_KEY ? state.value : null;
+    },
+    setItem(key: string, value: string): void {
+      guard();
+      if (key === DISPLAY_PREFS_KEY) state.value = value;
+    },
+    removeItem(key: string): void {
+      guard();
+      if (key === DISPLAY_PREFS_KEY) state.value = null;
+    },
+  };
+}
+
+describe("clearDisplayPrefs", () => {
+  it("removes the stored value and returns true", () => {
+    const storage = fakeStorage('{"size":3,"contrast":"high"}');
+    expect(clearDisplayPrefs(storage)).toBe(true);
+    expect(storage.state.value).toBeNull();
+  });
+  it("returns false without throwing when storage is missing or blocked", () => {
+    expect(clearDisplayPrefs(undefined)).toBe(false);
+    expect(clearDisplayPrefs(fakeStorage("x", true))).toBe(false);
+  });
+});
+
+describe("syncDisplayPrefs (signed in: the account's value reaches the device)", () => {
+  it("applies the account's value over what the device holds, and stores it", () => {
+    const root = { dataset: { size: "3", contrast: "high" } as DOMStringMap };
+    const storage = fakeStorage('{"size":3,"contrast":"high"}');
+    syncDisplayPrefs({ size: 2, contrast: "normal" }, root, storage);
+    expect(root.dataset).toEqual({ size: "2" });
+    expect(parseDisplayPrefs(storage.state.value)).toEqual({ size: 2, contrast: "normal" });
+  });
+  it("gives an account at the default a device at the default", () => {
+    const root = { dataset: { size: "3", contrast: "high" } as DOMStringMap };
+    const storage = fakeStorage('{"size":3,"contrast":"high"}');
+    syncDisplayPrefs({ size: 1, contrast: "normal" }, root, storage);
+    expect(root.dataset).toEqual({});
+    expect(parseDisplayPrefs(storage.state.value)).toEqual(defaults);
+  });
+  it("still applies to the page when storage is missing or blocked", () => {
+    for (const storage of [undefined, fakeStorage(null, true)]) {
+      const root = { dataset: {} as DOMStringMap };
+      syncDisplayPrefs({ size: 3, contrast: "high" }, root, storage);
+      expect(root.dataset).toEqual({ size: "3", contrast: "high" });
+    }
+  });
+});
+
+describe("resetDisplayPrefs (signed out: the device is back at the default)", () => {
+  it("removes the attributes and the stored value", () => {
+    const root = { dataset: { size: "3", contrast: "high" } as DOMStringMap };
+    const storage = fakeStorage('{"size":3,"contrast":"high"}');
+    resetDisplayPrefs(root, storage);
+    expect(root.dataset).toEqual({});
+    expect(storage.state.value).toBeNull();
+  });
+  it("still resets the page when storage is missing or blocked", () => {
+    for (const storage of [undefined, fakeStorage("x", true)]) {
+      const root = { dataset: { size: "2", contrast: "high" } as DOMStringMap };
+      resetDisplayPrefs(root, storage);
+      expect(root.dataset).toEqual({});
+    }
+  });
+});
+
+describe("DISPLAY_PREFS_RESET_SCRIPT", () => {
+  function runReset(root: { dataset: DOMStringMap }, storage: ReturnType<typeof fakeStorage>) {
+    new Function("document", "localStorage", DISPLAY_PREFS_RESET_SCRIPT)(
+      { documentElement: root },
+      storage,
+    );
+  }
+  it("names the storage key, written out because nothing is interpolated into code", () => {
+    expect(DISPLAY_PREFS_RESET_SCRIPT).toContain(
+      `localStorage.removeItem(${JSON.stringify(DISPLAY_PREFS_KEY)})`,
+    );
+  });
+  it("leaves the page and the storage exactly as resetDisplayPrefs does", () => {
+    for (const blocked of [false, true]) {
+      const viaScript = { dataset: { size: "3", contrast: "high" } as DOMStringMap };
+      const scriptStorage = fakeStorage('{"size":3,"contrast":"high"}', blocked);
+      runReset(viaScript, scriptStorage);
+
+      const viaFunction = { dataset: { size: "3", contrast: "high" } as DOMStringMap };
+      const functionStorage = fakeStorage('{"size":3,"contrast":"high"}', blocked);
+      resetDisplayPrefs(viaFunction, functionStorage);
+
+      expect(viaScript.dataset).toEqual(viaFunction.dataset);
+      expect(viaScript.dataset).toEqual({});
+      expect(scriptStorage.state.value).toEqual(functionStorage.state.value);
+    }
+  });
+  it("undoes the apply script whichever of the two runs first", () => {
+    const stored = '{"size":3,"contrast":"high"}';
+    for (const order of [
+      [DISPLAY_PREFS_SCRIPT, DISPLAY_PREFS_RESET_SCRIPT],
+      [DISPLAY_PREFS_RESET_SCRIPT, DISPLAY_PREFS_SCRIPT],
+    ]) {
+      const root = { dataset: {} as DOMStringMap };
+      const storage = fakeStorage(stored);
+      for (const script of order) {
+        new Function("document", "localStorage", script)({ documentElement: root }, storage);
+      }
+      expect(root.dataset).toEqual({});
+      expect(storage.state.value).toBeNull();
+    }
   });
 });

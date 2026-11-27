@@ -18,6 +18,17 @@ describe("DisplaySettings", () => {
   });
 });
 
+describe("DisplaySettings with saveAction", () => {
+  it("looks the same until a save fails: no message and no retry button", () => {
+    const withSave = html(
+      <DisplaySettings saveAction={async (prefs) => ({ ok: true, data: prefs })} />,
+    );
+    expect(withSave).not.toContain("ยังบันทึกการตั้งค่าไม่ได้");
+    expect(withSave).not.toContain("ลองอีกครั้ง");
+    expect(withSave).not.toContain('role="alert"');
+  });
+});
+
 describe("DisplaySettings dialog sizing", () => {
   it("caps the dialog to the viewport and scrolls inside", () => {
     const out = html(<DisplaySettings />);

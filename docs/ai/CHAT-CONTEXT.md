@@ -469,7 +469,7 @@ Forms
 - `SegmentedControl` — admin, 2–3 options; `name`, `legend`, `defaultValue`, `options: {value,label,icon?}[]`, `onValueChange`
 - `PinPad` — elder, client; `label?`, `hint?` (which PIN to enter), `length` (4|6), `filled`, `onDigit`, `onDelete`, `disabled`
 - `PhonePad` — elder, client; `label`, `value` (digits), `onChange`, `name?` (hidden field), `hint`, `error`, `disabled`; shows `080-000-0000`, does not validate
-- `DisplaySettings` — elder, client; `triggerLabel`; put it in `ElderHeader`'s `action`
+- `DisplaySettings` — elder, client; `triggerLabel`, `saveAction?` (a Server Action that saves the choice to the signed-in person's account); put it in `ElderHeader`'s `action`. Text size and contrast belong to the person: the layouts apply the account's value on signed-in screens and reset the device to the default on the screens before sign-in. Never read or write `localStorage` for it yourself
 
 Feedback
 
