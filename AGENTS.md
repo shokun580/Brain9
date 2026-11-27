@@ -242,7 +242,7 @@ without a database.
 `src/app/admin/nav.tsx` (one-line menu entries excepted, see `docs/ownership.md`),
 `src/app/admin/template.tsx`, `src/app/(elder)/template.tsx`, `src/app/design/**`,
 `src/app/icon.svg`, `src/app/not-found.tsx`, `src/app/error.tsx`, `src/app/global-error.tsx`,
-`src/app/_system/**`, `src/shared/**`,
+`src/app/_system/**`, `src/app/_display/**`, `src/shared/**`,
 `.github/**`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `SECURITY.md`, `docs/**` (except your
 module's docs),
 `.env.example`, `vercel.json`.

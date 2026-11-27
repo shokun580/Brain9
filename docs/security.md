@@ -99,7 +99,9 @@ passing lint does not prove the others.
 9. Nothing personal goes in a URL: no name, phone number or birth date in a path or a query
    string. Use the row's id.
 10. Nothing personal or secret goes in `localStorage` or `sessionStorage`. The browser
-    stores display preferences only.
+    stores one thing: a copy of the signed-in person's text size and contrast
+    (`brain9.display`), so a reload paints it at once. The screens before sign-in remove
+    it, so it never outlives the session on a shared device.
 11. Collect only the fields the schema defines.
 
 **Browser**

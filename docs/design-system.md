@@ -32,6 +32,14 @@ A lane never sets `data-ui` itself.
 | `elder` | `(auth)` and `(elder)` layouts | 20px      | 64px (sm: 48px) | 48px           | 17.5px    | apply (set on `<html>`)       |
 | `admin` | `AdminShell`, `StaffAuthShell` | 14.5px    | 36px (sm: 30px) | 30px           | 12.5px    | ignored                       |
 
+**Text size and contrast belong to the person.** The account holds the choice
+(`DisplaySettings` saves it); the browser keeps a copy in `localStorage` only so a reload
+paints it before the first frame. The `(elder)` layout applies the account's value when a
+signed-in screen opens, and the account always wins over what the device holds. The
+`(auth)` layout removes the copy: the screens before sign-in always show the default, so
+the next person on a shared tablet never inherits the last person's settings. A lane does
+none of this itself and never reads or writes `brain9.display`.
+
 **Devices.** The elderly side must work well on every device: a small phone, a tablet and a
 computer, by touch and with a mouse and keyboard; its content sits in one column of at most
 640px, centred on a wider screen. The admin side is built for an iPad and a computer; a
@@ -143,7 +151,7 @@ meant to be used; shared ones adapt to the scope they sit in.
 | `SegmentedControl` | compact single choice (2–3 options)                | admin | `name`, `legend`, `defaultValue`, `options`, `onValueChange`                                                     |
 | `PinPad`           | PIN entry                                          | elder | `label`, `hint`, `length` (4 or 6), `filled`, `onDigit`, `onDelete`, `disabled`                                  |
 | `PhonePad`         | phone number entry, no keyboard                    | elder | `label`, `value`, `onChange`, `name` (adds a hidden field), `hint`, `error`, `disabled`                          |
-| `DisplaySettings`  | text size and high-contrast dialog                 | elder | `triggerLabel`; place it in `ElderHeader`'s `action`                                                             |
+| `DisplaySettings`  | text size and high-contrast dialog                 | elder | `triggerLabel`, `saveAction` (saves to the person's account); place it in `ElderHeader`'s `action`               |
 
 Field errors come from `ActionResult.fieldErrors`: pass `errors={fieldErrors?.title}`.
 `ChoiceList` takes 2 to 6 options and `SegmentedControl` 2 or 3; a question with more than

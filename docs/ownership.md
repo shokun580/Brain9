@@ -30,7 +30,7 @@ Changing these affects everyone, so only the lead changes them, on request:
   `src/app/admin/page.tsx`,
   `src/app/admin/template.tsx`, `src/app/(elder)/template.tsx`, `src/app/design/**`,
   `src/app/icon.svg`, `src/app/not-found.tsx`, `src/app/error.tsx`,
-  `src/app/global-error.tsx`, `src/app/_system/**`
+  `src/app/global-error.tsx`, `src/app/_system/**`, `src/app/_display/**`
 - Database base: `prisma/schema/_base.prisma`, `prisma/seed.ts`
 - Automation and rules: `.github/**`, `scripts/**`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`,
   `docs/**`

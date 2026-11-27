@@ -3,6 +3,37 @@
 Short records of decisions that shape the code. Add a new entry at the top; do not rewrite
 old ones — supersede them.
 
+## 2026-11-27 — Text size and contrast belong to the person (team lead)
+
+Until now the two display settings were remembered per device, in `localStorage` only. On a
+shared tablet the next person inherited the last person's settings, and the same person on
+another device started from the default.
+
+**Where the value lives.** Two columns on `users` (`display_size` 1 to 3,
+`display_high_contrast`), owned by identity, `NOT NULL` with defaults. Not a table of its
+own: one value per person, and erasure overwrites the same row. Identity exports
+`getDisplayPrefs()` and `saveDisplayPrefsAction()` (#50); infra's screens call them (#49).
+
+**Signed out means the default, on every device.** After sign-out, after a session expires
+and on the screens before sign-in, the device shows the default. The layout of those
+screens removes the device's copy, so every way a session ends is covered in one place.
+This holds on a personal phone too: the person's value returns when they sign in.
+
+**The account always wins.** When a signed-in screen opens, the account's value replaces
+whatever the device holds. An account that never chose has the default.
+
+**The browser keeps a copy.** `localStorage` (`brain9.display`) stays, as a copy of the
+signed-in person's value, so the inline script can set `<html>` before the first paint. No
+new cookie. The first screen after sign-in may paint once at the default before the value
+arrives; a browser that blocks storage gets the value just after each load.
+
+**Privacy.** High contrast may hint at a person's eyesight, so this is a new personal field
+(`AGENTS.md` §10), approved here. The privacy notice, still to be written (open question
+2), must list "the text size and contrast the person chose". A person changing their own
+setting writes no audit row, and no ADMIN screen reads the value.
+
+Design: `docs/superpowers/specs/2026-11-27-display-prefs-per-person-design.md`.
+
 ## 2026-11-27 — A center device is paired with a QR code (team lead)
 
 Supersedes "the login page has a 'ตั้งเป็นเครื่องที่ศูนย์' entry" in the foundation notes:
@@ -202,16 +233,16 @@ Prisma stays on 7.x while 8 is a release candidate.
 
 ## Open questions
 
-| #   | Question                                                                   | Owner                         |
-| --- | -------------------------------------------------------------------------- | ----------------------------- |
-| 1   | Real thresholds for Performance Levels 1–4                                 | analytics + Requirement Owner |
-| 2   | Final text of the privacy notice and terms of use                          | identity                      |
-| 3   | ~~PIN length and lockout policy~~ — decided 2026-11-26 (see above)         | identity                      |
-| 4   | Idle timeout on center devices                                             | identity                      |
-| 5   | How far ahead time slots are generated and bookable                        | booking                       |
-| 6   | Is "one booking per day" per center or across all centers (currently: all) | booking                       |
-| 7   | Meaning of difficulty levels 1–5 in terms of sequence length and timing    | content                       |
-| 8   | Data retention period for results of inactive accounts                     | lead                          |
-| 9   | On erasure, also clear IP / user agent on the person's `auth_sessions`?    | lead + identity               |
-| 10  | On erasure, keep a coarse birth year / gender for statistics? (now: no)    | lead + analytics              |
-| 11  | How many upcoming bookings a checked-in account may hold at once           | booking                       |
+| #   | Question                                                                                  | Owner                         |
+| --- | ----------------------------------------------------------------------------------------- | ----------------------------- |
+| 1   | Real thresholds for Performance Levels 1–4                                                | analytics + Requirement Owner |
+| 2   | Final text of the privacy notice and terms of use (must list text size and contrast, #50) | identity                      |
+| 3   | ~~PIN length and lockout policy~~ — decided 2026-11-26 (see above)                        | identity                      |
+| 4   | Idle timeout on center devices                                                            | identity                      |
+| 5   | How far ahead time slots are generated and bookable                                       | booking                       |
+| 6   | Is "one booking per day" per center or across all centers (currently: all)                | booking                       |
+| 7   | Meaning of difficulty levels 1–5 in terms of sequence length and timing                   | content                       |
+| 8   | Data retention period for results of inactive accounts                                    | lead                          |
+| 9   | On erasure, also clear IP / user agent on the person's `auth_sessions`?                   | lead + identity               |
+| 10  | On erasure, keep a coarse birth year / gender for statistics? (now: no)                   | lead + analytics              |
+| 11  | How many upcoming bookings a checked-in account may hold at once                          | booking                       |

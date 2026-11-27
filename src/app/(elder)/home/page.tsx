@@ -1,5 +1,6 @@
 import { CalendarDays, ChartNoAxesColumn, Play, UserRound } from "lucide-react";
 import { Badge, Button, DisplaySettings, ElderHeader, ListRow, Meter, Section } from "@/shared/ui";
+import { saveDisplayPrefsAction } from "../../_display/account-display-prefs";
 
 export const metadata = { title: "หน้าหลัก" };
 
@@ -13,7 +14,11 @@ export default function Page() {
   return (
     <>
       {/* TODO(identity): greeting by time of day and the signed-in person's name. */}
-      <ElderHeader greeting="สวัสดีตอนเช้า" name="คุณตัวอย่าง" action={<DisplaySettings />} />
+      <ElderHeader
+        greeting="สวัสดีตอนเช้า"
+        name="คุณตัวอย่าง"
+        action={<DisplaySettings saveAction={saveDisplayPrefsAction} />}
+      />
 
       <Section first eyebrow="แบบฝึกวันนี้" title="จำลำดับ 3 ช่อง">
         {/* TODO(engine): today's exercise title, its course and the estimated time. */}
